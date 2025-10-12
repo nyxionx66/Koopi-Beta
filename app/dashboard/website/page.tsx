@@ -26,6 +26,8 @@ export default function WebsitePage() {
   const [sectionOrder, setSectionOrder] = useState(['hero', 'about']);
   const [templateId, setTemplateId] = useState('classic');
   const [installingTemplate, setInstallingTemplate] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [initialState, setInitialState] = useState<any>(null);
   
   const [websiteEnabled, setWebsiteEnabled] = useState(false);
   const [logoUrl, setLogoUrl] = useState('');
@@ -110,6 +112,29 @@ export default function WebsitePage() {
         }
         
         setTemplateId(website.templateId || 'classic');
+       const websiteData = storeData.website || {};
+       const fetchedState = {
+         websiteEnabled: websiteData.enabled || false,
+         logoUrl: websiteData.logo || '',
+         heroTitle: websiteData.hero?.title || `Welcome to ${storeData.storeName}`,
+         heroSubtitle: websiteData.hero?.subtitle || storeData.storeDescription || 'Discover amazing products',
+         heroCtaText: websiteData.hero?.ctaText || 'Shop Now',
+         heroBackgroundImage: websiteData.hero?.backgroundImage || '',
+         heroAlignment: websiteData.hero?.alignment || 'left',
+         primaryColor: websiteData.theme?.primaryColor || '#000000',
+         accentColor: websiteData.theme?.accentColor || '#000000',
+         backgroundColor: websiteData.theme?.backgroundColor || '#ffffff',
+         textColor: websiteData.theme?.textColor || '#000000',
+         fontFamily: websiteData.theme?.fontFamily || 'inter',
+         showAbout: websiteData.about?.show !== false,
+         aboutTitle: websiteData.about?.title || `About ${storeData.storeName}`,
+         aboutContent: websiteData.about?.content || storeData.storeDescription || '',
+         footerText: websiteData.footer?.text || '',
+         showPoweredBy: websiteData.footer?.showPoweredBy !== false,
+         sectionOrder: websiteData.sectionOrder && Array.isArray(websiteData.sectionOrder) ? websiteData.sectionOrder : ['hero', 'about'],
+         templateId: websiteData.templateId || 'classic',
+       };
+       setInitialState(fetchedState);
       }
       
       setLoading(false);
@@ -119,6 +144,60 @@ export default function WebsitePage() {
       setLoading(false);
     }
   };
+
+  // Check for unsaved changes
+  useEffect(() => {
+    if (!initialState) return;
+
+    const currentState = {
+      websiteEnabled,
+      logoUrl,
+      heroTitle,
+      heroSubtitle,
+      heroCtaText,
+      heroBackgroundImage,
+      heroAlignment,
+      primaryColor,
+      accentColor,
+      backgroundColor,
+      textColor,
+      fontFamily,
+      showAbout,
+      aboutTitle,
+      aboutContent,
+      footerText,
+      showPoweredBy,
+      sectionOrder,
+      templateId,
+    };
+
+    if (JSON.stringify(initialState) !== JSON.stringify(currentState)) {
+      setIsDirty(true);
+    } else {
+      setIsDirty(false);
+    }
+  }, [
+    websiteEnabled, logoUrl, heroTitle, heroSubtitle, heroCtaText, heroBackgroundImage,
+    heroAlignment, primaryColor, accentColor, backgroundColor, textColor, fontFamily,
+    showAbout, aboutTitle, aboutContent, footerText, showPoweredBy, sectionOrder,
+    templateId, initialState
+  ]);
+
+  // Prompt user before leaving page with unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = ''; // For Chrome
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isDirty]);
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -180,6 +259,28 @@ export default function WebsitePage() {
         hasCustomizedStore: true
       });
 
+      const currentState = {
+        websiteEnabled,
+        logoUrl,
+        heroTitle,
+        heroSubtitle,
+        heroCtaText,
+        heroBackgroundImage,
+        heroAlignment,
+        primaryColor,
+        accentColor,
+        backgroundColor,
+        textColor,
+        fontFamily,
+        showAbout,
+        aboutTitle,
+        aboutContent,
+        footerText,
+        showPoweredBy,
+        sectionOrder,
+        templateId,
+      };
+      setInitialState(currentState);
       success('Website settings saved successfully!');
     } catch (err) {
       console.error('Error saving website settings:', err);

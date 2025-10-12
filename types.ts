@@ -1,29 +1,48 @@
 export type Product = {
   id: string;
   name: string;
+  title?: string;
   price: number;
   compareAtPrice?: number;
   description: string;
   status: string;
   images?: string[];
+  imageUrls?: string[];
+  mediaUrls?: string[];
   type?: string;
   vendor?: string;
   category?: string;
   tags?: string[];
   inventory?: number;
+  quantity?: number;
   rating?: number;
+  averageRating?: number;
+  reviewCount?: number;
   variants?: {
     name: string;
     options: string[];
   }[];
-  reviews?: {
-    id: string;
-    author: string;
-    rating: number;
-    comment: string;
-    createdAt: any;
-  }[];
   relatedProducts?: string[];
+  storeId?: string;
+  userId?: string;
+  createdAt?: any;
+  updatedAt?: any;
+};
+
+export type Review = {
+  id: string;
+  productId: string;
+  storeId: string;
+  buyerId?: string;
+  buyerEmail: string;
+  buyerName: string;
+  rating: number;
+  comment: string;
+  helpful: number;
+  verified: boolean;
+  verifiedPurchase?: boolean; // True if buyer purchased and received the product
+  createdAt: any;
+  updatedAt?: any;
 };
 
 export type Theme = {
@@ -68,10 +87,9 @@ export type Order = {
   orderNumber: string;
   status: string;
   storeName: string;
-  storeId?: string;
-  buyerId?: string;
+  storeId: string;
+  buyerId: string;
   buyerEmail: string;
-  isGuest: boolean;
   shippingAddress: {
     name: string;
     phone: string;

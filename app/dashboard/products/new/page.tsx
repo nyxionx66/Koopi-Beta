@@ -44,7 +44,9 @@ const AddProductPage = () => {
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   
   // Celebration state
   const [showCelebration, setShowCelebration] = useState(false);
@@ -130,7 +132,16 @@ const AddProductPage = () => {
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    processFiles(files);
+  };
+
+  const processFiles = (files: File[]) => {
     const imageFiles = files.filter(file => file.type.startsWith('image/'));
+    const nonImageFiles = files.filter(file => !file.type.startsWith('image/'));
+
+    if (nonImageFiles.length > 0) {
+      alert(`Only image files are accepted. The following files were ignored: ${nonImageFiles.map(f => f.name).join(', ')}`);
+    }
     
     if (imageFiles.length > 0) {
       setMediaFiles(prev => [...prev, ...imageFiles]);
@@ -145,6 +156,23 @@ const AddProductPage = () => {
     }
   };
 
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = Array.from(e.dataTransfer.files);
+    processFiles(files);
+  };
+
   const removeMedia = (index: number) => {
     setMediaFiles(prev => prev.filter((_, i) => i !== index));
     setMediaPreviews(prev => prev.filter((_, i) => i !== index));
@@ -153,13 +181,26 @@ const AddProductPage = () => {
   const uploadMedia = async (): Promise<string[]> => {
     if (mediaFiles.length === 0) return [];
     
-    const uploadPromises = mediaFiles.map(async (file) => {
-      const storageRef = ref(storage, `products/${user?.uid}/${Date.now()}_${file.name}`);
-      await uploadBytes(storageRef, file);
-      return getDownloadURL(storageRef);
-    });
+    const uploadedUrls: string[] = [];
+    const totalFiles = mediaFiles.length;
     
-    return Promise.all(uploadPromises);
+    for (let i = 0; i < mediaFiles.length; i++) {
+      const file = mediaFiles[i];
+      try {
+        const storageRef = ref(storage, `products/${user?.uid}/${Date.now()}_${file.name}`);
+        const snapshot = await uploadBytes(storageRef, file);
+        const url = await getDownloadURL(snapshot.ref);
+        uploadedUrls.push(url);
+        
+        // Update progress
+        setUploadProgress(Math.round(((i + 1) / totalFiles) * 100));
+      } catch (error) {
+        console.error(`Error uploading file ${file.name}:`, error);
+        throw new Error(`Failed to upload ${file.name}. Please check CORS configuration.`);
+      }
+    }
+    
+    return uploadedUrls;
   };
 
   const handleNext = () => {
@@ -214,7 +255,8 @@ const AddProductPage = () => {
         quantity: inventoryTracked ? parseInt(quantity) || 0 : 0,
         inventoryTracked,
         chargeTax,
-        mediaUrls,
+        images: mediaUrls, // Renamed from mediaUrls for consistency
+        mediaUrls, // Keep for backward compatibility
         storeId: user.uid,
         userId: user.uid,
         productType: productType,
@@ -222,6 +264,8 @@ const AddProductPage = () => {
         updatedAt: serverTimestamp(),
         variants,
         relatedProducts,
+        averageRating: 0,
+        reviewCount: 0,
       };
 
       await addDoc(collection(db, 'products'), productData);
@@ -280,7 +324,7 @@ const AddProductPage = () => {
 
   const steps = [
     { id: 1, title: 'Basic Info', icon: Package },
-    { id: 2, title: 'Images', icon: ImageIcon },
+    { id: 2, title: 'Images & Variants', icon: ImageIcon },
     { id: 3, title: 'Pricing', icon: DollarSign },
   ];
 
@@ -435,82 +479,78 @@ const AddProductPage = () => {
               </motion.div>
             )}
 
-            {/* Variants */}
-            {currentStep === 2 && (
-              <motion.div
-                key="step2-variants"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className="space-y-6"
-              >
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">Variants</h2>
-                  <p className="text-gray-600">Add options like size or color</p>
-                </div>
-                <VariantEditor variants={variants} onChange={setVariants} />
-              </motion.div>
-            )}
-
-            {/* Step 2: Media */}
+            {/* Step 2: Images & Variants */}
             {currentStep === 2 && (
               <motion.div
                 key="step2"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="space-y-6"
+                className="space-y-8"
               >
+                {/* Product Images Section */}
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">Product Images</h2>
-                  <p className="text-gray-600">Upload high-quality images of your product</p>
+                  <p className="text-gray-600 mb-6">Upload high-quality images of your product</p>
+
+                  {mediaPreviews.length > 0 && (
+                    <div className="grid grid-cols-3 gap-4 mb-4">
+                      {mediaPreviews.map((preview, index) => (
+                        <div key={index} className="relative group">
+                          <img 
+                            src={preview} 
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-32 object-cover rounded-lg border-2 border-gray-200"
+                          />
+                          <button
+                            onClick={() => removeMedia(index)}
+                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  <div
+                    className={`border-2 border-dashed rounded-lg p-12 transition-colors ${isDragging ? 'border-neutral-900 bg-neutral-50' : 'border-gray-300'}`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                  >
+                    <div className="flex flex-col items-center justify-center text-center">
+                      <Upload className="w-12 h-12 text-gray-400 mb-4" />
+                      <div className="mb-3">
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="text-neutral-900 hover:text-neutral-700 font-semibold text-sm underline"
+                        >
+                          Click to upload
+                        </button>
+                        <span className="text-sm text-gray-500"> or drag and drop</span>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        PNG, JPG, GIF up to 10MB
+                      </p>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={handleFileSelect}
+                        className="hidden"
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                {mediaPreviews.length > 0 && (
-                  <div className="grid grid-cols-3 gap-4 mb-4">
-                    {mediaPreviews.map((preview, index) => (
-                      <div key={index} className="relative group">
-                        <img 
-                          src={preview} 
-                          alt={`Preview ${index + 1}`}
-                          className="w-full h-32 object-cover rounded-lg border-2 border-gray-200"
-                        />
-                        <button
-                          onClick={() => removeMedia(index)}
-                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-12">
-                  <div className="flex flex-col items-center justify-center text-center">
-                    <Upload className="w-12 h-12 text-gray-400 mb-4" />
-                    <div className="mb-3">
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="text-neutral-900 hover:text-neutral-700 font-semibold text-sm underline"
-                      >
-                        Click to upload
-                      </button>
-                      <span className="text-sm text-gray-500"> or drag and drop</span>
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      PNG, JPG, GIF up to 10MB
-                    </p>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      onChange={handleFileSelect}
-                      className="hidden"
-                    />
-                  </div>
+                {/* Variants Section */}
+                <div className="border-t pt-8">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">Variants (Optional)</h2>
+                  <p className="text-gray-600 mb-6">Add options like size or color</p>
+                  <VariantEditor variants={variants} onChange={setVariants} />
                 </div>
               </motion.div>
             )}
@@ -651,10 +691,19 @@ const AddProductPage = () => {
       {/* Upload Progress Overlay */}
       {uploading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-sm">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-              <p className="text-gray-700">Uploading images...</p>
+              <Upload className="w-12 h-12 text-neutral-900 mx-auto mb-4 animate-pulse" />
+              <p className="text-gray-700 font-semibold mb-4">Uploading images...</p>
+              
+              {/* Progress Bar */}
+              <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden mb-2">
+                <div 
+                  className="h-full bg-neutral-900 transition-all duration-300 rounded-full"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+              <p className="text-sm text-gray-500">{uploadProgress}% complete</p>
             </div>
           </div>
         </div>

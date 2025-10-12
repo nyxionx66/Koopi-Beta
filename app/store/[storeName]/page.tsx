@@ -13,6 +13,7 @@ import { useCart } from '@/contexts/CartContext';
 import { useStore } from '@/contexts/StoreContext';
 import { templates, Template } from '@/lib/templates';
 import { InlineLoader } from '@/components/ui/InlineLoader';
+import ProductCard from '@/components/store/ProductCard';
 
 type Product = {
   id: string;
@@ -243,44 +244,14 @@ export default function StorePage() {
                 size="md"
               />
             ) : products.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {products.map((product) => (
-                  <Link
+                  <ProductCard
                     key={product.id}
-                    href={`/store/${storeName}/product/${product.id}`}
-                    className={template.productCard.container}
-                    style={{
-                      backgroundColor: theme.backgroundColor === '#ffffff' ? '#ffffff' : theme.backgroundColor,
-                      borderColor: theme.textColor + '20'
-                    }}
-                  >
-                    <div className="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
-                      {product.images && product.images.length > 0 ? (
-                        <img src={product.images[0]} alt={product.name} className={template.productCard.image} />
-                      ) : (
-                        <Package className="w-16 h-16 text-gray-400" />
-                      )}
-                    </div>
-                    <div className={template.productCard.details}>
-                      <h3 className={template.productCard.title} style={{ color: theme.textColor }}>{product.name}</h3>
-                      <p className={template.productCard.description} style={{ color: theme.textColor, opacity: 0.7 }}>{product.description}</p>
-                      <div className="flex items-center justify-between mb-3">
-                        <span className={template.productCard.price} style={{ color: theme.textColor }}>
-                          ${(product.price ?? 0).toFixed(2)}
-                        </span>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={(e) => handleQuickAddToCart(e, product)}
-                          className={template.productCard.button}
-                          style={{ backgroundColor: theme.primaryColor }}
-                        >
-                          <ShoppingCart className="w-4 h-4" />
-                          Add to Cart
-                        </button>
-                      </div>
-                    </div>
-                  </Link>
+                    product={product}
+                    storeName={storeName}
+                    theme={theme}
+                  />
                 ))}
               </div>
             ) : (

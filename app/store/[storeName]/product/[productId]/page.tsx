@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebase';
-import { Package, ShoppingCart, ArrowLeft, Star, Check, User } from 'lucide-react';
+import { Package, ShoppingCart, ArrowLeft, Star, Check, User, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useCart } from '@/contexts/CartContext';
 import { useBuyerAuth } from '@/contexts/BuyerAuthContext';
@@ -17,6 +17,9 @@ import { MinimalistProductLayout } from '@/components/store/templates/Minimalist
 import { BoldProductLayout } from '@/components/store/templates/BoldProductLayout';
 import { Product } from '@/types';
 import { PageLoader } from '@/components/ui/PageLoader';
+import { ReviewSubmission } from '@/components/store/ReviewSubmission';
+import { ReviewList } from '@/components/store/ReviewList';
+import { RelatedProducts } from '@/components/store/RelatedProducts';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -33,6 +36,11 @@ export default function ProductDetailPage() {
   const [addedToCart, setAddedToCart] = useState(false);
   const { addToCart, setIsCartOpen } = useCart();
   const { buyer, buyerProfile } = useBuyerAuth();
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewEligibility, setReviewEligibility] = useState<{
+    canReview: boolean;
+    reason?: string;
+  } | null>(null);
 
   useEffect(() => {
     if (store && productId) {
@@ -95,12 +103,14 @@ export default function ProductDetailPage() {
     );
   }
 
-  const theme = store.website?.theme || {
-    primaryColor: '#000000',
-    accentColor: '#000000',
-    backgroundColor: '#ffffff',
-    textColor: '#000000',
-    fontFamily: 'inter'
+  const baseTheme = store.website?.theme;
+
+  const theme = {
+    primaryColor: baseTheme?.primaryColor || '#000000',
+    accentColor: baseTheme?.accentColor || '#000000',
+    backgroundColor: baseTheme?.backgroundColor || '#ffffff',
+    textColor: baseTheme?.textColor || '#000000',
+    fontFamily: baseTheme?.fontFamily || 'inter'
   };
 
   const getFontClass = (font: string) => {
@@ -175,53 +185,11 @@ export default function ProductDetailPage() {
     }
   };
 
-  const renderRelatedProducts = () => {
-    if (!product?.relatedProducts || product.relatedProducts.length === 0) {
-      return null;
-    }
 
-    return (
-      <div className="mt-16">
-        <h2 className="text-2xl font-bold mb-6">You Might Also Like</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {/* This is a placeholder. In a real app, you'd fetch these products. */}
-          {product.relatedProducts.map(productId => (
-            <div key={productId} className="border rounded-lg p-4">
-              <div className="w-full h-32 bg-gray-200 rounded-md mb-4"></div>
-              <p className="font-semibold">Related Product</p>
-              <p className="text-sm text-gray-500">$99.99</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
-  const renderReviews = () => {
-    if (!product?.reviews || product.reviews.length === 0) {
-      return null;
-    }
-
-    return (
-      <div className="mt-16">
-        <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
-        <div className="space-y-6">
-          {product.reviews.map(review => (
-            <div key={review.id} className="border-b pb-6">
-              <div className="flex items-center mb-2">
-                <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={`w-5 h-5 ${i < review.rating ? 'text-yellow-400' : 'text-gray-300'}`} />
-                  ))}
-                </div>
-                <p className="ml-2 font-semibold">{review.author}</p>
-              </div>
-              <p className="text-gray-600">{review.comment}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
+  const handleReviewSubmitted = () => {
+    setShowReviewForm(false);
+    // Refresh the page to show new review
+    window.location.reload();
   };
 
   return (
@@ -269,9 +237,82 @@ export default function ProductDetailPage() {
           </div>
         </header>
 
-        {renderLayout()}
-        {renderRelatedProducts()}
-        {renderReviews()}
+        {/* Product Layout */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          {renderLayout()}
+        </div>
+
+        {/* Reviews Section */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 border-t" style={{ borderColor: theme.textColor + '20' }}>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <MessageCircle className="w-6 h-6" style={{ color: theme.primaryColor }} />
+              <h2 className="text-2xl font-bold" style={{ color: theme.textColor }}>
+                Customer Reviews
+              </h2>
+            </div>
+            {buyer && buyerProfile && !showReviewForm ? (
+              <button
+                onClick={() => setShowReviewForm(true)}
+                className="px-4 py-2 rounded-lg font-medium text-white transition-all hover:opacity-90 flex items-center gap-2"
+                style={{ backgroundColor: theme.primaryColor }}
+              >
+                <Star className="w-4 h-4" />
+                Write a Review
+              </button>
+            ) : !buyer && !showReviewForm ? (
+              <Link
+                href={`/buyer/login?returnUrl=${encodeURIComponent(`/store/${storeName}/product/${productId}`)}`}
+                className="px-4 py-2 rounded-lg font-medium text-white transition-all hover:opacity-90"
+                style={{ backgroundColor: theme.primaryColor }}
+              >
+                Login to Review
+              </Link>
+            ) : null}
+          </div>
+
+          {/* Review Submission Form */}
+          {showReviewForm && buyer && buyerProfile && (
+            <div className="mb-8 p-6 rounded-lg border" style={{ borderColor: theme.textColor + '20' }}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold" style={{ color: theme.textColor }}>
+                  Write Your Review
+                </h3>
+                <button
+                  onClick={() => setShowReviewForm(false)}
+                  className="text-sm hover:opacity-70"
+                  style={{ color: theme.textColor }}
+                >
+                  Cancel
+                </button>
+              </div>
+              <ReviewSubmission
+                productId={product.id}
+                storeId={store.ownerId}
+                buyerId={buyer.uid}
+                buyerEmail={buyer.email || ''}
+                buyerName={buyerProfile.name}
+                theme={theme}
+                onReviewSubmitted={handleReviewSubmitted}
+              />
+            </div>
+          )}
+
+          {/* Review List */}
+          <ReviewList productId={product.id} theme={theme} />
+        </div>
+
+        {/* Related Products */}
+        {product.relatedProducts && product.relatedProducts.length > 0 && (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <RelatedProducts
+              relatedProductIds={product.relatedProducts}
+              currentProductId={product.id}
+              storeName={storeName}
+              theme={theme}
+            />
+          </div>
+        )}
       </div>
     </>
   );

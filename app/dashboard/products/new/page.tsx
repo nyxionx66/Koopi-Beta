@@ -19,7 +19,6 @@ const AddProductPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get('from'); // 'dashboard' or 'products'
-  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [currentStep, setCurrentStep] = useState(1);
   const [productType, setProductType] = useState('');
@@ -522,20 +521,19 @@ const AddProductPage = () => {
                     <div className="flex flex-col items-center justify-center text-center">
                       <Upload className="w-12 h-12 text-gray-400 mb-4" />
                       <div className="mb-3">
-                        <button
-                          type="button"
-                          onClick={() => fileInputRef.current?.click()}
-                          className="text-neutral-900 hover:text-neutral-700 font-semibold text-sm underline"
+                        <label
+                          htmlFor="file-upload"
+                          className="text-neutral-900 hover:text-neutral-700 font-semibold text-sm underline cursor-pointer"
                         >
                           Click to upload
-                        </button>
+                        </label>
                         <span className="text-sm text-gray-500"> or drag and drop</span>
                       </div>
                       <p className="text-xs text-gray-500">
                         PNG, JPG, GIF up to 10MB
                       </p>
                       <input
-                        ref={fileInputRef}
+                        id="file-upload"
                         type="file"
                         multiple
                         accept="image/*"

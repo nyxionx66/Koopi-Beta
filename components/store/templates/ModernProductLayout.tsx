@@ -46,9 +46,9 @@ export function ModernProductLayout({
               {product.name}
             </h1>
             <div className="flex items-center gap-4 mb-4">
-              <span className="text-3xl font-bold" style={{ color: theme.textColor }}>${displayPrice}</span>
+              <span className="text-3xl font-bold" style={{ color: theme.textColor }}>LKR {displayPrice}</span>
               {product.compareAtPrice && (
-                <span className="text-xl text-gray-500 line-through">${product.compareAtPrice.toFixed(2)}</span>
+                <span className="text-xl text-gray-500 line-through">LKR {product.compareAtPrice.toFixed(2)}</span>
               )}
             </div>
             {product.rating && (
@@ -136,7 +136,7 @@ export function ModernProductLayout({
             </div>
             <button
               onClick={handleAddToCart}
-              className="w-full py-4 rounded-lg font-semibold text-white flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full py-4 rounded-full font-semibold text-white flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg"
               style={{ backgroundColor: addedToCart ? theme.accentColor : theme.primaryColor }}
             >
               {addedToCart ? (

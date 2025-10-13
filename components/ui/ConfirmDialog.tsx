@@ -28,8 +28,8 @@ export default function ConfirmDialog({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-scale-in">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="backdrop-blur-2xl bg-white/80 rounded-[24px] border border-white/30 shadow-2xl max-w-md w-full p-6 animate-scale-in">
         <div className="flex items-start gap-4 mb-4">
           <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
             type === 'danger' ? 'bg-red-100' : type === 'warning' ? 'bg-yellow-100' : 'bg-gray-100'
@@ -47,13 +47,13 @@ export default function ConfirmDialog({
         <div className="flex gap-3 justify-end mt-6">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white/80 rounded-full hover:bg-white transition-colors shadow-sm border border-gray-200/80"
           >
             {cancelText}
           </button>
           <button
             onClick={onConfirm}
-            className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${colors[type]}`}
+            className={`px-4 py-2 text-sm font-medium text-white rounded-full transition-colors shadow-md ${colors[type]}`}
           >
             {confirmText}
           </button>

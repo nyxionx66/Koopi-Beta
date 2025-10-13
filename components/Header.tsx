@@ -13,11 +13,11 @@ export function Header() {
   const isHomePage = pathname === '/';
 
   return (
-    <header className="fixed top-0 w-full bg-black backdrop-blur-md z-50 border-b border-gray-800">
+    <header className="fixed top-0 w-full bg-white/80 backdrop-blur-xl z-50 border-b border-white/30 shadow-lg">
       <nav className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14">
+        <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <NextLink href="/" className="text-xl font-semibold text-white">
+            <NextLink href="/" className="text-xl font-bold text-gray-900">
               Koopi
             </NextLink>
           </div>
@@ -25,26 +25,26 @@ export function Header() {
           <div className="hidden md:flex items-center gap-6">
             {isHomePage && (
               <>
-                <ScrollLink to="features" smooth={true} duration={500} spy={true} offset={-50} className="cursor-pointer text-sm font-medium text-gray-300 hover:text-white transition-colors">
+                <ScrollLink to="features" smooth={true} duration={500} spy={true} offset={-50} className="cursor-pointer text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
                   Features
                 </ScrollLink>
-                <ScrollLink to="about" smooth={true} duration={500} spy={true} offset={-50} className="cursor-pointer text-sm font-medium text-gray-300 hover:text-white transition-colors">
+                <ScrollLink to="about" smooth={true} duration={500} spy={true} offset={-50} className="cursor-pointer text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
                   About
                 </ScrollLink>
               </>
             )}
             {user ? (
-              <NextLink href="/dashboard" className="px-4 py-1.5 text-sm font-medium text-black bg-white rounded-md hover:bg-gray-200 transition-colors">
+              <NextLink href="/dashboard" className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-full hover:bg-blue-600 transition-colors shadow-md active:scale-95">
                 Dashboard
               </NextLink>
             ) : (
               <>
-                <NextLink href="/login" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
+                <NextLink href="/login" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
                   Log in
                 </NextLink>
                 <NextLink
                   href="/signup"
-                  className="px-4 py-1.5 text-sm font-medium text-black bg-white rounded-md hover:bg-gray-200 transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-full hover:bg-blue-600 transition-colors shadow-md active:scale-95"
                 >
                   Start Free
                 </NextLink>
@@ -53,7 +53,7 @@ export function Header() {
           </div>
 
           <button
-            className="md:hidden p-2 rounded-lg text-white hover:bg-white/10"
+            className="md:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100/50"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -67,29 +67,29 @@ export function Header() {
         </div>
 
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 space-y-3 bg-black border border-gray-800 rounded-lg mt-2 px-4">
+          <div className="md:hidden py-4 space-y-3 bg-white/80 backdrop-blur-xl border border-white/30 rounded-lg mt-2 px-4 shadow-lg">
             {isHomePage && (
               <>
-                <ScrollLink to="features" smooth={true} duration={500} spy={true} offset={-50} className="cursor-pointer block text-sm font-medium text-gray-300 hover:text-white">
+                <ScrollLink to="features" smooth={true} duration={500} spy={true} offset={-50} className="cursor-pointer block text-sm font-medium text-gray-600 hover:text-gray-900">
                   Features
                 </ScrollLink>
-                <ScrollLink to="about" smooth={true} duration={500} spy={true} offset={-50} className="cursor-pointer block text-sm font-medium text-gray-300 hover:text-white">
+                <ScrollLink to="about" smooth={true} duration={500} spy={true} offset={-50} className="cursor-pointer block text-sm font-medium text-gray-600 hover:text-gray-900">
                   About
                 </ScrollLink>
               </>
             )}
             {user ? (
-              <NextLink href="/dashboard" className="block w-full px-4 py-2 text-sm font-medium text-center text-black bg-white rounded-md hover:bg-gray-200">
+              <NextLink href="/dashboard" className="block w-full px-4 py-2 text-sm font-medium text-center text-white bg-blue-500 rounded-full hover:bg-blue-600">
                 Dashboard
               </NextLink>
             ) : (
               <>
-                <NextLink href="/login" className="block text-sm font-medium text-gray-300 hover:text-white">
+                <NextLink href="/login" className="block text-sm font-medium text-gray-600 hover:text-gray-900">
                   Log in
                 </NextLink>
                 <NextLink
                   href="/signup"
-                  className="block w-full px-4 py-2 text-sm font-medium text-center text-black bg-white rounded-md hover:bg-gray-200"
+                  className="block w-full px-4 py-2 text-sm font-medium text-center text-white bg-blue-500 rounded-full hover:bg-blue-600"
                 >
                   Start Free
                 </NextLink>

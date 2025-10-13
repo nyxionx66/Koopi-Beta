@@ -10,8 +10,8 @@ type StoreLoadingSpinnerProps = {
 export function StoreLoadingSpinner({ primaryColor = '#000000', backgroundColor = '#ffffff' }: StoreLoadingSpinnerProps) {
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center z-50"
-      style={{ backgroundColor: backgroundColor }}
+      className="fixed inset-0 flex items-center justify-center z-50 bg-white/80 backdrop-blur-sm"
+      style={{ backgroundColor }}
     >
       <div className="flex items-center justify-center space-x-2">
         <div

@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation';
 import { db } from '@/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 import { Store, Globe, Users, Package, Zap, ShoppingCart, Target, Sparkles, Check, ArrowRight } from 'lucide-react';
+import Lottie from "lottie-react";
+import animationData from "@/public/loading-animation.json";
 
 const sellLocations = [
   { 
@@ -120,80 +122,69 @@ const Step1 = ({ onNext }: { onNext: (data: any) => void }) => {
       exit={{ opacity: 0, y: -20 }}
       className="space-y-8"
     >
-      <div className="text-center">
-        <div className="inline-flex items-center gap-2 mb-4">
-          <Store className="w-6 h-6 text-neutral-400 dark:text-neutral-600" />
-          <span className="text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">
-            Step 1 of 3
-          </span>
-        </div>
-        <h2 className="text-3xl sm:text-4xl font-bold text-neutral-900 dark:text-white mb-3">
-          Where would you like to sell?
-        </h2>
-        <p className="text-lg text-neutral-600 dark:text-neutral-400">
-          We'll make sure you're set up to sell in these places
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
-        {sellLocations.map((option) => {
-          const isSelected = selected.includes(option.id);
-          const Icon = option.icon;
-          
-          return (
-            <motion.div
-              key={option.id}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => toggleSelection(option.id)}
-              className={`relative p-6 border-2 rounded-xl cursor-pointer transition-all ${
-                isSelected 
-                  ? 'border-neutral-900 dark:border-white bg-neutral-50 dark:bg-neutral-800 shadow-lg' 
-                  : 'border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 hover:border-neutral-400 dark:hover:border-neutral-600'
-              }`}
-            >
-              <div className="flex items-start gap-4">
-                <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${
-                  isSelected 
-                    ? 'bg-neutral-900 dark:bg-white' 
-                    : 'bg-neutral-100 dark:bg-neutral-800'
-                }`}>
-                  <Icon className={`w-6 h-6 ${
-                    isSelected 
-                      ? 'text-white dark:text-neutral-900' 
-                      : 'text-neutral-600 dark:text-neutral-400'
-                  }`} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-neutral-900 dark:text-white mb-1">
-                    {option.title}
-                  </h3>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                    {option.description}
-                  </p>
-                </div>
-                <div className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                  isSelected 
-                    ? 'bg-neutral-900 dark:bg-white border-neutral-900 dark:border-white' 
-                    : 'border-neutral-300 dark:border-neutral-700'
-                }`}>
-                  {isSelected && (
-                    <Check className="w-4 h-4 text-white dark:text-neutral-900" />
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      <div className="flex justify-center pt-4">
-        <button 
-          onClick={() => onNext({ sellLocations: selected })} 
-          className="flex items-center gap-2 px-8 py-4 text-base font-semibold text-white bg-neutral-900 dark:bg-white dark:text-neutral-900 rounded-xl hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+      <div className="w-full max-w-2xl mx-auto">
+        <motion.div
+          key="question1"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-start gap-4"
         >
-          Continue <ArrowRight className="w-5 h-5" />
-        </button>
+          <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+            <Store className="w-6 h-6 text-gray-600" />
+          </div>
+          <div className="bg-white/80 rounded-2xl p-5 shadow-md">
+            <h2 className="font-bold text-lg text-gray-900 mb-2">Where would you like to sell?</h2>
+            <p className="text-gray-600">Select all that apply. This will help us recommend the right features.</p>
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="mt-6 ml-16 space-y-3"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.1, delayChildren: 0.5 } }
+          }}
+        >
+          {sellLocations.map((option) => {
+            const isSelected = selected.includes(option.id);
+            return (
+              <motion.div
+                key={option.id}
+                variants={{
+                  hidden: { opacity: 0, x: 20 },
+                  visible: { opacity: 1, x: 0 }
+                }}
+                whileHover={{ scale: 1.03 }}
+                onClick={() => toggleSelection(option.id)}
+                className={`flex items-center gap-4 p-4 rounded-xl cursor-pointer border-2 transition-all ${
+                  isSelected ? 'border-blue-500 bg-blue-500/10' : 'border-gray-300/50 bg-white/80 hover:border-gray-400/50'
+                }`}
+              >
+                <div className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center ${isSelected ? 'bg-blue-500 border-blue-500' : 'border-gray-300'}`}>
+                  {isSelected && <Check className="w-4 h-4 text-white" />}
+                </div>
+                <span className="font-semibold text-gray-800">{option.title}</span>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="mt-8 ml-16"
+        >
+          <button
+            onClick={() => onNext({ sellLocations: selected })}
+            className="flex items-center gap-2 px-6 py-3 text-base font-semibold text-white bg-blue-500 rounded-full hover:bg-blue-600 transition-all active:scale-95 shadow-lg"
+          >
+            Continue <ArrowRight className="w-5 h-5" />
+          </button>
+        </motion.div>
       </div>
     </motion.div>
   );
@@ -207,82 +198,71 @@ const Step2 = ({ onNext }: { onNext: (data: any) => void }) => {
       initial={{ opacity: 0, y: 20 }} 
       animate={{ opacity: 1, y: 0 }} 
       exit={{ opacity: 0, y: -20 }}
-      className="space-y-8"
+      className="space-y-6"
     >
-      <div className="text-center">
-        <div className="inline-flex items-center gap-2 mb-4">
-          <Target className="w-6 h-6 text-neutral-400 dark:text-neutral-600" />
-          <span className="text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">
-            Step 2 of 3
-          </span>
-        </div>
-        <h2 className="text-3xl sm:text-4xl font-bold text-neutral-900 dark:text-white mb-3">
-          What's your main goal?
-        </h2>
-        <p className="text-lg text-neutral-600 dark:text-neutral-400">
-          Help us tailor your experience
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
-        {businessGoals.map((option) => {
-          const isSelected = selected === option.id;
-          const Icon = option.icon;
-          
-          return (
-            <motion.div
-              key={option.id}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setSelected(option.id)}
-              className={`relative p-6 border-2 rounded-xl cursor-pointer transition-all ${
-                isSelected 
-                  ? 'border-neutral-900 dark:border-white bg-neutral-50 dark:bg-neutral-800 shadow-lg' 
-                  : 'border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 hover:border-neutral-400 dark:hover:border-neutral-600'
-              }`}
-            >
-              <div className="flex items-start gap-4">
-                <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${
-                  isSelected 
-                    ? 'bg-neutral-900 dark:bg-white' 
-                    : 'bg-neutral-100 dark:bg-neutral-800'
-                }`}>
-                  <Icon className={`w-6 h-6 ${
-                    isSelected 
-                      ? 'text-white dark:text-neutral-900' 
-                      : 'text-neutral-600 dark:text-neutral-400'
-                  }`} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-neutral-900 dark:text-white mb-1">
-                    {option.title}
-                  </h3>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                    {option.description}
-                  </p>
-                </div>
-                <div className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                  isSelected 
-                    ? 'bg-neutral-900 dark:bg-white border-neutral-900 dark:border-white' 
-                    : 'border-neutral-300 dark:border-neutral-700'
-                }`}>
-                  {isSelected && (
-                    <div className="w-3 h-3 rounded-full bg-white dark:bg-neutral-900" />
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      <div className="flex justify-center pt-4">
-        <button 
-          onClick={() => onNext({ goal: selected })} 
-          className="flex items-center gap-2 px-8 py-4 text-base font-semibold text-white bg-neutral-900 dark:bg-white dark:text-neutral-900 rounded-xl hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+      <div className="w-full max-w-2xl mx-auto">
+        <motion.div
+          key="question2"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-start gap-4"
         >
-          Continue <ArrowRight className="w-5 h-5" />
-        </button>
+          <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+            <Target className="w-6 h-6 text-gray-600" />
+          </div>
+          <div className="bg-white/80 rounded-2xl p-5 shadow-md">
+            <h2 className="font-bold text-lg text-gray-900 mb-2">What's your main goal?</h2>
+            <p className="text-gray-600">This will help us tailor your experience.</p>
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="mt-6 ml-16 space-y-3"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.1, delayChildren: 0.5 } }
+          }}
+        >
+          {businessGoals.map((option) => {
+            const isSelected = selected === option.id;
+            return (
+              <motion.div
+                key={option.id}
+                variants={{
+                  hidden: { opacity: 0, x: 20 },
+                  visible: { opacity: 1, x: 0 }
+                }}
+                whileHover={{ scale: 1.03 }}
+                onClick={() => setSelected(option.id)}
+                className={`flex items-center gap-4 p-4 rounded-xl cursor-pointer border-2 transition-all ${
+                  isSelected ? 'border-blue-500 bg-blue-500/10' : 'border-gray-300/50 bg-white/80 hover:border-gray-400/50'
+                }`}
+              >
+                <div className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center ${isSelected ? 'bg-blue-500 border-blue-500' : 'border-gray-300'}`}>
+                  {isSelected && <div className="w-3 h-3 bg-white rounded-full" />}
+                </div>
+                <span className="font-semibold text-gray-800">{option.title}</span>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="mt-8 ml-16"
+        >
+          <button
+            onClick={() => onNext({ goal: selected })}
+            className="flex items-center gap-2 px-6 py-3 text-base font-semibold text-white bg-blue-500 rounded-full hover:bg-blue-600 transition-all active:scale-95 shadow-lg"
+          >
+            Continue <ArrowRight className="w-5 h-5" />
+          </button>
+        </motion.div>
       </div>
     </motion.div>
   );
@@ -296,82 +276,71 @@ const Step3 = ({ onFinish }: { onFinish: (data: any) => void }) => {
       initial={{ opacity: 0, y: 20 }} 
       animate={{ opacity: 1, y: 0 }} 
       exit={{ opacity: 0, y: -20 }}
-      className="space-y-8"
+      className="space-y-6"
     >
-      <div className="text-center">
-        <div className="inline-flex items-center gap-2 mb-4">
-          <Package className="w-6 h-6 text-neutral-400 dark:text-neutral-600" />
-          <span className="text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">
-            Step 3 of 3
-          </span>
-        </div>
-        <h2 className="text-3xl sm:text-4xl font-bold text-neutral-900 dark:text-white mb-3">
-          What do you plan to sell?
-        </h2>
-        <p className="text-lg text-neutral-600 dark:text-neutral-400">
-          This helps us set up the right features for you
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
-        {productTypes.map((option) => {
-          const isSelected = selected === option.id;
-          const Icon = option.icon;
-          
-          return (
-            <motion.div
-              key={option.id}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setSelected(option.id)}
-              className={`relative p-6 border-2 rounded-xl cursor-pointer transition-all ${
-                isSelected 
-                  ? 'border-neutral-900 dark:border-white bg-neutral-50 dark:bg-neutral-800 shadow-lg' 
-                  : 'border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 hover:border-neutral-400 dark:hover:border-neutral-600'
-              }`}
-            >
-              <div className="flex items-start gap-4">
-                <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${
-                  isSelected 
-                    ? 'bg-neutral-900 dark:bg-white' 
-                    : 'bg-neutral-100 dark:bg-neutral-800'
-                }`}>
-                  <Icon className={`w-6 h-6 ${
-                    isSelected 
-                      ? 'text-white dark:text-neutral-900' 
-                      : 'text-neutral-600 dark:text-neutral-400'
-                  }`} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-neutral-900 dark:text-white mb-1">
-                    {option.title}
-                  </h3>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                    {option.description}
-                  </p>
-                </div>
-                <div className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                  isSelected 
-                    ? 'bg-neutral-900 dark:bg-white border-neutral-900 dark:border-white' 
-                    : 'border-neutral-300 dark:border-neutral-700'
-                }`}>
-                  {isSelected && (
-                    <div className="w-3 h-3 rounded-full bg-white dark:bg-neutral-900" />
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      <div className="flex justify-center pt-4">
-        <button 
-          onClick={() => onFinish({ productType: selected })} 
-          className="flex items-center gap-2 px-8 py-4 text-base font-semibold text-white bg-neutral-900 dark:bg-white dark:text-neutral-900 rounded-xl hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+      <div className="w-full max-w-2xl mx-auto">
+        <motion.div
+          key="question3"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="flex items-start gap-4"
         >
-          Complete Setup <Check className="w-5 h-5" />
-        </button>
+          <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+            <Package className="w-6 h-6 text-gray-600" />
+          </div>
+          <div className="bg-white/80 rounded-2xl p-5 shadow-md">
+            <h2 className="font-bold text-lg text-gray-900 mb-2">What do you plan to sell?</h2>
+            <p className="text-gray-600">This helps us set up the right features for you.</p>
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="mt-6 ml-16 space-y-3"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.1, delayChildren: 0.5 } }
+          }}
+        >
+          {productTypes.map((option) => {
+            const isSelected = selected === option.id;
+            return (
+              <motion.div
+                key={option.id}
+                variants={{
+                  hidden: { opacity: 0, x: 20 },
+                  visible: { opacity: 1, x: 0 }
+                }}
+                whileHover={{ scale: 1.03 }}
+                onClick={() => setSelected(option.id)}
+                className={`flex items-center gap-4 p-4 rounded-xl cursor-pointer border-2 transition-all ${
+                  isSelected ? 'border-blue-500 bg-blue-500/10' : 'border-gray-300/50 bg-white/80 hover:border-gray-400/50'
+                }`}
+              >
+                <div className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center ${isSelected ? 'bg-blue-500 border-blue-500' : 'border-gray-300'}`}>
+                  {isSelected && <div className="w-3 h-3 bg-white rounded-full" />}
+                </div>
+                <span className="font-semibold text-gray-800">{option.title}</span>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="mt-8 ml-16"
+        >
+          <button
+            onClick={() => onFinish({ productType: selected })}
+            className="flex items-center gap-2 px-6 py-3 text-base font-semibold text-white bg-blue-500 rounded-full hover:bg-blue-600 transition-all active:scale-95 shadow-lg"
+          >
+            Complete Setup <Check className="w-5 h-5" />
+          </button>
+        </motion.div>
       </div>
     </motion.div>
   );
@@ -382,6 +351,7 @@ const OnboardingPage = () => {
   const [onboardingData, setOnboardingData] = useState({});
   const { user } = useAuth();
   const router = useRouter();
+  const [isCompleting, setIsCompleting] = useState(false);
 
   const handleNext = (data: any) => {
     setOnboardingData(prev => ({ ...prev, ...data }));
@@ -390,6 +360,7 @@ const OnboardingPage = () => {
 
   const handleFinish = async (data: any) => {
     const finalData = { ...onboardingData, ...data };
+    setIsCompleting(true);
     if (user) {
       const userDocRef = doc(db, 'users', user.uid);
       await updateDoc(userDocRef, {
@@ -403,36 +374,38 @@ const OnboardingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-neutral-950 flex items-center justify-center py-12 px-6">
-      <div className="w-full max-w-5xl">
-        {/* Progress bar */}
-        <div className="mb-12 max-w-2xl mx-auto">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-              Step {step} of 3
-            </span>
-            <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-              {Math.round((step / 3) * 100)}% Complete
-            </span>
-          </div>
-          <div className="h-2 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
-            <motion.div 
-              initial={{ width: 0 }}
-              animate={{ width: `${(step / 3) * 100}%` }}
-              transition={{ duration: 0.5 }}
-              className="h-full bg-neutral-900 dark:bg-white"
-            />
-          </div>
-        </div>
-
-        {/* Step content */}
-        <div className="bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-2xl p-8 md:p-12 shadow-xl">
-          <AnimatePresence mode="wait">
-            {step === 1 && <Step1 key="step1" onNext={handleNext} />}
-            {step === 2 && <Step2 key="step2" onNext={handleNext} />}
-            {step === 3 && <Step3 key="step3" onFinish={handleFinish} />}
-          </AnimatePresence>
-        </div>
+    <div className="min-h-screen bg-[#f5f5f7] relative overflow-hidden flex items-center justify-center py-12 px-6">
+      {/* macOS-style background pattern */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
+      
+      <div className="relative z-10 w-full max-w-5xl">
+        {isCompleting ? (
+          <motion.div
+            key="completing"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="text-center"
+          >
+            <Lottie animationData={animationData} loop={true} className="w-48 h-48 mx-auto" />
+            <h2 className="text-3xl font-bold text-gray-900 mt-8 mb-3">Finalizing your setup...</h2>
+            <p className="text-lg text-gray-600">Get ready to start selling!</p>
+          </motion.div>
+        ) : (
+          <>
+            {/* Progress bar */}
+            <div className="backdrop-blur-xl bg-white/60 rounded-[24px] border border-white/30 shadow-2xl p-8 md:p-12">
+              <AnimatePresence mode="wait">
+                {step === 1 && <Step1 key="step1" onNext={handleNext} />}
+                {step === 2 && <Step2 key="step2" onNext={handleNext} />}
+                {step === 3 && <Step3 key="step3" onFinish={handleFinish} />}
+              </AnimatePresence>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

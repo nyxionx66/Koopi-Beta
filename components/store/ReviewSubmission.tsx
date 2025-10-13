@@ -224,15 +224,11 @@ export function ReviewSubmission({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Verified Purchase Badge */}
-      <div 
-        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm"
-        style={{ 
-          backgroundColor: theme.primaryColor + '10',
-          color: theme.primaryColor 
-        }}
+      <div
+        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm bg-white/50 border border-gray-200/50"
       >
-        <ShieldCheck className="w-4 h-4" />
-        <span className="font-medium">Verified Purchase - Your review will be marked as authentic</span>
+        <ShieldCheck className="w-4 h-4 text-green-600" />
+        <span className="font-medium text-gray-800">Verified Purchase - Your review will be marked as authentic</span>
       </div>
       <div>
         <label className="block text-sm font-medium mb-2" style={{ color: theme.textColor }}>
@@ -278,11 +274,10 @@ export function ReviewSubmission({
           onChange={(e) => setComment(e.target.value)}
           placeholder="Share your experience with this product..."
           rows={4}
-          className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:outline-none resize-none"
-          style={{ 
+          className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:outline-none resize-none bg-white/80"
+          style={{
             borderColor: theme.textColor + '30',
             color: theme.textColor,
-            backgroundColor: theme.backgroundColor || '#ffffff'
           }}
           disabled={submitting}
           required
@@ -294,7 +289,7 @@ export function ReviewSubmission({
       </div>
 
       {error && (
-        <div className="p-3 rounded-lg bg-red-50 text-red-600 text-sm">
+        <div className="p-3 rounded-lg bg-red-500/10 text-red-600 text-sm border border-red-500/20">
           {error}
         </div>
       )}
@@ -302,7 +297,7 @@ export function ReviewSubmission({
       <button
         type="submit"
         disabled={submitting}
-        className="w-full py-3 px-4 rounded-lg font-semibold text-white flex items-center justify-center gap-2 transition-all hover:opacity-90 disabled:opacity-50"
+        className="w-full py-3 px-4 rounded-full font-semibold text-white flex items-center justify-center gap-2 transition-all hover:opacity-90 disabled:opacity-50 shadow-md active:scale-95"
         style={{ backgroundColor: theme.primaryColor }}
       >
         {submitting ? (

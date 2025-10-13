@@ -97,7 +97,7 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
 
   if (allTasksComplete) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8">
+      <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-8 mb-8">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-4">
@@ -117,11 +117,11 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
             </p>
 
             {websiteEnabled && storeName && (
-              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-center gap-3 p-4 bg-white/50 rounded-lg border border-gray-200/50">
                 <Globe className="w-5 h-5 text-gray-700" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-900 mb-1">Your Store Website</p>
-                  <Link 
+                  <Link
                     href={`/store/${storeName}`}
                     target="_blank"
                     className="text-sm text-gray-600 hover:text-gray-900 hover:underline flex items-center gap-1"
@@ -145,13 +145,13 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8">
+    <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-8 mb-8">
       <div className="flex items-start justify-between gap-8">
         <div className="flex-1">
           {/* Header */}
           <div className="mb-6">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center flex-shrink-0 border border-gray-200/50">
                 <Circle className="w-6 h-6 text-gray-600" />
               </div>
               <span className="text-base font-medium text-gray-500">
@@ -168,7 +168,7 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
           </div>
 
           {/* Current Active Task - Prominent Display */}
-          <div className="bg-gray-50 rounded-xl p-6 border-2 border-gray-200 mb-6">
+          <div className="bg-white/50 rounded-xl p-6 border-2 border-blue-200/50 mb-6 shadow-sm">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-gray-200">
                 <TaskIcon className="w-6 h-6 text-gray-900" />
@@ -183,13 +183,13 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
                       {currentTask.description}
                     </p>
                   </div>
-                  <span className="text-xs font-medium text-gray-500 bg-white px-2 py-1 rounded border border-gray-200 flex-shrink-0">
+                  <span className="text-xs font-medium text-gray-500 bg-white px-2 py-1 rounded-full border border-gray-200 flex-shrink-0">
                     Step {currentTask.step}
                   </span>
                 </div>
                 <button
                   onClick={currentTask.action}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-full text-sm font-medium hover:bg-blue-600 transition-colors shadow-md active:scale-95"
                 >
                   {currentTask.buttonText}
                   <ArrowRight className="w-4 h-4" />
@@ -253,9 +253,9 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
         {/* Right Side Illustration */}
         <div className="hidden lg:block flex-shrink-0">
           <div className="w-40 h-40 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl flex items-center justify-center">
-            <img 
-              src="https://cdn.shopify.com/shopifycloud/web/assets/v1/vite/client/en/assets/digital-product-C3y7g_9j.svg" 
-              alt="Digital business" 
+            <img
+              src="https://cdn.shopify.com/shopifycloud/web/assets/v1/vite/client/en/assets/digital-product-C3y7g_9j.svg"
+              alt="Digital business"
               className="w-28 h-28 object-contain"
             />
           </div>

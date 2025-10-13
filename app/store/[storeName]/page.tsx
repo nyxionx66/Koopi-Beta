@@ -14,15 +14,7 @@ import { useStore } from '@/contexts/StoreContext';
 import { templates, Template } from '@/lib/templates';
 import { InlineLoader } from '@/components/ui/InlineLoader';
 import ProductCard from '@/components/store/ProductCard';
-
-type Product = {
-  id: string;
-  name: string;
-  price: number;
-  description: string;
-  status: string;
-  images?: string[];
-};
+import { Product } from '@/types';
 
 export default function StorePage() {
   const { storeData: store, loading } = useStore();

@@ -172,12 +172,7 @@ export default function BuyerRegisterPage() {
             transition={{ duration: 0.5 }}
           >
             <div
-              className="border rounded-2xl p-8 md:p-10 shadow-lg"
-              style={{
-                backgroundColor: theme.backgroundColor,
-                borderColor: theme.textColor + '20',
-                boxShadow: `0 10px 25px -5px ${theme.primaryColor}1A`
-              }}
+              className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-8 md:p-10"
             >
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold mb-2" style={{ color: theme.textColor }}>
@@ -193,8 +188,7 @@ export default function BuyerRegisterPage() {
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-3 p-4 rounded-lg"
-                    style={{ backgroundColor: '#ff0000' + '1A', border: `1px solid ${'#ff0000' + '30'}` }}
+                    className="flex items-center gap-3 p-4 rounded-lg bg-red-500/10 border border-red-500/20"
                   >
                     <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
                     <p className="text-sm text-red-500">{error}</p>
@@ -205,7 +199,7 @@ export default function BuyerRegisterPage() {
                   <label className="block text-sm font-medium mb-2" style={{ color: theme.textColor, opacity: 0.9 }}>Full Name *</label>
                   <div className="relative">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: theme.textColor, opacity: 0.4 }} />
-                    <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full pl-12 pr-4 py-3 border rounded-lg focus:outline-none transition-all" style={{ backgroundColor: theme.backgroundColor, borderColor: theme.textColor + '20', color: theme.textColor }} placeholder="John Doe" required />
+                    <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full pl-12 pr-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm placeholder:text-gray-400 shadow-sm" placeholder="John Doe" required />
                   </div>
                 </div>
 
@@ -213,7 +207,7 @@ export default function BuyerRegisterPage() {
                   <label className="block text-sm font-medium mb-2" style={{ color: theme.textColor, opacity: 0.9 }}>Email Address *</label>
                   <div className="relative">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: theme.textColor, opacity: 0.4 }} />
-                    <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full pl-12 pr-4 py-3 border rounded-lg focus:outline-none transition-all" style={{ backgroundColor: theme.backgroundColor, borderColor: theme.textColor + '20', color: theme.textColor }} placeholder="you@example.com" required />
+                    <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full pl-12 pr-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm placeholder:text-gray-400 shadow-sm" placeholder="you@example.com" required />
                   </div>
                 </div>
                 
@@ -221,7 +215,7 @@ export default function BuyerRegisterPage() {
                   <label className="block text-sm font-medium mb-2" style={{ color: theme.textColor, opacity: 0.9 }}>Password *</label>
                   <div className="relative">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: theme.textColor, opacity: 0.4 }} />
-                    <input type={showPassword ? 'text' : 'password'} value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} className="w-full pl-12 pr-12 py-3 border rounded-lg focus:outline-none transition-all" style={{ backgroundColor: theme.backgroundColor, borderColor: theme.textColor + '20', color: theme.textColor }} placeholder="Minimum 6 characters" required />
+                    <input type={showPassword ? 'text' : 'password'} value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} className="w-full pl-12 pr-12 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm placeholder:text-gray-400 shadow-sm" placeholder="Minimum 6 characters" required />
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2" style={{ color: theme.textColor, opacity: 0.4 }}>
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -232,7 +226,7 @@ export default function BuyerRegisterPage() {
                   <label className="block text-sm font-medium mb-2" style={{ color: theme.textColor, opacity: 0.9 }}>Confirm Password *</label>
                   <div className="relative">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: theme.textColor, opacity: 0.4 }} />
-                    <input type={showConfirmPassword ? 'text' : 'password'} value={formData.confirmPassword} onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })} className="w-full pl-12 pr-12 py-3 border rounded-lg focus:outline-none transition-all" style={{ backgroundColor: theme.backgroundColor, borderColor: theme.textColor + '20', color: theme.textColor }} placeholder="Re-enter password" required />
+                    <input type={showConfirmPassword ? 'text' : 'password'} value={formData.confirmPassword} onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })} className="w-full pl-12 pr-12 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm placeholder:text-gray-400 shadow-sm" placeholder="Re-enter password" required />
                     <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 -translate-y-1/2" style={{ color: theme.textColor, opacity: 0.4 }}>
                       {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -242,7 +236,7 @@ export default function BuyerRegisterPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex justify-center items-center gap-2 py-3.5 text-base font-semibold rounded-lg transition-transform hover:scale-105 active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex justify-center items-center gap-2 py-3.5 text-base font-semibold rounded-full transition-transform hover:scale-105 active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                   style={{
                     backgroundColor: theme.primaryColor,
                     color: theme.backgroundColor

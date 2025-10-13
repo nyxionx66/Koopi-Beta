@@ -113,16 +113,16 @@ export default function TrackOrderPage() {
         messageTheirBg: 'bg-gray-100 border border-gray-200',
       },
       modern: {
-        bg: 'bg-gradient-to-br from-blue-50 via-white to-purple-50',
-        header: 'bg-white shadow-sm',
-        card: 'bg-white rounded-2xl shadow-lg',
+        bg: 'bg-[#f5f5f7]',
+        header: 'bg-white/80 backdrop-blur-xl border-b border-white/30 shadow-lg',
+        card: 'bg-white/70 backdrop-blur-xl rounded-2xl shadow-lg border border-white/30',
         title: 'text-3xl font-bold text-gray-900',
         subtitle: 'text-gray-600 font-medium',
         text: 'text-gray-700',
-        button: 'px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-semibold shadow-lg',
-        input: 'border border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200',
+        button: 'px-6 py-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-all font-semibold shadow-md',
+        input: 'bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm shadow-sm',
         messageMyBg: 'bg-gradient-to-br from-blue-500 to-blue-600 text-white',
-        messageTheirBg: 'bg-gray-100',
+        messageTheirBg: 'bg-white/80 border border-gray-200/50',
       },
       minimalist: {
         bg: 'bg-white',
@@ -266,7 +266,7 @@ export default function TrackOrderPage() {
                       </p>
                     </div>
                     <div className={`font-semibold ${selectedTheme === 'bold' ? 'text-yellow-400 font-mono' : selectedTheme === 'classic' ? 'font-serif text-gray-800' : 'text-gray-900'}`}>
-                      ${(item.price * item.quantity).toFixed(2)}
+                      LKR {(item.price * item.quantity).toFixed(2)}
                     </div>
                   </div>
                 ))}
@@ -276,19 +276,19 @@ export default function TrackOrderPage() {
               <div className={`mt-6 pt-6 border-t ${selectedTheme === 'bold' ? 'border-gray-700' : 'border-gray-200'} space-y-2`}>
                 <div className={`flex justify-between ${themeStyles.text}`}>
                   <span>Subtotal</span>
-                  <span className="font-medium">${order.subtotal.toFixed(2)}</span>
+                  <span className="font-medium">LKR {order.subtotal.toFixed(2)}</span>
                 </div>
                 <div className={`flex justify-between ${themeStyles.text}`}>
                   <span>Shipping</span>
-                  <span className="font-medium">${order.shipping.toFixed(2)}</span>
+                  <span className="font-medium">LKR {order.shipping.toFixed(2)}</span>
                 </div>
                 <div className={`flex justify-between ${themeStyles.text}`}>
                   <span>Tax</span>
-                  <span className="font-medium">${order.tax.toFixed(2)}</span>
+                  <span className="font-medium">LKR {order.tax.toFixed(2)}</span>
                 </div>
                 <div className={`flex justify-between pt-2 border-t text-lg font-bold ${selectedTheme === 'bold' ? 'text-yellow-400 border-gray-700 font-mono' : selectedTheme === 'classic' ? 'text-gray-900 font-serif border-gray-200' : 'text-gray-900 border-gray-200'}`}>
                   <span>Total</span>
-                  <span>${order.total.toFixed(2)}</span>
+                  <span>LKR {order.total.toFixed(2)}</span>
                 </div>
               </div>
             </div>

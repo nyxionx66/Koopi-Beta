@@ -15,12 +15,12 @@ export function InlineLoader({
   size = 'sm'
 }: InlineLoaderProps) {
   return (
-    <div className="flex items-center justify-center py-8">
-      <UniversalLoader 
-        size={size}
-        primaryColor={primaryColor}
-        message={message}
-      />
-    </div>
+    <UniversalLoader
+      fullscreen
+      size={size}
+      primaryColor={primaryColor}
+      backgroundColor="#f5f5f7"
+      message={message}
+    />
   );
 }

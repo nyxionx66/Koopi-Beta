@@ -56,8 +56,8 @@ export function RelatedProducts({
         .map(doc => ({
           id: doc.id,
           ...doc.data()
-        }))
-        .filter(product => product.status === 'Active') as Product[];
+        } as Product))
+        .filter(product => product.status === 'Active');
 
       setProducts(productsData);
     } catch (error) {
@@ -76,9 +76,9 @@ export function RelatedProducts({
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="animate-pulse">
-              <div className="aspect-square bg-gray-200 rounded-lg mb-3" />
-              <div className="h-4 bg-gray-200 rounded mb-2" />
-              <div className="h-4 bg-gray-200 rounded w-2/3" />
+              <div className="aspect-square bg-white/50 rounded-lg mb-3" />
+              <div className="h-4 bg-white/50 rounded mb-2" />
+              <div className="h-4 bg-white/50 rounded w-2/3" />
             </div>
           ))}
         </div>

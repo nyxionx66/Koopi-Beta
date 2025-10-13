@@ -112,8 +112,31 @@ function OrderDetailPage() {
       });
       
       setOrder({ ...order, status: newStatus });
-      alert('Order status updated successfully');
-    } catch (error) {
+
+     // Send status update email
+     try {
+       const emailData = {
+         to: order.buyerEmail,
+         template: 'orderStatusUpdate',
+         data: {
+           orderNumber: order.orderNumber,
+           newStatus: newStatus,
+           shippingName: order.shippingAddress.name,
+           storeName: storeName,
+         }
+       };
+       await fetch('/api/send-email', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify(emailData),
+       });
+     } catch (emailError) {
+       console.error("Failed to send status update email:", emailError);
+       // Non-critical, so we don't show an error to the seller
+     }
+
+     alert('Order status updated successfully');
+   } catch (error) {
       console.error('Error updating order:', error);
       alert('Failed to update order status');
     } finally {
@@ -213,237 +236,203 @@ function OrderDetailPage() {
   const StatusIcon = getStatusIcon(order.status);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-[#f5f5f7] relative overflow-hidden">
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
       
-      
-      <div className="flex-1 ml-64">
-        <div className="p-8">
-          {/* Header */}
-          <div className="mb-6 flex items-center justify-between print:hidden">
-            <div>
-              <Link
-                href="/dashboard/orders"
-                className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                <span className="font-medium">Back to Orders</span>
-              </Link>
-              <h1 className="text-3xl font-bold text-gray-900">Order #{order.orderNumber}</h1>
-              <p className="text-gray-600">Placed on {order.createdAt?.toDate?.()?.toLocaleDateString() || 'Recently'}</p>
-            </div>
-            <button
-              onClick={handlePrint}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+      <div className="relative z-10 max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
+        {/* Header */}
+        <div className="mb-6 flex items-center justify-between print:hidden">
+          <div>
+            <Link
+              href="/dashboard/orders"
+              className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
             >
-              <Printer className="w-4 h-4" />
-              Print Invoice
-            </button>
+              <ArrowLeft className="w-5 h-5" />
+              <span className="font-medium">Back to Orders</span>
+            </Link>
+            <h1 className="text-3xl font-bold text-gray-900">Order #{order.orderNumber}</h1>
+            <p className="text-gray-600">Placed on {order.createdAt?.toDate?.()?.toLocaleDateString() || 'Recently'}</p>
           </div>
+          <button
+            onClick={handlePrint}
+            className="flex items-center gap-2 px-4 py-2 bg-white/80 border border-gray-300 rounded-full hover:bg-white transition-colors shadow-md active:scale-95"
+          >
+            <Printer className="w-4 h-4" />
+            Print Invoice
+          </button>
+        </div>
 
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* Main Content */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Order Status */}
-              <div className="bg-white rounded-xl border p-6 print:border-0">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <StatusIcon className="w-5 h-5" />
-                    Order Status
-                  </h2>
-                  <span className={`px-4 py-2 rounded-full text-sm font-medium capitalize ${getStatusColor(order.status)}`}>
-                    {order.status}
-                  </span>
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Order Status */}
+            <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 print:border-0">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <StatusIcon className="w-5 h-5" />
+                  Order Status
+                </h2>
+                <span className={`px-4 py-2 rounded-full text-sm font-medium capitalize ${getStatusColor(order.status)}`}>
+                  {order.status}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2 print:hidden">
+                {statusOptions.map((status) => (
+                  <button
+                    key={status}
+                    onClick={() => handleUpdateStatus(status)}
+                    disabled={updating || order.status === status}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all capitalize ${
+                      order.status === status
+                        ? 'bg-blue-500 text-white shadow-md cursor-not-allowed'
+                        : 'bg-white/80 text-gray-900 hover:bg-white active:scale-95'
+                    }`}
+                  >
+                    {status}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Order Items */}
+            <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 print:border-0">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Order Items</h2>
+              <div className="space-y-4">
+                {order.items.map((item, index) => (
+                  <div key={index} className="flex gap-4">
+                    <div className="w-20 h-20 bg-white/50 rounded-xl flex-shrink-0 print:w-16 print:h-16 border border-gray-200/50">
+                      {item.image ? (
+                        <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-xl" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Package className="w-8 h-8 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">{item.name}</p>
+                      {item.variant && (
+                        <p className="text-sm text-gray-500 mt-1">
+                          {Object.entries(item.variant).map(([key, value]) => `${key}: ${value}`).join(', ')}
+                        </p>
+                      )}
+                      <p className="text-sm text-gray-600 mt-1">Quantity: {item.quantity}</p>
+                      <p className="text-sm font-semibold text-gray-900 mt-1">LKR {item.price.toFixed(2)} each</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-gray-900">LKR {(item.price * item.quantity).toFixed(2)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t border-gray-200/50 mt-6 pt-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Subtotal</span>
+                  <span className="font-medium">LKR {order.subtotal.toFixed(2)}</span>
                 </div>
-
-                {/* Status Update Buttons */}
-                <div className="flex flex-wrap gap-2 print:hidden">
-                  {statusOptions.map((status) => (
-                    <button
-                      key={status}
-                      onClick={() => handleUpdateStatus(status)}
-                      disabled={updating || order.status === status}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors capitalize ${
-                        order.status === status
-                          ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                          : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                      }`}
-                    >
-                      {status}
-                    </button>
-                  ))}
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Shipping</span>
+                  <span className="font-medium">{order.shipping === 0 ? 'Free' : `LKR ${order.shipping.toFixed(2)}`}</span>
+                </div>
+                <div className="border-t border-gray-200/50 pt-2 flex justify-between font-semibold text-lg">
+                  <span>Total</span>
+                  <span>LKR {order.total.toFixed(2)}</span>
                 </div>
               </div>
+            </div>
 
-              {/* Order Items */}
-              <div className="bg-white rounded-xl border p-6 print:border-0">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Order Items</h2>
-                <div className="space-y-4">
-                  {order.items.map((item, index) => (
-                    <div key={index} className="flex gap-4">
-                      <div className="w-20 h-20 bg-gray-100 rounded flex-shrink-0 print:w-16 print:h-16">
-                        {item.image ? (
-                          <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Package className="w-8 h-8 text-gray-400" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900">{item.name}</p>
-                        {item.variant && (
-                          <p className="text-sm text-gray-500 mt-1">
-                            {Object.entries(item.variant).map(([key, value]) => `${key}: ${value}`).join(', ')}
-                          </p>
-                        )}
-                        <p className="text-sm text-gray-600 mt-1">Quantity: {item.quantity}</p>
-                        <p className="text-sm font-semibold text-gray-900 mt-1">${item.price.toFixed(2)} each</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-gray-900">${(item.price * item.quantity).toFixed(2)}</p>
+            {/* Messaging Section */}
+            <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 print:hidden">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <MessageCircle className="w-5 h-5" />
+                Customer Messages
+              </h2>
+              <div className="space-y-3 mb-4 max-h-96 overflow-y-auto p-1">
+                {messages.length === 0 ? (
+                  <p className="text-sm text-gray-500 text-center py-8">No messages yet.</p>
+                ) : (
+                  messages.map((msg) => (
+                    <div key={msg.id} className={`flex ${msg.senderType === 'seller' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[70%] rounded-2xl p-3 shadow-sm ${msg.senderType === 'seller' ? 'bg-blue-500 text-white' : 'bg-white/80 text-gray-900'}`}>
+                        <p className="text-xs font-medium mb-1 opacity-70">{msg.senderName}</p>
+                        <p className="text-sm">{msg.message}</p>
+                        <p className="text-xs mt-1 opacity-60 text-right">
+                          {msg.createdAt?.toDate?.()?.toLocaleTimeString() || 'Just now'}
+                        </p>
                       </div>
                     </div>
-                  ))}
-                </div>
-
-                {/* Order Total */}
-                <div className="border-t mt-6 pt-4 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Subtotal</span>
-                    <span className="font-medium">${order.subtotal.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Shipping</span>
-                    <span className="font-medium">{order.shipping === 0 ? 'Free' : `$${order.shipping.toFixed(2)}`}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Tax</span>
-                    <span className="font-medium">${order.tax.toFixed(2)}</span>
-                  </div>
-                  <div className="border-t pt-2 flex justify-between font-semibold text-lg">
-                    <span>Total</span>
-                    <span>${order.total.toFixed(2)}</span>
-                  </div>
-                </div>
+                  ))
+                )}
               </div>
+              <form onSubmit={handleSendMessage} className="flex gap-2">
+                <input
+                  type="text"
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Reply to customer..."
+                  className="flex-1 px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm shadow-sm"
+                  disabled={sendingMessage}
+                />
+                <button
+                  type="submit"
+                  disabled={sendingMessage || !newMessage.trim()}
+                  className="px-5 py-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed flex items-center gap-2 shadow-md active:scale-95"
+                >
+                  {sendingMessage ? <ButtonLoader color="#ffffff" size="sm" /> : <Send className="w-4 h-4" />}
+                </button>
+              </form>
+            </div>
+          </div>
 
-              {/* Messaging Section */}
-              <div className="bg-white rounded-xl border p-6 print:hidden">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <MessageCircle className="w-5 h-5" />
-                  Customer Messages
-                </h2>
-
-                {/* Messages */}
-                <div className="space-y-3 mb-4 max-h-96 overflow-y-auto">
-                  {messages.length === 0 ? (
-                    <p className="text-sm text-gray-500 text-center py-8">No messages yet.</p>
-                  ) : (
-                    messages.map((msg) => (
-                      <div
-                        key={msg.id}
-                        className={`flex ${msg.senderType === 'seller' ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div
-                          className={`max-w-[70%] rounded-lg p-3 ${
-                            msg.senderType === 'seller'
-                              ? 'bg-gray-900 text-white'
-                              : 'bg-gray-100 text-gray-900'
-                          }`}
-                        >
-                          <p className="text-xs font-medium mb-1 opacity-70">{msg.senderName}</p>
-                          <p className="text-sm">{msg.message}</p>
-                          <p className="text-xs mt-1 opacity-60">
-                            {msg.createdAt?.toDate?.()?.toLocaleTimeString() || 'Just now'}
-                          </p>
-                        </div>
-                      </div>
-                    ))
-                  )}
+          <div className="space-y-6">
+            {/* Customer Information */}
+            <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 print:border-0">
+              <h3 className="font-semibold text-gray-900 mb-4">Customer Information</h3>
+              <div className="space-y-3 text-sm">
+                <div>
+                  <p className="text-gray-600 mb-1">Name</p>
+                  <p className="font-medium text-gray-900">{order.shippingAddress.name}</p>
                 </div>
-
-                {/* Message Input */}
-                <form onSubmit={handleSendMessage} className="flex gap-2">
-                  <input
-                    type="text"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Reply to customer..."
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                    disabled={sendingMessage}
-                  />
-                  <button
-                    type="submit"
-                    disabled={sendingMessage || !newMessage.trim()}
-                    className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
-                  >
-                    {sendingMessage ? (
-                      <>
-                        <ButtonLoader color="#ffffff" size="sm" />
-                        Sending
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        Send
-                      </>
-                    )}
-                  </button>
-                </form>
+                <div>
+                  <p className="text-gray-600 mb-1">Email</p>
+                  <p className="font-medium text-gray-900">{order.buyerEmail}</p>
+                </div>
+                <div>
+                  <p className="text-gray-600 mb-1">Phone</p>
+                  <p className="font-medium text-gray-900">{order.shippingAddress.phone}</p>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-6">
-              {/* Customer Information */}
-              <div className="bg-white rounded-xl border p-6 print:border-0">
-                <h3 className="font-semibold text-gray-900 mb-4">Customer Information</h3>
-                <div className="space-y-3 text-sm">
-                  <div>
-                    <p className="text-gray-600 mb-1">Name</p>
-                    <p className="font-medium text-gray-900">{order.shippingAddress.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 mb-1">Email</p>
-                    <p className="font-medium text-gray-900">{order.buyerEmail}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 mb-1">Phone</p>
-                    <p className="font-medium text-gray-900">{order.shippingAddress.phone}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600 mb-1">Account Type</p>
-                    <p className="font-medium text-gray-900">{order.isGuest ? 'Guest' : 'Registered'}</p>
-                  </div>
-                </div>
+            {/* Shipping Address */}
+            <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 print:border-0">
+              <h3 className="font-semibold text-gray-900 flex items-center gap-2 mb-4">
+                <MapPin className="w-5 h-5" />
+                Shipping Address
+              </h3>
+              <div className="text-sm text-gray-700 space-y-1">
+                <p className="font-medium">{order.shippingAddress.name}</p>
+                <p>{order.shippingAddress.addressLine1}</p>
+                {order.shippingAddress.addressLine2 && <p>{order.shippingAddress.addressLine2}</p>}
+                <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}</p>
+                <p>{order.shippingAddress.country}</p>
               </div>
+            </div>
 
-              {/* Shipping Address */}
-              <div className="bg-white rounded-xl border p-6 print:border-0">
-                <h3 className="font-semibold text-gray-900 flex items-center gap-2 mb-4">
-                  <MapPin className="w-5 h-5" />
-                  Shipping Address
-                </h3>
-                <div className="text-sm text-gray-700 space-y-1">
-                  <p className="font-medium">{order.shippingAddress.name}</p>
-                  <p>{order.shippingAddress.addressLine1}</p>
-                  {order.shippingAddress.addressLine2 && <p>{order.shippingAddress.addressLine2}</p>}
-                  <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}</p>
-                  <p>{order.shippingAddress.country}</p>
-                </div>
-              </div>
-
-              {/* Payment Information */}
-              <div className="bg-white rounded-xl border p-6 print:border-0">
-                <h3 className="font-semibold text-gray-900 flex items-center gap-2 mb-4">
-                  <CreditCard className="w-5 h-5" />
-                  Payment
-                </h3>
-                <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                  <Package className="w-5 h-5 text-green-700" />
-                  <div>
-                    <p className="font-medium text-gray-900 text-sm">Cash on Delivery</p>
-                    <p className="text-xs text-gray-600">Payment pending</p>
-                  </div>
+            {/* Payment Information */}
+            <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 print:border-0">
+              <h3 className="font-semibold text-gray-900 flex items-center gap-2 mb-4">
+                <CreditCard className="w-5 h-5" />
+                Payment
+              </h3>
+              <div className="flex items-center gap-3 p-3 bg-green-500/10 rounded-lg">
+                <Package className="w-5 h-5 text-green-700" />
+                <div>
+                  <p className="font-medium text-gray-900 text-sm">Cash on Delivery</p>
+                  <p className="text-xs text-gray-600">Payment pending</p>
                 </div>
               </div>
             </div>

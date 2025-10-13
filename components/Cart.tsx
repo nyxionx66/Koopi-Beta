@@ -28,22 +28,22 @@ export default function Cart() {
 
       {/* Cart Sidebar */}
       <div
-        className={`fixed top-0 right-0 h-full w-full sm:w-96 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 right-0 h-full w-full sm:w-96 bg-white/80 backdrop-blur-xl shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${
           isCartOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold flex items-center gap-2">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200/50">
+          <h2 className="text-lg font-semibold flex items-center gap-2 text-gray-900">
             <ShoppingCart className="w-5 h-5" />
             Shopping Cart ({items.length})
           </h2>
           <button
             onClick={() => setIsCartOpen(false)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100/50 rounded-lg transition-colors"
             aria-label="Close cart"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 text-gray-700" />
           </button>
         </div>
 
@@ -56,7 +56,7 @@ export default function Cart() {
               <p className="text-gray-600 text-sm mb-4">Add products to get started</p>
               <button
                 onClick={() => setIsCartOpen(false)}
-                className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+                className="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors shadow-md active:scale-95"
               >
                 Continue Shopping
               </button>
@@ -64,7 +64,7 @@ export default function Cart() {
           ) : (
             <div className="space-y-4">
               {items.map((item) => (
-                <div key={item.id} className="flex gap-3 border rounded-lg p-3">
+                <div key={item.id} className="flex gap-3 bg-white/50 border border-gray-200/50 rounded-xl p-3 shadow-sm">
                   {/* Product Image */}
                   <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                     {item.image ? (
@@ -90,14 +90,14 @@ export default function Cart() {
                       </div>
                     )}
                     <p className="text-sm font-semibold text-gray-900 mt-1">
-                      ${item.price.toFixed(2)}
+                      LKR {item.price.toFixed(2)}
                     </p>
 
                     {/* Quantity Controls */}
                     <div className="flex items-center gap-2 mt-2">
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="w-7 h-7 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                        className="w-7 h-7 flex items-center justify-center border border-gray-300 rounded-full hover:bg-gray-100/50 transition-colors"
                         aria-label="Decrease quantity"
                       >
                         <Minus className="w-3 h-3" />
@@ -105,14 +105,14 @@ export default function Cart() {
                       <span className="text-sm font-medium w-8 text-center">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="w-7 h-7 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                        className="w-7 h-7 flex items-center justify-center border border-gray-300 rounded-full hover:bg-gray-100/50 transition-colors"
                         aria-label="Increase quantity"
                       >
                         <Plus className="w-3 h-3" />
                       </button>
                       <button
                         onClick={() => removeFromCart(item.id)}
-                        className="ml-auto p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
+                        className="ml-auto p-1.5 text-red-600 hover:bg-red-100/50 rounded-full transition-colors"
                         aria-label="Remove from cart"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -127,13 +127,13 @@ export default function Cart() {
 
         {/* Footer with Subtotal */}
         {items.length > 0 && (
-          <div className="border-t p-4 bg-white">
+          <div className="border-t border-gray-200/50 p-4 bg-white/50">
             <div className="flex items-center justify-between mb-4">
               <span className="text-gray-700 font-medium">Subtotal:</span>
-              <span className="text-xl font-bold text-gray-900">${subtotal.toFixed(2)}</span>
+              <span className="text-xl font-bold text-gray-900">LKR {subtotal.toFixed(2)}</span>
             </div>
             <button
-              className="w-full py-3 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+              className="w-full py-3 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 transition-colors shadow-md active:scale-95"
               onClick={() => {
                 if (storeName) {
                   setIsCartOpen(false);

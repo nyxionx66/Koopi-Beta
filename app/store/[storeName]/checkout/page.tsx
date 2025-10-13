@@ -105,12 +105,13 @@ export default function CheckoutPage() {
     const orderRef = doc(collection(db, 'orders'));
 
     try {
-      await runTransaction(db, async (transaction) => {
-        // 1. Prepare order data
-        const orderData = {
-          orderNumber: `ORD-${Date.now()}`,
-          status: 'pending',
-          paymentMethod: 'cod',
+      let orderData: any;
+     await runTransaction(db, async (transaction) => {
+       // 1. Prepare order data
+       orderData = {
+         orderNumber: `ORD-${Date.now()}`,
+         status: 'pending',
+         paymentMethod: 'cod',
           paymentStatus: 'pending',
           buyerId: buyer?.uid || null,
           buyerEmail: shippingInfo.email,
@@ -162,10 +163,45 @@ export default function CheckoutPage() {
       });
 
       // If transaction is successful
-      clearCart();
-      router.push(`/store/${storeName}/order-confirmation/${orderRef.id}`);
+     
+     // Send order confirmation email
+    try {
+      const emailData = {
+        to: shippingInfo.email,
+        template: 'orderConfirmation',
+        data: {
+          orderNumber: orderData.orderNumber,
+          total: total,
+          shippingName: shippingInfo.name,
+          shippingAddress: `
+            ${shippingInfo.addressLine1}
+            ${shippingInfo.addressLine2 ? `\n${shippingInfo.addressLine2}` : ''}
+            \n${shippingInfo.city}, ${shippingInfo.state} ${shippingInfo.zipCode}
+            \n${shippingInfo.country}
+          `,
+          items: items.map(item => ({
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+          storeName: storeName,
+        }
+      };
 
-    } catch (err: any) {
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(emailData),
+      });
+    } catch (emailError) {
+       console.error("Failed to send confirmation email:", emailError);
+       // Don't block the user flow if email fails. Just log it.
+     }
+
+     clearCart();
+     router.push(`/store/${storeName}/order-confirmation/${orderRef.id}`);
+
+   } catch (err: any) {
       console.error('Error placing order:', err);
       setError(err.message || 'Failed to place order. Please try again.');
       setLoading(false);
@@ -233,9 +269,15 @@ export default function CheckoutPage() {
   // Shipping Step
   if (currentStep === 'shipping') {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#f5f5f7] relative overflow-hidden">
+        {/* macOS-style background pattern */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        </div>
+        
         {/* Header */}
-        <div className="bg-white border-b">
+        <div className="bg-white/80 backdrop-blur-xl border-b border-white/30 shadow-lg">
           <div className="max-w-4xl mx-auto px-4 py-4">
             <Link href={`/store/${storeName}`} className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900">
               <ArrowLeft className="w-5 h-5" />
@@ -244,7 +286,7 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        <div className="max-w-4xl mx-auto px-4 py-12">
+        <div className="relative z-10 max-w-4xl mx-auto px-4 py-12">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Shipping Information</h1>
             <p className="text-gray-600">Enter your delivery details</p>
@@ -253,9 +295,9 @@ export default function CheckoutPage() {
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Form */}
             <div className="lg:col-span-2">
-              <form onSubmit={handleShippingSubmit} className="bg-white rounded-xl border p-6 space-y-6">
+              <form onSubmit={handleShippingSubmit} className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 space-y-6">
                 {error && (
-                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-700 text-sm">
                     {error}
                   </div>
                 )}
@@ -273,7 +315,7 @@ export default function CheckoutPage() {
                         type="text"
                         value={shippingInfo.name}
                         onChange={(e) => setShippingInfo({ ...shippingInfo, name: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                        className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm shadow-sm"
                         required
                       />
                     </div>
@@ -284,7 +326,7 @@ export default function CheckoutPage() {
                           type="email"
                           value={shippingInfo.email}
                           onChange={(e) => setShippingInfo({ ...shippingInfo, email: e.target.value })}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                          className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm shadow-sm"
                           required
                         />
                       </div>
@@ -294,7 +336,7 @@ export default function CheckoutPage() {
                           type="tel"
                           value={shippingInfo.phone}
                           onChange={(e) => setShippingInfo({ ...shippingInfo, phone: e.target.value })}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                          className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm shadow-sm"
                           required
                         />
                       </div>
@@ -315,7 +357,7 @@ export default function CheckoutPage() {
                         type="text"
                         value={shippingInfo.addressLine1}
                         onChange={(e) => setShippingInfo({ ...shippingInfo, addressLine1: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                        className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm shadow-sm"
                         placeholder="Street address"
                         required
                       />
@@ -326,7 +368,7 @@ export default function CheckoutPage() {
                         type="text"
                         value={shippingInfo.addressLine2}
                         onChange={(e) => setShippingInfo({ ...shippingInfo, addressLine2: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                        className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm shadow-sm"
                         placeholder="Apt, suite, unit, etc. (optional)"
                       />
                     </div>
@@ -337,7 +379,7 @@ export default function CheckoutPage() {
                           type="text"
                           value={shippingInfo.city}
                           onChange={(e) => setShippingInfo({ ...shippingInfo, city: e.target.value })}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                          className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm shadow-sm"
                           required
                         />
                       </div>
@@ -347,7 +389,7 @@ export default function CheckoutPage() {
                           type="text"
                           value={shippingInfo.state}
                           onChange={(e) => setShippingInfo({ ...shippingInfo, state: e.target.value })}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                          className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm shadow-sm"
                           required
                         />
                       </div>
@@ -359,7 +401,7 @@ export default function CheckoutPage() {
                           type="text"
                           value={shippingInfo.zipCode}
                           onChange={(e) => setShippingInfo({ ...shippingInfo, zipCode: e.target.value })}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                          className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm shadow-sm"
                           required
                         />
                       </div>
@@ -369,7 +411,7 @@ export default function CheckoutPage() {
                           type="text"
                           value={shippingInfo.country}
                           onChange={(e) => setShippingInfo({ ...shippingInfo, country: e.target.value })}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                          className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm shadow-sm"
                           required
                         />
                       </div>
@@ -379,7 +421,7 @@ export default function CheckoutPage() {
 
                 <button
                   type="submit"
-                  className="w-full py-3 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors"
+                  className="w-full py-3 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 transition-colors shadow-md active:scale-95"
                 >
                   Continue to Review
                 </button>
@@ -388,12 +430,12 @@ export default function CheckoutPage() {
 
             {/* Order Summary Sidebar */}
             <div>
-              <div className="bg-white rounded-xl border p-6 sticky top-4">
+              <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sticky top-4">
                 <h3 className="font-semibold text-gray-900 mb-4">Order Summary</h3>
                 <div className="space-y-3 mb-4">
                   {items.slice(0, 3).map((item) => (
                     <div key={item.id} className="flex gap-3 text-sm">
-                      <div className="w-12 h-12 bg-gray-100 rounded flex-shrink-0">
+                      <div className="w-12 h-12 bg-white/50 rounded flex-shrink-0 border border-gray-200/50">
                         {item.image && <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded" />}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -405,25 +447,25 @@ export default function CheckoutPage() {
                         )}
                         <p className="text-gray-600">Qty: {item.quantity}</p>
                       </div>
-                      <p className="font-semibold text-gray-900">${(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="font-semibold text-gray-900">LKR {(item.price * item.quantity).toFixed(2)}</p>
                     </div>
                   ))}
                   {items.length > 3 && (
                     <p className="text-sm text-gray-600">+{items.length - 3} more items</p>
                   )}
                 </div>
-                <div className="border-t pt-3 space-y-2 text-sm">
+                <div className="border-t border-gray-200/50 pt-3 space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal</span>
-                    <span className="font-medium">${subtotal.toFixed(2)}</span>
+                    <span className="font-medium">LKR {subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Shipping</span>
                     <span className="font-medium">Free</span>
                   </div>
-                  <div className="border-t pt-2 flex justify-between font-semibold text-base">
+                  <div className="border-t border-gray-200/50 pt-2 flex justify-between font-semibold text-base">
                     <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>LKR {total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -524,10 +566,10 @@ export default function CheckoutPage() {
                         </p>
                       )}
                       <p className="text-sm text-gray-600 mt-1">Quantity: {item.quantity}</p>
-                      <p className="text-sm font-semibold text-gray-900 mt-1">${item.price.toFixed(2)} each</p>
+                      <p className="text-sm font-semibold text-gray-900 mt-1">LKR {item.price.toFixed(2)} each</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-gray-900">${(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="font-semibold text-gray-900">LKR {(item.price * item.quantity).toFixed(2)}</p>
                     </div>
                   </div>
                 ))}
@@ -542,7 +584,7 @@ export default function CheckoutPage() {
               <div className="space-y-3 text-sm mb-6">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">${subtotal.toFixed(2)}</span>
+                  <span className="font-medium">LKR {subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipping</span>
@@ -550,11 +592,11 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Tax</span>
-                  <span className="font-medium">${tax.toFixed(2)}</span>
+                  <span className="font-medium">LKR {tax.toFixed(2)}</span>
                 </div>
                 <div className="border-t pt-3 flex justify-between font-semibold text-lg">
                   <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>LKR {total.toFixed(2)}</span>
                 </div>
               </div>
 

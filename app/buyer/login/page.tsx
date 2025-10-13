@@ -158,12 +158,7 @@ export default function BuyerLoginPage() {
             transition={{ duration: 0.5 }}
           >
             <div
-              className="border rounded-2xl p-8 md:p-10 shadow-lg"
-              style={{
-                backgroundColor: theme.backgroundColor,
-                borderColor: theme.textColor + '20',
-                boxShadow: `0 10px 25px -5px ${theme.primaryColor}1A`
-              }}
+              className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-8 md:p-10"
             >
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold mb-2" style={{ color: theme.textColor }}>
@@ -179,8 +174,7 @@ export default function BuyerLoginPage() {
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-3 p-4 rounded-lg"
-                    style={{ backgroundColor: '#ff0000' + '1A', border: `1px solid ${'#ff0000' + '30'}` }}
+                    className="flex items-center gap-3 p-4 rounded-lg bg-red-500/10 border border-red-500/20"
                   >
                     <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
                     <p className="text-sm text-red-500">{error}</p>
@@ -197,13 +191,7 @@ export default function BuyerLoginPage() {
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full pl-12 pr-4 py-3 border rounded-lg focus:outline-none transition-all"
-                      style={{
-                        backgroundColor: theme.backgroundColor,
-                        borderColor: theme.textColor + '20',
-                        color: theme.textColor,
-                        '--focus-ring-color': theme.primaryColor
-                      } as React.CSSProperties}
+                      className="w-full pl-12 pr-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm placeholder:text-gray-400 shadow-sm"
                       placeholder="you@example.com"
                       required
                     />
@@ -220,13 +208,7 @@ export default function BuyerLoginPage() {
                       type={showPassword ? 'text' : 'password'}
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      className="w-full pl-12 pr-12 py-3 border rounded-lg focus:outline-none transition-all"
-                      style={{
-                        backgroundColor: theme.backgroundColor,
-                        borderColor: theme.textColor + '20',
-                        color: theme.textColor,
-                        '--focus-ring-color': theme.primaryColor
-                      } as React.CSSProperties}
+                      className="w-full pl-12 pr-12 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm placeholder:text-gray-400 shadow-sm"
                       placeholder="Enter your password"
                       required
                     />
@@ -244,7 +226,7 @@ export default function BuyerLoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex justify-center items-center gap-2 py-3.5 text-base font-semibold rounded-lg transition-transform hover:scale-105 active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex justify-center items-center gap-2 py-3.5 text-base font-semibold rounded-full transition-transform hover:scale-105 active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                   style={{
                     backgroundColor: theme.primaryColor,
                     color: theme.backgroundColor

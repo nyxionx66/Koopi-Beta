@@ -51,17 +51,17 @@ export function VariantEditor({ variants, onChange }: VariantEditorProps) {
   return (
     <div className="space-y-4">
       {variants.map((variant, variantIndex) => (
-        <div key={variantIndex} className="p-4 border rounded-lg">
-          <div className="flex items-center justify-between mb-2">
+        <div key={variantIndex} className="p-4 bg-white/80 border border-gray-200/80 rounded-xl shadow-sm">
+          <div className="flex items-center justify-between mb-3">
             <input
               type="text"
               value={variant.name}
               onChange={(e) => handleVariantNameChange(variantIndex, e.target.value)}
               placeholder="Variant Name (e.g., Size)"
-              className="w-full font-semibold border-b focus:outline-none"
+              className="w-full font-semibold bg-transparent focus:outline-none text-gray-900 placeholder:text-gray-400"
             />
-            <button onClick={() => handleRemoveVariant(variantIndex)}>
-              <Trash2 className="w-4 h-4 text-red-500" />
+            <button onClick={() => handleRemoveVariant(variantIndex)} className="p-1 text-red-500 hover:bg-red-100 rounded-full transition-colors">
+              <Trash2 className="w-4 h-4" />
             </button>
           </div>
           <div className="space-y-2">
@@ -72,23 +72,23 @@ export function VariantEditor({ variants, onChange }: VariantEditorProps) {
                   value={option}
                   onChange={(e) => handleOptionChange(variantIndex, optionIndex, e.target.value)}
                   placeholder="Option (e.g., Small)"
-                  className="w-full px-2 py-1 border rounded-md"
+                  className="w-full px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm"
                 />
-                <button onClick={() => handleRemoveOption(variantIndex, optionIndex)}>
-                  <Trash2 className="w-4 h-4 text-gray-400" />
+                <button onClick={() => handleRemoveOption(variantIndex, optionIndex)} className="p-1 text-gray-400 hover:bg-gray-100 rounded-full transition-colors">
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             ))}
-            <button onClick={() => handleAddOption(variantIndex)} className="text-sm text-blue-500 flex items-center gap-1">
+            <button onClick={() => handleAddOption(variantIndex)} className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1 mt-2">
               <Plus className="w-3 h-3" />
               Add Option
             </button>
           </div>
         </div>
       ))}
-      <button onClick={handleAddVariant} className="w-full py-2 border-2 border-dashed rounded-lg flex items-center justify-center gap-2 text-gray-500 hover:border-gray-400">
+      <button onClick={handleAddVariant} className="w-full py-2.5 border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center gap-2 text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-all bg-white/50">
         <Plus className="w-4 h-4" />
-        Add Variant
+        <span className="font-medium">Add Variant</span>
       </button>
     </div>
   );

@@ -174,7 +174,7 @@ export default function BuyerOrdersPage() {
                 <div className="bg-gray-50 px-5 py-4 flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">Total</p>
-                    <p className="font-bold text-lg text-gray-900">${order.total.toFixed(2)}</p>
+                    <p className="font-bold text-lg text-gray-900">LKR {order.total.toFixed(2)}</p>
                   </div>
                   <Link
                     href={`/buyer/track-order/${order.id}`}

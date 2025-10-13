@@ -57,15 +57,13 @@ export function Features() {
   ];
 
   return (
-    <section id="features" className="py-32 px-6 lg:px-8 bg-neutral-950">
+    <section id="features" className="py-32 px-6 lg:px-8 bg-[#f5f5f7]">
       <div className="max-w-7xl mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-20">
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-light text-white mb-6 tracking-tight">
-            Everything you need
-            <br />
-            <span className="font-extralight">to sell online</span>
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 tracking-tight">
+            Everything you need to sell online
           </h2>
-          <p className="text-lg text-neutral-400 font-light">
+          <p className="text-lg text-gray-600">
             Powerful features that help you grow your business and serve your customers better.
           </p>
         </div>
@@ -74,15 +72,15 @@ export function Features() {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="group p-8 rounded-2xl bg-neutral-900/50 border border-neutral-800 hover:border-neutral-700 transition-all hover:bg-neutral-900/70"
+              className="group p-8 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/30 shadow-2xl transition-all hover:shadow-lg"
             >
-              <div className="w-12 h-12 rounded-xl bg-neutral-800 flex items-center justify-center text-white mb-6 group-hover:bg-neutral-700 transition-colors">
+              <div className="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-white mb-6 shadow-md">
                 {feature.icon}
               </div>
-              <h3 className="text-xl font-medium text-white mb-3">
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">
                 {feature.title}
               </h3>
-              <p className="text-neutral-400 leading-relaxed font-light">
+              <p className="text-gray-600 leading-relaxed">
                 {feature.description}
               </p>
             </div>

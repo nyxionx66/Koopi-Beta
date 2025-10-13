@@ -114,10 +114,12 @@ function SignUpPage() {
         email: user.email,
         createdAt: new Date(),
         subscription: {
-          status: 'free_trial',
-          plan: 'basic',
-          trialEndDate: new Date(new Date().setDate(new Date().getDate() + 14)),
-        },
+         plan: 'pro',
+         status: 'trialing',
+         productCount: 0,
+         productLimit: Infinity, // Unlimited during trial
+         trialEndDate: new Date(new Date().setDate(new Date().getDate() + 14)),
+       },
         userType: 'seller',
         onboarding: {
           addedFirstProduct: false,
@@ -137,9 +139,7 @@ function SignUpPage() {
         ownerId: user.uid,
       });
 
-      setTimeout(() => {
-        router.push('/onboarding');
-      }, 2000);
+      router.push('/onboarding');
     } catch (error: any) {
       setIsSubmitting(false);
       if (error.code === 'auth/email-already-in-use') {
@@ -162,9 +162,15 @@ function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-neutral-950">
+    <div className="min-h-screen bg-[#f5f5f7] relative overflow-hidden">
       <Header />
-      <main className="pt-20 pb-20 px-6 lg:px-8">
+      {/* macOS-style background pattern */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
+      
+      <main className="relative z-10 pt-20 pb-20 px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           {isSubmitting ? (
             <motion.div
@@ -175,82 +181,31 @@ function SignUpPage() {
               className="text-center py-20"
             >
               <Lottie animationData={animationData} loop={true} className="w-48 h-48 mx-auto" />
-              <h2 className="text-3xl font-bold text-neutral-900 dark:text-white mt-8 mb-3">Creating your store...</h2>
-              <p className="text-lg text-neutral-600 dark:text-neutral-400">This will only take a moment</p>
+              <h2 className="text-3xl font-bold text-gray-900 mt-8 mb-3">Creating your store...</h2>
+              <p className="text-lg text-gray-600">This will only take a moment</p>
             </motion.div>
           ) : (
             <>
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="text-center mb-12"
               >
                 <div className="inline-flex items-center gap-2 mb-6">
-                  <span className="text-sm font-semibold text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">
+                  <span className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
                     Start Your Journey
                   </span>
                 </div>
-                <h1 className="text-4xl sm:text-5xl font-bold text-neutral-900 dark:text-white mb-4">
+                <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
                   Create Your Store
                 </h1>
-                <p className="text-lg text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto">
+                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
                   Join thousands of entrepreneurs building their dream business with Koopi
                 </p>
               </motion.div>
 
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="mb-12"
-              >
-                <div className="flex items-center justify-between max-w-2xl mx-auto">
-                  {steps.map((step, index) => (
-                    <div key={step.id} className="flex items-center flex-1">
-                      <div className="flex flex-col items-center w-full">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${
-                          currentStep > step.id 
-                            ? 'bg-neutral-900 dark:bg-white border-neutral-900 dark:border-white' 
-                            : currentStep === step.id 
-                            ? 'bg-neutral-900 dark:bg-white border-neutral-900 dark:border-white' 
-                            : 'bg-transparent border-neutral-300 dark:border-neutral-700'
-                        }`}>
-                          {currentStep > step.id ? (
-                            <svg className="w-6 h-6 text-white dark:text-neutral-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
-                          ) : (
-                            <step.icon className={`w-6 h-6 ${
-                              currentStep === step.id 
-                                ? 'text-white dark:text-neutral-900' 
-                                : 'text-neutral-400'
-                            }`} />
-                          )}
-                        </div>
-                        <div className="mt-3 text-center hidden md:block">
-                          <p className={`text-sm font-semibold ${
-                            currentStep >= step.id 
-                              ? 'text-neutral-900 dark:text-white' 
-                              : 'text-neutral-400'
-                          }`}>
-                            {step.title}
-                          </p>
-                        </div>
-                      </div>
-                      {index < steps.length - 1 && (
-                        <div className={`flex-1 h-0.5 mx-4 transition-all ${
-                          currentStep > step.id 
-                            ? 'bg-neutral-900 dark:bg-white' 
-                            : 'bg-neutral-300 dark:bg-neutral-700'
-                        }`} />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-
-              <div className="max-w-xl mx-auto">
-                <div className="bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-2xl p-8 md:p-10 shadow-xl">
+             <div className="max-w-xl mx-auto">
+                <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-8 md:p-10">
                   <form onSubmit={handleSubmit}>
                     <AnimatePresence mode="wait">
                       {currentStep === 1 && (
@@ -263,21 +218,21 @@ function SignUpPage() {
                           className="space-y-6"
                         >
                           <div>
-                            <h2 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">
+                            <h2 className="text-2xl font-bold text-gray-900 mb-2">
                               Create your account
                             </h2>
-                            <p className="text-neutral-600 dark:text-neutral-400">
+                            <p className="text-gray-600">
                               Start with your email and a secure password
                             </p>
                           </div>
 
                           <div>
-                            <label htmlFor="email" className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                               Email address
                             </label>
                             <div className="relative">
                               <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                                <Mail className="h-5 w-5 text-neutral-400" />
+                                <Mail className="h-5 w-5 text-gray-400" />
                               </div>
                               <input
                                 type="email"
@@ -287,18 +242,18 @@ function SignUpPage() {
                                 onChange={handleChange}
                                 required
                                 placeholder="you@example.com"
-                                className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-neutral-800 border-2 border-neutral-300 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white focus:border-transparent transition-all text-neutral-900 dark:text-white placeholder-neutral-400"
+                                className="w-full pl-12 pr-4 py-3.5 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm placeholder:text-gray-400 shadow-sm"
                               />
                             </div>
                           </div>
 
                           <div>
-                            <label htmlFor="password" className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
+                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                               Password
                             </label>
                             <div className="relative">
                               <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                                <Lock className="h-5 w-5 text-neutral-400" />
+                                <Lock className="h-5 w-5 text-gray-400" />
                               </div>
                               <input
                                 type="password"
@@ -308,18 +263,18 @@ function SignUpPage() {
                                 onChange={handleChange}
                                 required
                                 placeholder="At least 6 characters"
-                                className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-neutral-800 border-2 border-neutral-300 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white focus:border-transparent transition-all text-neutral-900 dark:text-white placeholder-neutral-400"
+                                className="w-full pl-12 pr-4 py-3.5 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm placeholder:text-gray-400 shadow-sm"
                               />
                             </div>
                           </div>
 
                           <div>
-                            <label htmlFor="confirmPassword" className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
+                            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
                               Confirm password
                             </label>
                             <div className="relative">
                               <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                                <Lock className="h-5 w-5 text-neutral-400" />
+                                <Lock className="h-5 w-5 text-gray-400" />
                               </div>
                               <input
                                 type="password"
@@ -329,7 +284,7 @@ function SignUpPage() {
                                 onChange={handleChange}
                                 required
                                 placeholder="Re-enter your password"
-                                className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-neutral-800 border-2 border-neutral-300 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white focus:border-transparent transition-all text-neutral-900 dark:text-white placeholder-neutral-400"
+                                className="w-full pl-12 pr-4 py-3.5 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm placeholder:text-gray-400 shadow-sm"
                               />
                             </div>
                           </div>
@@ -346,21 +301,21 @@ function SignUpPage() {
                           className="space-y-6"
                         >
                           <div>
-                            <h2 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">
+                            <h2 className="text-2xl font-bold text-gray-900 mb-2">
                               Name your store
                             </h2>
-                            <p className="text-neutral-600 dark:text-neutral-400">
+                            <p className="text-gray-600">
                               Choose a unique name for your online store
                             </p>
                           </div>
 
                           <div>
-                            <label htmlFor="storeName" className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
+                            <label htmlFor="storeName" className="block text-sm font-medium text-gray-700 mb-2">
                               Store name
                             </label>
                             <div className="relative">
                               <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                                <Store className="h-5 w-5 text-neutral-400" />
+                                <Store className="h-5 w-5 text-gray-400" />
                               </div>
                               <input
                                 type="text"
@@ -370,7 +325,7 @@ function SignUpPage() {
                                 onChange={handleChange}
                                 required
                                 placeholder="My Awesome Store"
-                                className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-neutral-800 border-2 border-neutral-300 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white focus:border-transparent transition-all text-neutral-900 dark:text-white placeholder-neutral-400"
+                                className="w-full pl-12 pr-4 py-3.5 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm placeholder:text-gray-400 shadow-sm"
                               />
                             </div>
                             
@@ -378,22 +333,22 @@ function SignUpPage() {
                               <motion.div
                                 initial={{ opacity: 0, y: -5 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="mt-3 p-3 bg-neutral-50 dark:bg-neutral-800 rounded-lg border border-neutral-200 dark:border-neutral-700"
+                                className="mt-3 p-3 bg-white/50 rounded-lg border border-gray-200/50"
                               >
-                                <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                                  Your store URL: <span className="font-semibold text-neutral-900 dark:text-white">{formData.storeName}.koopi.lk</span>
+                                <p className="text-sm text-gray-600">
+                                  Your store URL: <span className="font-semibold text-gray-900">{formData.storeName}.koopi.lk</span>
                                 </p>
                               </motion.div>
                             )}
 
                             {storeNameStatus === 'checking' && (
-                              <div className="flex items-center gap-2 mt-3 text-sm text-neutral-600 dark:text-neutral-400">
+                              <div className="flex items-center gap-2 mt-3 text-sm text-gray-600">
                                 <Loader2 className="w-4 h-4 animate-spin" />
                                 Checking availability...
                               </div>
                             )}
                             {storeNameStatus === 'available' && (
-                              <div className="flex items-center gap-2 mt-3 text-sm text-neutral-900 dark:text-white">
+                              <div className="flex items-center gap-2 mt-3 text-sm text-green-600">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
@@ -401,7 +356,7 @@ function SignUpPage() {
                               </div>
                             )}
                             {storeNameStatus === 'unavailable' && (
-                              <div className="flex items-center gap-2 mt-3 text-sm text-red-600 dark:text-red-400">
+                              <div className="flex items-center gap-2 mt-3 text-sm text-red-600">
                                 <AlertCircle className="w-4 h-4" />
                                 This name is already taken
                               </div>
@@ -420,17 +375,17 @@ function SignUpPage() {
                           className="space-y-6"
                         >
                           <div>
-                            <h2 className="text-2xl font-bold text-neutral-900 dark:text-white mb-2">
+                            <h2 className="text-2xl font-bold text-gray-900 mb-2">
                               Tell us about your store
                             </h2>
-                            <p className="text-neutral-600 dark:text-neutral-400">
+                            <p className="text-gray-600">
                               Help customers understand what you offer
                             </p>
                           </div>
 
                           <div>
-                            <label htmlFor="storeDescription" className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
-                              Store description <span className="text-neutral-400 font-normal">(Optional)</span>
+                            <label htmlFor="storeDescription" className="block text-sm font-medium text-gray-700 mb-2">
+                              Store description <span className="text-gray-400 font-normal">(Optional)</span>
                             </label>
                             <textarea
                               id="storeDescription"
@@ -439,24 +394,24 @@ function SignUpPage() {
                               value={formData.storeDescription}
                               onChange={handleChange}
                               placeholder="Tell customers what makes your store special..."
-                              className="w-full px-4 py-3.5 bg-white dark:bg-neutral-800 border-2 border-neutral-300 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white focus:border-transparent transition-all text-neutral-900 dark:text-white placeholder-neutral-400 resize-none"
+                              className="w-full px-4 py-3.5 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm placeholder:text-gray-400 resize-none shadow-sm"
                             />
                           </div>
 
                           <div>
-                            <label htmlFor="storeCategory" className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
-                              What will you sell? <span className="text-neutral-400 font-normal">(Optional)</span>
+                            <label htmlFor="storeCategory" className="block text-sm font-medium text-gray-700 mb-2">
+                              What will you sell? <span className="text-gray-400 font-normal">(Optional)</span>
                             </label>
                             <div className="relative">
                               <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                                <Package className="h-5 w-5 text-neutral-400" />
+                                <Package className="h-5 w-5 text-gray-400" />
                               </div>
                               <select
                                 id="storeCategory"
                                 name="storeCategory"
                                 value={formData.storeCategory}
                                 onChange={handleChange}
-                                className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-neutral-800 border-2 border-neutral-300 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white focus:border-transparent transition-all text-neutral-900 dark:text-white appearance-none cursor-pointer"
+                                className="w-full pl-12 pr-4 py-3.5 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm appearance-none cursor-pointer shadow-sm"
                               >
                                 <option value="">Select a category</option>
                                 <option value="fashion">Fashion & Apparel</option>
@@ -468,7 +423,7 @@ function SignUpPage() {
                                 <option value="other">Other</option>
                               </select>
                               <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
-                                <svg className="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                 </svg>
                               </div>
@@ -482,10 +437,10 @@ function SignUpPage() {
                       <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="flex items-center gap-2 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl mt-6"
+                        className="flex items-center gap-2 p-4 bg-red-500/10 border border-red-500/20 rounded-xl mt-6"
                       >
-                        <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0" />
-                        <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                        <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
+                        <p className="text-sm text-red-600">{error}</p>
                       </motion.div>
                     )}
 
@@ -494,7 +449,7 @@ function SignUpPage() {
                         <button
                           type="button"
                           onClick={handlePrev}
-                          className="flex items-center justify-center gap-2 px-6 py-4 text-base font-semibold text-neutral-900 dark:text-white bg-transparent border-2 border-neutral-300 dark:border-neutral-700 rounded-xl hover:border-neutral-400 dark:hover:border-neutral-600 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                          className="flex items-center justify-center gap-2 px-6 py-4 text-base font-semibold text-gray-700 bg-white/80 border border-gray-300 rounded-full hover:bg-white transition-all active:scale-95 shadow-sm"
                         >
                           <ArrowLeft className="w-5 h-5" /> Back
                         </button>
@@ -502,7 +457,7 @@ function SignUpPage() {
                       <button
                         type="submit"
                         disabled={!isStepValid()}
-                        className="flex-1 flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-white bg-neutral-900 dark:bg-white dark:text-neutral-900 rounded-xl hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg"
+                        className="flex-1 flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-white bg-blue-500 rounded-full hover:bg-blue-600 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                       >
                         {currentStep === steps.length ? 'Create Store' : 'Continue'}
                         <ArrowRight className="w-5 h-5" />
@@ -511,11 +466,11 @@ function SignUpPage() {
                   </form>
                 </div>
 
-                <p className="text-center text-sm text-neutral-600 dark:text-neutral-400 mt-8">
+                <p className="text-center text-sm text-gray-600 mt-8">
                   Already have an account?{' '}
-                  <Link 
-                    href="/login" 
-                    className="font-semibold text-neutral-900 dark:text-white hover:underline"
+                  <Link
+                    href="/login"
+                    className="font-semibold text-blue-600 hover:underline"
                   >
                     Sign in
                   </Link>

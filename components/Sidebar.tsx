@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, ShoppingCart, Package, Users, BarChart, Settings, LogOut, ChevronDown, Globe } from "lucide-react";
+import { Home, ShoppingCart, Package, Users, BarChart, Settings, LogOut, ChevronDown, Globe, Star } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { auth } from "@/firebase";
 import { signOut } from "firebase/auth";
@@ -69,55 +69,66 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="w-56 h-screen bg-[#f1f1f1] text-gray-800 flex flex-col">
+    <aside className="w-64 h-screen bg-white/80 backdrop-blur-xl text-gray-800 flex flex-col border-r border-white/20 shadow-lg">
       {/* Navigation Links */}
-      <nav className="flex-1 px-3 py-6 space-y-0.5">
+      <nav className="flex-1 px-4 py-6 space-y-1">
         {navLinks.map((link) => {
           const isActive = pathname === link.href;
           return (
             <Link
               key={link.label}
               href={link.href}
-              className={`flex items-center px-3 py-2 text-[13px] font-medium rounded-lg transition-colors ${
+              className={`flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-150 ${
                 isActive
-                  ? "bg-white text-gray-900"
-                  : "text-gray-700 hover:bg-gray-200/50"
+                  ? "bg-blue-500 text-white shadow-md"
+                  : "text-gray-700 hover:bg-blue-500/10 hover:text-blue-600"
               }`}
             >
-              <link.icon className="w-[18px] h-[18px] mr-3" strokeWidth={2} />
+              <link.icon className="w-5 h-5 mr-3" strokeWidth={2} />
               {link.label}
             </Link>
           );
         })}
       </nav>
 
-      {/* Settings */}
-      <div className="px-3 pb-3">
-        <Link
-          href="/dashboard/settings"
-          className={`flex items-center px-3 py-2 text-[13px] font-medium rounded-lg transition-colors ${
-            pathname === '/dashboard/settings'
-              ? "bg-white text-gray-900"
-              : "text-gray-700 hover:bg-gray-200/50"
-          }`}
-        >
-          <Settings className="w-[18px] h-[18px] mr-3" strokeWidth={2} />
-          Settings
-        </Link>
-      </div>
+      {/* Settings & Subscription */}
+     <div className="px-4 pb-3 space-y-1">
+       <Link
+         href="/dashboard/subscription"
+         className={`flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+           pathname === '/dashboard/subscription'
+             ? "bg-blue-500 text-white shadow-md"
+             : "text-gray-700 hover:bg-blue-500/10 hover:text-blue-600"
+         }`}
+       >
+         <Star className="w-5 h-5 mr-3" strokeWidth={2} />
+         Subscription
+       </Link>
+       <Link
+         href="/dashboard/settings"
+         className={`flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+           pathname === '/dashboard/settings'
+             ? "bg-blue-500 text-white shadow-md"
+             : "text-gray-700 hover:bg-blue-500/10 hover:text-blue-600"
+         }`}
+       >
+         <Settings className="w-5 h-5 mr-3" strokeWidth={2} />
+         Settings
+       </Link>
+     </div>
 
       {/* User Profile Section at Bottom */}
-      <div className="p-3 border-t border-gray-300">
+      <div className="p-4 border-t border-gray-200/50">
         <div className="relative" ref={dropdownRef}>
           {/* Dropdown Menu */}
           {isDropdownOpen && (
-            <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50">
+            <div className="absolute bottom-full left-0 right-0 mb-2 bg-white/80 backdrop-blur-xl rounded-xl shadow-2xl border border-white/30 overflow-hidden z-50">
               {/* User Info Header */}
-              <div className="px-3 py-2.5 border-b border-gray-200 bg-gray-50">
-                <p className="text-[13px] font-medium text-gray-900 truncate">
+              <div className="px-3 py-2.5 border-b border-gray-200/50 bg-white/50">
+                <p className="text-sm font-semibold text-gray-900 truncate">
                   {getUserName()}
                 </p>
-                <p className="text-[11px] text-gray-500 truncate mt-0.5">
+                <p className="text-xs text-gray-500 truncate mt-0.5">
                   {getUserEmail()}
                 </p>
               </div>
@@ -125,9 +136,9 @@ const Sidebar = () => {
               {/* Logout Button */}
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-2.5 px-3 py-2.5 text-[13px] font-medium text-gray-700 hover:bg-gray-50 transition-colors text-left"
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-500/10 transition-colors text-left"
               >
-                <LogOut className="w-[15px] h-[15px]" strokeWidth={2} />
+                <LogOut className="w-4 h-4" strokeWidth={2} />
                 <span>Log out</span>
               </button>
             </div>
@@ -136,22 +147,22 @@ const Sidebar = () => {
           {/* Profile Button */}
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-colors ${
-              isDropdownOpen ? 'bg-gray-200/70' : 'hover:bg-gray-200/50'
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-colors ${
+              isDropdownOpen ? 'bg-white/90 shadow-inner' : 'hover:bg-white/80'
             }`}
           >
-            <div className="w-7 h-7 rounded-full bg-gray-900 flex items-center justify-center text-white font-medium text-[11px] flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0 shadow-md">
               {getUserInitial()}
             </div>
             <div className="flex-1 min-w-0 text-left">
-              <p className="text-[13px] font-medium text-gray-900 truncate">
+              <p className="text-sm font-semibold text-gray-900 truncate">
                 {getUserName()}
               </p>
             </div>
-            <ChevronDown 
+            <ChevronDown
               className={`w-4 h-4 text-gray-500 flex-shrink-0 transition-transform ${
                 isDropdownOpen ? 'rotate-180' : ''
-              }`} 
+              }`}
             />
           </button>
         </div>

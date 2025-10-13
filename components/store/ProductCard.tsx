@@ -127,11 +127,11 @@ const ProductCard = ({ product, storeName, theme }: ProductCardProps) => {
               className="text-lg font-bold"
               style={{ color: primaryColor }}
             >
-              Rs {product.price.toFixed(2)}
+              LKR {product.price.toFixed(2)}
             </span>
             {hasDiscount && (
               <span className="text-sm text-gray-400 line-through">
-                Rs {product.compareAtPrice!.toFixed(2)}
+                LKR {product.compareAtPrice!.toFixed(2)}
               </span>
             )}
           </div>

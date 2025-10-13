@@ -7,7 +7,7 @@ import { db } from '@/firebase';
 import { Package, Search, Eye } from 'lucide-react';
 import Link from 'next/link';
 import withAuth from '@/components/withAuth';
-import { InlineLoader } from '@/components/ui/InlineLoader';
+import OrderTableSkeleton from '@/components/dashboard/OrderTableSkeleton';
 import { Order } from '@/types';
 
 function OrdersPage() {
@@ -119,64 +119,65 @@ function OrdersPage() {
   ];
 
   return (
-    <div className="bg-[#f1f1f1] min-h-screen">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Package className="w-5 h-5 text-gray-700" />
-          <h1 className="text-xl font-semibold text-gray-900">Orders</h1>
-        </div>
+    <div className="min-h-screen bg-[#f5f5f7] relative overflow-hidden">
+      {/* macOS-style background pattern */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
-
-      {/* Filter Bar */}
-      <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-3">
-        {filterTabs.map(tab => (
-          <button
-            key={tab.value}
-            onClick={() => setStatusFilter(tab.value)}
-            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-              statusFilter === tab.value
-                ? 'text-gray-700 bg-gray-100'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-700'
-            }`}
-          >
-            {tab.name}
-          </button>
-        ))}
-        <div className="relative flex-1">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-            <Search className="w-5 h-5 text-gray-400" />
-          </span>
-          <input
-            type="text"
-            placeholder="Search by order #, customer..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900"
-          />
-        </div>
-        <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-          </svg>
-        </button>
-        <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-          </svg>
-        </button>
-      </div>
-
-      {/* Orders Content */}
-      {loading ? (
-        <div className="p-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12">
-            <InlineLoader message="Loading orders..." primaryColor="#000000" size="md" />
+      
+      <div className="relative z-10 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        {/* Header - macOS style */}
+        <div className="flex items-center justify-between mb-6 backdrop-blur-xl bg-white/60 rounded-[20px] p-4 sm:p-5 border border-white/20 shadow-lg">
+          <div className="flex items-center gap-4">
+            <div className="group flex items-center justify-center w-9 h-9 rounded-full bg-black/5">
+              <Package className="w-5 h-5 text-gray-700" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">Orders</h1>
+              <p className="text-sm text-gray-600 mt-0.5">Manage and track all customer orders</p>
+            </div>
           </div>
         </div>
-      ) : filteredOrders.length === 0 ? (
-        <div className="p-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12">
+
+        {/* Filter Bar */}
+        <div className="backdrop-blur-xl bg-white/60 rounded-[20px] p-4 border border-white/20 shadow-lg mb-6">
+          <div className="flex items-center gap-3">
+            {filterTabs.map(tab => (
+              <button
+                key={tab.value}
+                onClick={() => setStatusFilter(tab.value)}
+                className={`px-3 py-1.5 text-sm font-medium rounded-full transition-all ${
+                  statusFilter === tab.value
+                    ? 'bg-blue-500 text-white shadow-md'
+                    : 'text-gray-600 hover:bg-white/80'
+                }`}
+              >
+                {tab.name}
+              </button>
+            ))}
+            <div className="relative flex-1 ml-4">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                <Search className="w-5 h-5 text-gray-400" />
+              </span>
+              <input
+                type="text"
+                placeholder="Search by order #, customer..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 text-sm bg-white/80 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Orders Content */}
+        {loading ? (
+          <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6">
+            <OrderTableSkeleton />
+          </div>
+        ) : filteredOrders.length === 0 ? (
+          <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-12">
             <div className="max-w-2xl mx-auto text-center">
               <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <h2 className="text-2xl font-semibold text-gray-900 mb-2">
@@ -189,13 +190,11 @@ function OrdersPage() {
               </p>
             </div>
           </div>
-        </div>
-      ) : (
-        <div className="p-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        ) : (
+          <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl overflow-hidden">
             <table className="w-full">
               <thead>
-                <tr className="text-left text-xs font-medium text-gray-500 border-b border-gray-200">
+                <tr className="text-left text-xs font-medium text-gray-500 border-b border-gray-200/50 bg-white/50">
                   <th className="p-4">ORDER</th>
                   <th className="p-4">CUSTOMER</th>
                   <th className="p-4">ITEMS</th>
@@ -207,7 +206,7 @@ function OrdersPage() {
               </thead>
               <tbody>
                 {filteredOrders.map((order) => (
-                  <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50">
+                  <tr key={order.id} className="border-b border-gray-200/30 hover:bg-white/50 transition-colors">
                     <td className="p-4">
                       <div>
                         <p className="text-sm font-medium text-gray-900">#{order.orderNumber}</p>
@@ -225,7 +224,7 @@ function OrdersPage() {
                       <p className="text-sm text-gray-600">{order.items.length} item(s)</p>
                     </td>
                     <td className="p-4">
-                      <p className="text-sm font-semibold text-gray-900">${order.total.toFixed(2)}</p>
+                      <p className="text-sm font-semibold text-gray-900">LKR {order.total.toFixed(2)}</p>
                     </td>
                     <td className="p-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${getStatusColor(order.status)}`}>
@@ -238,7 +237,7 @@ function OrdersPage() {
                     <td className="p-4 text-right">
                       <Link
                         href={`/dashboard/orders/${order.id}`}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg hover:bg-gray-800 transition-colors"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors shadow-sm active:scale-95"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         View
@@ -249,8 +248,8 @@ function OrdersPage() {
               </tbody>
             </table>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

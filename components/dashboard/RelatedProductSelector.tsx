@@ -52,23 +52,39 @@ export function RelatedProductSelector({ selectedProducts, onChange }: RelatedPr
   }
 
   return (
-    <div className="space-y-2">
-      <h3 className="text-lg font-semibold">Related Products</h3>
-      <div className="grid grid-cols-3 gap-4">
-        {products.map(product => (
-          <button
-            key={product.id}
-            onClick={() => toggleProduct(product.id)}
-            className={`p-2 border rounded-lg ${selectedProducts.includes(product.id) ? 'border-blue-500' : ''}`}
-          >
-            {product.images && product.images.length > 0 ? (
-              <img src={product.images[0]} alt={product.name} className="w-full h-24 object-cover rounded-md" />
-            ) : (
-              <div className="w-full h-24 bg-gray-100 rounded-md"></div>
-            )}
-            <p className="text-sm mt-2">{product.name}</p>
-          </button>
-        ))}
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {products.map(product => {
+          const isSelected = selectedProducts.includes(product.id);
+          return (
+            <button
+              key={product.id}
+              onClick={() => toggleProduct(product.id)}
+              className={`relative group bg-white/80 border rounded-xl p-3 transition-all duration-200 ${
+                isSelected
+                  ? 'border-blue-500 ring-2 ring-blue-500 shadow-lg'
+                  : 'border-gray-300 hover:border-gray-400 hover:shadow-md'
+              }`}
+            >
+              <div className="aspect-square bg-gray-100 rounded-lg mb-3 overflow-hidden">
+                {product.images && product.images.length > 0 ? (
+                  <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-gray-200/50"></div>
+                )}
+              </div>
+              <p className="text-xs font-medium text-gray-800 truncate">{product.name}</p>
+              
+              <div className={`absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200 ${
+                isSelected
+                  ? 'bg-blue-500 scale-100'
+                  : 'bg-gray-300 scale-0 group-hover:scale-100'
+              }`}>
+                {isSelected ? <Check className="w-3 h-3 text-white" /> : <Plus className="w-3 h-3 text-gray-600" />}
+              </div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

@@ -254,7 +254,7 @@ export default function ProductDetailPage() {
             {buyer && buyerProfile && !showReviewForm ? (
               <button
                 onClick={() => setShowReviewForm(true)}
-                className="px-4 py-2 rounded-lg font-medium text-white transition-all hover:opacity-90 flex items-center gap-2"
+                className="px-4 py-2 rounded-full font-medium text-white transition-all hover:opacity-90 flex items-center gap-2 shadow-md active:scale-95"
                 style={{ backgroundColor: theme.primaryColor }}
               >
                 <Star className="w-4 h-4" />
@@ -263,7 +263,7 @@ export default function ProductDetailPage() {
             ) : !buyer && !showReviewForm ? (
               <Link
                 href={`/buyer/login?returnUrl=${encodeURIComponent(`/store/${storeName}/product/${productId}`)}`}
-                className="px-4 py-2 rounded-lg font-medium text-white transition-all hover:opacity-90"
+                className="px-4 py-2 rounded-full font-medium text-white transition-all hover:opacity-90 shadow-md active:scale-95"
                 style={{ backgroundColor: theme.primaryColor }}
               >
                 Login to Review

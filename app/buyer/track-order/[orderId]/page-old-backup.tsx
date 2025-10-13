@@ -259,10 +259,10 @@ export default function TrackOrderPage() {
                     <div className="flex-1">
                       <p className="font-medium text-gray-900">{item.name}</p>
                       <p className="text-sm text-gray-600 mt-1">Quantity: {item.quantity}</p>
-                      <p className="text-sm font-semibold text-gray-900 mt-1">${item.price.toFixed(2)} each</p>
+                      <p className="text-sm font-semibold text-gray-900 mt-1">LKR {item.price.toFixed(2)} each</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-gray-900">${(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="font-semibold text-gray-900">LKR {(item.price * item.quantity).toFixed(2)}</p>
                     </div>
                   </div>
                 ))}
@@ -272,19 +272,19 @@ export default function TrackOrderPage() {
               <div className="border-t mt-6 pt-4 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">${order.subtotal.toFixed(2)}</span>
+                  <span className="font-medium">LKR {order.subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Shipping</span>
-                  <span className="font-medium">{order.shipping === 0 ? 'Free' : `$${order.shipping.toFixed(2)}`}</span>
+                  <span className="font-medium">{order.shipping === 0 ? 'Free' : `LKR ${order.shipping.toFixed(2)}`}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Tax</span>
-                  <span className="font-medium">${order.tax.toFixed(2)}</span>
+                  <span className="font-medium">LKR {order.tax.toFixed(2)}</span>
                 </div>
                 <div className="border-t pt-2 flex justify-between font-semibold text-lg">
                   <span>Total</span>
-                  <span>${order.total.toFixed(2)}</span>
+                  <span>LKR {order.total.toFixed(2)}</span>
                 </div>
               </div>
             </div>

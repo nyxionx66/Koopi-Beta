@@ -25,10 +25,10 @@ export function DraggableSection({ id, children }: DraggableSectionProps) {
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} className="relative">
+    <div ref={setNodeRef} style={style} {...attributes} className="relative group">
       {children}
-      <button {...listeners} className="absolute -right-12 top-1/2 -translate-y-1/2 p-2 cursor-grab active:cursor-grabbing">
-        <GripVertical className="w-6 h-6 text-gray-400" />
+      <button {...listeners} className="absolute -right-12 top-1/2 -translate-y-1/2 p-2 cursor-grab active:cursor-grabbing bg-white/50 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+        <GripVertical className="w-6 h-6 text-gray-500" />
       </button>
     </div>
   );

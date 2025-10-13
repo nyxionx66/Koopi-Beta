@@ -18,6 +18,7 @@ export type Product = {
   rating?: number;
   averageRating?: number;
   reviewCount?: number;
+  reviews?: Review[];
   variants?: {
     name: string;
     options: string[];
@@ -113,6 +114,22 @@ export type Order = {
   tax: number;
   total: number;
   paymentMethod: string;
+  isGuest?: boolean;
   createdAt: any;
   updatedAt: any;
+};
+export type UserProfile = {
+  uid: string;
+  email: string;
+  name?: string;
+  subscription?: {
+    plan: 'free' | 'pro';
+    status: 'active' | 'trialing' | 'cancelled';
+    productCount: number;
+    productLimit: number;
+    trialEndDate?: any;
+  };
+  onboarding?: {
+    isCompleted?: boolean;
+  };
 };

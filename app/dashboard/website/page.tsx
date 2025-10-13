@@ -5,10 +5,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { db, storage } from '@/firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { Globe, Save, Eye, EyeOff, Palette, Type, Image as ImageIcon, ExternalLink, Upload, Trash2, Layout } from 'lucide-react';
+import { Globe, Save, Eye, EyeOff, Palette, Type, Image as ImageIcon, ExternalLink, Upload, Trash2, Layout, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import { motion } from 'framer-motion';
 import { DraggableSection } from '@/components/dashboard/DraggableSection';
 import { useToast } from '@/hooks/useToast';
 import { TemplatePreview } from '@/components/dashboard/TemplatePreview';
@@ -17,7 +18,7 @@ import { InstallingAnimation } from '@/components/dashboard/InstallingAnimation'
 import { PageLoader } from '@/components/ui/PageLoader';
 
 export default function WebsitePage() {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const { ToastComponent, success, error } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -473,50 +474,73 @@ export default function WebsitePage() {
   };
 
   return (
-    <div className="bg-[#f1f1f1] min-h-screen">
+    <div className="min-h-screen bg-[#f5f5f7] relative overflow-hidden">
       {ToastComponent}
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Globe className="w-5 h-5 text-gray-700" />
-          <h1 className="text-xl font-semibold text-gray-900">Website</h1>
-        </div>
-        <div className="flex items-center gap-3">
-          {websiteEnabled && storeName && (
-            <Link
-              href={storeUrl}
-              target="_blank"
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              <ExternalLink className="w-4 h-4" />
-              View Site
-            </Link>
-          )}
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
-          >
-            <Save className="w-4 h-4" />
-            {saving ? 'Saving...' : 'Save Changes'}
-          </button>
-        </div>
+      {/* macOS-style background pattern */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
+      
+      <div className="relative z-10 max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
+        {/* Header - macOS style */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between mb-6 backdrop-blur-xl bg-white/60 rounded-[20px] p-4 sm:p-5 border border-white/20 shadow-lg"
+        >
+          <div className="flex items-center gap-4">
+            <div className="group flex items-center justify-center w-9 h-9 rounded-full bg-black/5">
+              <Globe className="w-5 h-5 text-gray-700" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">Website Customization</h1>
+              <p className="text-sm text-gray-600 mt-0.5 flex items-center gap-2">
+                Design and manage your online storefront
+                {isDirty && <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {websiteEnabled && storeName && (
+              <Link
+                href={storeUrl}
+                target="_blank"
+                className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white/80 rounded-full hover:bg-white hover:shadow-md active:scale-95 transition-all"
+              >
+                <ExternalLink className="w-4 h-4" />
+                View Site
+              </Link>
+            )}
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center gap-2 px-5 py-2.5 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white rounded-full text-sm font-medium shadow-md hover:shadow-lg active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+            >
+              <Save className="w-4 h-4" />
+              {saving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        </motion.div>
 
-      <div className="p-4 sm:p-6 max-w-7xl mx-auto">
         {/* Enable Website Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sm:p-8 mb-6"
+        >
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">Enable Your Store Website</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Store Website Status</h2>
               <p className="text-sm text-gray-600 mb-4">
-                {hasProducts 
+                {hasProducts
                   ? 'Make your store accessible to customers with a custom website'
                   : 'Add at least one product before enabling your website'}
               </p>
               {websiteEnabled && storeName && (
                 <div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
-                  <span>Your website:</span>
+                  <span>Your URL:</span>
                   <Link href={storeUrl} target="_blank" className="font-medium text-gray-900 hover:underline break-all">
                     {typeof window !== 'undefined' ? window.location.origin : ''}/store/{storeName}
                   </Link>
@@ -526,10 +550,10 @@ export default function WebsitePage() {
             <button
               onClick={() => setWebsiteEnabled(!websiteEnabled)}
               disabled={!hasProducts}
-              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full transition-all ${
                 websiteEnabled
-                  ? 'bg-gray-900 text-white hover:bg-gray-800'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-green-500 text-white hover:bg-green-600 shadow-md'
+                  : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {websiteEnabled ? (
@@ -540,87 +564,99 @@ export default function WebsitePage() {
               ) : (
                 <>
                   <EyeOff className="w-4 h-4" />
-                  Enable
+                  Disabled
                 </>
               )}
             </button>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Logo & Branding */}
-          <div className="lg:col-span-3 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <ImageIcon className="w-5 h-5 text-gray-700" />
-              <h2 className="text-lg font-semibold text-gray-900">Logo & Branding</h2>
-            </div>
-            
-            <div className="flex items-start gap-6">
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Store Logo
-                </label>
-                <div className="flex items-center gap-4">
-                  {logoUrl ? (
-                    <div className="relative">
-                      <img src={logoUrl} alt="Logo" className="h-16 object-contain border border-gray-200 rounded-lg p-2" />
-                      <button
-                        onClick={() => setLogoUrl('')}
-                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="h-16 w-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-gray-400">
-                      No logo
-                    </div>
-                  )}
-                  <label className="cursor-pointer">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleLogoUpload}
-                      className="hidden"
-                      disabled={uploadingLogo}
-                    />
-                    <div className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2">
-                      <Upload className="w-4 h-4" />
-                      {uploadingLogo ? 'Uploading...' : 'Upload Logo'}
-                    </div>
-                  </label>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">Recommended: 200x60px, PNG or SVG</p>
-              </div>
-              
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Font Family
-                </label>
-                <select
-                  value={fontFamily}
-                  onChange={(e) => setFontFamily(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 text-sm"
+        {/* Preview Section */}
+        <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sm:p-8 mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Live Preview</h2>
+          <div className="border border-gray-200/50 rounded-xl overflow-hidden shadow-inner">
+            <div
+              className="p-12"
+              style={{
+                backgroundColor: heroBackgroundImage ? 'transparent' : '#f9fafb',
+                backgroundImage: heroBackgroundImage ? `url(${heroBackgroundImage})` : 'none',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
+            >
+              <div className={heroBackgroundImage ? 'bg-white/90 backdrop-blur-sm rounded-xl p-8' : ''}>
+                <h1 className="text-4xl font-bold mb-3" style={{ color: textColor }}>{heroTitle || 'Hero Title'}</h1>
+                <p className="text-lg mb-6" style={{ color: textColor, opacity: 0.8 }}>{heroSubtitle || 'Hero subtitle goes here'}</p>
+                <button
+                  className="px-6 py-3 rounded-lg font-medium text-white shadow-md"
+                  style={{ backgroundColor: primaryColor }}
                 >
-                  <option value="inter">Inter (Modern)</option>
-                  <option value="system">System Default</option>
-                  <option value="serif">Serif (Classic)</option>
-                  <option value="mono">Monospace</option>
-                </select>
+                  {heroCtaText || 'Shop Now'}
+                </button>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Sections */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column */}
           <div className="lg:col-span-2 space-y-6">
-            <DndContext
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={sectionOrder}
-                strategy={verticalListSortingStrategy}
-              >
+            {/* Logo & Branding */}
+            <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sm:p-8">
+              <div className="flex items-center gap-3 mb-5">
+                <ImageIcon className="w-6 h-6 text-gray-700" />
+                <h2 className="text-xl font-semibold text-gray-900">Logo & Branding</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Store Logo</label>
+                  <div className="flex items-center gap-4">
+                    {logoUrl ? (
+                      <div className="relative group">
+                        <img src={logoUrl} alt="Logo" className="h-16 object-contain bg-white/80 border border-gray-200 rounded-xl p-2 shadow-sm" />
+                        <button onClick={() => setLogoUrl('')} className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-all transform scale-0 group-hover:scale-100">
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="h-16 w-32 border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center text-gray-500 bg-white/50">No logo</div>
+                    )}
+                    <label className="cursor-pointer">
+                      <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" disabled={uploadingLogo} />
+                      <div className="px-4 py-2 bg-blue-500 text-white rounded-full text-sm font-medium hover:bg-blue-600 transition-colors flex items-center gap-2 shadow-md active:scale-95">
+                        <Upload className="w-4 h-4" />
+                        {uploadingLogo ? 'Uploading...' : 'Upload'}
+                      </div>
+                    </label>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">Recommended: 200x60px, PNG or SVG</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Font Family</label>
+                  <div className="relative">
+                    <select
+                      value={fontFamily}
+                      onChange={(e) => setFontFamily(e.target.value)}
+                      disabled={userProfile?.subscription?.plan === 'free'}
+                      className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm appearance-none shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    >
+                      <option value="inter">Inter (Modern)</option>
+                      <option value="system">System Default</option>
+                      <option value="serif">Serif (Classic)</option>
+                      <option value="mono">Monospace</option>
+                    </select>
+                    <ChevronDown className="absolute right-4 top-3.5 w-5 h-5 text-gray-400 pointer-events-none" />
+                  </div>
+                  {userProfile?.subscription?.plan === 'free' && (
+                    <p className="text-xs text-gray-500 mt-2">Upgrade to Pro to unlock more fonts.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Sections */}
+            <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
                 {sectionOrder.map((sectionKey) => (
                   <DraggableSection key={sectionKey} id={sectionKey}>
                     {renderSection(sectionKey)}
@@ -633,215 +669,115 @@ export default function WebsitePage() {
           {/* Right Column */}
           <div className="space-y-6">
             {/* Template Selection */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Layout className="w-5 h-5 text-gray-700" />
-                <h2 className="text-lg font-semibold text-gray-900">Templates</h2>
+            <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sm:p-8">
+              <div className="flex items-center gap-3 mb-5">
+                <Layout className="w-6 h-6 text-gray-700" />
+                <h2 className="text-xl font-semibold text-gray-900">Templates</h2>
               </div>
               <div className="relative grid grid-cols-2 gap-4">
                 {installingTemplate && <InstallingAnimation />}
                 {Object.keys(templates).map((id) => (
                   <TemplatePreview
-                    key={id}
-                    templateId={id as keyof typeof templates}
-                    isSelected={templateId === id}
-                    onClick={() => {
-                      setInstallingTemplate(true);
-                      setTimeout(() => {
-                        setTemplateId(id);
-                        const template = templates[id as keyof typeof templates];
-                        setPrimaryColor(template.theme.primaryColor);
-                        setAccentColor(template.theme.accentColor);
-                        setBackgroundColor(template.theme.backgroundColor);
-                        setTextColor(template.theme.textColor);
-                        setFontFamily(template.theme.fontFamily);
-                        setHeroTitle(template.hero.title);
-                        setHeroSubtitle(template.hero.subtitle);
-                        setHeroCtaText(template.hero.ctaText);
-                        setHeroBackgroundImage(template.hero.backgroundImage);
-                        setHeroAlignment(template.hero.alignment as 'left' | 'center');
-                        setInstallingTemplate(false);
-                      }, 1000);
-                    }}
-                  />
+                   key={id}
+                   templateId={id as keyof typeof templates}
+                   isSelected={templateId === id}
+                   isLocked={userProfile?.subscription?.plan === 'free' && id !== 'classic'}
+                   onClick={() => {
+                     if (userProfile?.subscription?.plan === 'free' && id !== 'classic') {
+                       alert('Upgrade to Pro to use this template.');
+                       return;
+                     }
+                     setInstallingTemplate(true);
+                     setTimeout(() => {
+                       setTemplateId(id);
+                       const template = templates[id as keyof typeof templates];
+                       setPrimaryColor(template.theme.primaryColor);
+                       setAccentColor(template.theme.accentColor);
+                       setBackgroundColor(template.theme.backgroundColor);
+                       setTextColor(template.theme.textColor);
+                       setFontFamily(template.theme.fontFamily);
+                       setHeroTitle(template.hero.title);
+                       setHeroSubtitle(template.hero.subtitle);
+                       setHeroCtaText(template.hero.ctaText);
+                       setHeroBackgroundImage(template.hero.backgroundImage);
+                       setHeroAlignment(template.hero.alignment as 'left' | 'center');
+                       setInstallingTemplate(false);
+                     }, 1000);
+                   }}
+                 />
                 ))}
               </div>
             </div>
 
             {/* Theme Settings */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Palette className="w-5 h-5 text-gray-700" />
-                <h2 className="text-lg font-semibold text-gray-900">Theme Colors</h2>
+            <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sm:p-8">
+              <div className="flex items-center gap-3 mb-5">
+                <Palette className="w-6 h-6 text-gray-700" />
+                <h2 className="text-xl font-semibold text-gray-900">Theme Colors</h2>
               </div>
-            
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Primary Color
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Primary Color</label>
                   <div className="flex items-center gap-3">
-                    <input
-                      type="color"
-                      value={primaryColor}
-                      onChange={(e) => setPrimaryColor(e.target.value)}
-                      className="w-12 h-10 border border-gray-300 rounded-lg cursor-pointer"
-                    />
-                    <input
-                      type="text"
-                      value={primaryColor}
-                      onChange={(e) => setPrimaryColor(e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 text-xs"
-                    />
+                    <input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} disabled={userProfile?.subscription?.plan === 'free'} className="w-12 h-10 p-1 border border-gray-300 rounded-lg cursor-pointer bg-white/80 disabled:cursor-not-allowed" />
+                    <input type="text" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} disabled={userProfile?.subscription?.plan === 'free'} className="flex-1 px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-sm disabled:bg-gray-100" />
                   </div>
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Accent Color
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Accent Color</label>
                   <div className="flex items-center gap-3">
-                    <input
-                      type="color"
-                      value={accentColor}
-                      onChange={(e) => setAccentColor(e.target.value)}
-                      className="w-12 h-10 border border-gray-300 rounded-lg cursor-pointer"
-                    />
-                    <input
-                      type="text"
-                      value={accentColor}
-                      onChange={(e) => setAccentColor(e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 text-xs"
-                    />
+                    <input type="color" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} disabled={userProfile?.subscription?.plan === 'free'} className="w-12 h-10 p-1 border border-gray-300 rounded-lg cursor-pointer bg-white/80 disabled:cursor-not-allowed" />
+                    <input type="text" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} disabled={userProfile?.subscription?.plan === 'free'} className="flex-1 px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-sm disabled:bg-gray-100" />
                   </div>
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Background Color
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Background Color</label>
                   <div className="flex items-center gap-3">
-                    <input
-                      type="color"
-                      value={backgroundColor}
-                      onChange={(e) => setBackgroundColor(e.target.value)}
-                      className="w-12 h-10 border border-gray-300 rounded-lg cursor-pointer"
-                    />
-                    <input
-                      type="text"
-                      value={backgroundColor}
-                      onChange={(e) => setBackgroundColor(e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 text-xs"
-                    />
+                    <input type="color" value={backgroundColor} onChange={(e) => setBackgroundColor(e.target.value)} disabled={userProfile?.subscription?.plan === 'free'} className="w-12 h-10 p-1 border border-gray-300 rounded-lg cursor-pointer bg-white/80 disabled:cursor-not-allowed" />
+                    <input type="text" value={backgroundColor} onChange={(e) => setBackgroundColor(e.target.value)} disabled={userProfile?.subscription?.plan === 'free'} className="flex-1 px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-sm disabled:bg-gray-100" />
                   </div>
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Text Color
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Text Color</label>
                   <div className="flex items-center gap-3">
-                    <input
-                      type="color"
-                      value={textColor}
-                      onChange={(e) => setTextColor(e.target.value)}
-                      className="w-12 h-10 border border-gray-300 rounded-lg cursor-pointer"
-                    />
-                    <input
-                      type="text"
-                      value={textColor}
-                      onChange={(e) => setTextColor(e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 text-xs"
-                    />
+                    <input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} disabled={userProfile?.subscription?.plan === 'free'} className="w-12 h-10 p-1 border border-gray-300 rounded-lg cursor-pointer bg-white/80 disabled:cursor-not-allowed" />
+                    <input type="text" value={textColor} onChange={(e) => setTextColor(e.target.value)} disabled={userProfile?.subscription?.plan === 'free'} className="flex-1 px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-sm disabled:bg-gray-100" />
                   </div>
                 </div>
-
-                {/* Preview */}
-                <div className="mt-4 p-3 border border-gray-200 rounded-lg" style={{ backgroundColor: backgroundColor }}>
+                <div className="mt-4 p-3 border border-gray-200/50 rounded-lg shadow-inner" style={{ backgroundColor: backgroundColor }}>
                   <p className="text-xs font-medium mb-2" style={{ color: textColor }}>Preview</p>
                   <div className="space-y-2">
-                    <button
-                      className="w-full px-3 py-2 rounded-lg text-xs font-medium text-white"
-                      style={{ backgroundColor: primaryColor }}
-                    >
-                      Primary Button
-                    </button>
-                    <button
-                      className="w-full px-3 py-2 rounded-lg text-xs font-medium text-white"
-                      style={{ backgroundColor: accentColor }}
-                    >
-                      Accent Button
-                    </button>
+                    <button className="w-full px-3 py-2 rounded-lg text-xs font-medium text-white shadow-sm" style={{ backgroundColor: primaryColor }}>Primary Button</button>
+                    <button className="w-full px-3 py-2 rounded-lg text-xs font-medium text-white shadow-sm" style={{ backgroundColor: accentColor }}>Accent Button</button>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Footer Settings */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Layout className="w-5 h-5 text-gray-700" />
-                <h2 className="text-lg font-semibold text-gray-900">Footer</h2>
+            <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sm:p-8">
+              <div className="flex items-center gap-3 mb-5">
+                <Layout className="w-6 h-6 text-gray-700" />
+                <h2 className="text-xl font-semibold text-gray-900">Footer</h2>
               </div>
-              
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Custom Footer Text
-                  </label>
-                  <input
-                    type="text"
-                    value={footerText}
-                    onChange={(e) => setFooterText(e.target.value)}
-                    placeholder="© 2025 Your Store"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 text-sm"
-                  />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Custom Footer Text</label>
+                  <input type="text" value={footerText} onChange={(e) => setFooterText(e.target.value)} placeholder="© 2025 Your Store" className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm shadow-sm" />
                 </div>
-
                 <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-gray-700">
-                    Show "Powered by Koopi"
-                  </label>
-                  <button
-                    onClick={() => setShowPoweredBy(!showPoweredBy)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      showPoweredBy ? 'bg-gray-900' : 'bg-gray-300'
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        showPoweredBy ? 'translate-x-6' : 'translate-x-1'
-                      }`}
+                  <label className="text-sm font-medium text-gray-700">Show "Powered by Koopi"</label>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={showPoweredBy}
+                      onChange={(e) => setShowPoweredBy(e.target.checked)}
+                      disabled={userProfile?.subscription?.plan === 'free'}
+                      className="sr-only peer"
                     />
-                  </button>
+                    <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500 shadow-inner peer-disabled:cursor-not-allowed"></div>
+                  </label>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Preview Section */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Preview</h2>
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
-            <div 
-              className="p-12"
-              style={{ 
-                backgroundColor: heroBackgroundImage ? 'transparent' : '#f9fafb',
-                backgroundImage: heroBackgroundImage ? `url(${heroBackgroundImage})` : 'none',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center'
-              }}
-            >
-              <div className={heroBackgroundImage ? 'bg-white/90 backdrop-blur-sm rounded-xl p-8' : ''}>
-                <h1 className="text-4xl font-bold text-gray-900 mb-3">{heroTitle || 'Hero Title'}</h1>
-                <p className="text-lg text-gray-600 mb-6">{heroSubtitle || 'Hero subtitle goes here'}</p>
-                <button 
-                  className="px-6 py-3 rounded-lg font-medium text-white"
-                  style={{ backgroundColor: primaryColor }}
-                >
-                  {heroCtaText || 'Shop Now'}
-                </button>
               </div>
             </div>
           </div>

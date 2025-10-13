@@ -76,24 +76,29 @@ export default function OrderConfirmationPage() {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.backgroundColor, color: theme.textColor }}>
+    <div className="min-h-screen bg-[#f5f5f7] relative overflow-hidden">
       {showConfetti && <Confetti recycle={false} numberOfPieces={500} />}
+      {/* macOS-style background pattern */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-12">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 py-12">
         {/* Success Message */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-24 h-24 rounded-full mb-6" style={{ backgroundColor: theme.primaryColor + '1A' }}>
-            <CheckCircle className="w-16 h-16" style={{ color: theme.primaryColor }} />
+          <div className="inline-flex items-center justify-center w-24 h-24 rounded-full mb-6 bg-green-500/10">
+            <CheckCircle className="w-16 h-16 text-green-500" />
           </div>
-          <h1 className="text-4xl font-bold tracking-tight mb-2" style={{ color: theme.textColor }}>Order Placed Successfully!</h1>
-          <p className="text-xl" style={{ color: theme.textColor, opacity: 0.7 }}>Thank you for your order</p>
-          <p className="text-lg mt-3" style={{ color: theme.textColor, opacity: 0.5 }}>Order #{order.orderNumber}</p>
+          <h1 className="text-4xl font-bold tracking-tight mb-2 text-gray-900">Order Placed Successfully!</h1>
+          <p className="text-xl text-gray-600">Thank you for your order</p>
+          <p className="text-lg mt-3 text-gray-500">Order #{order.orderNumber}</p>
         </div>
 
         {/* Order Details */}
         <div className="space-y-6">
           {/* Shipping Address */}
-          <div className="bg-white rounded-xl border p-6">
+          <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6">
             <h3 className="font-semibold text-gray-900 flex items-center gap-2 mb-4">
               <MapPin className="w-5 h-5" />
               Shipping Address
@@ -109,12 +114,12 @@ export default function OrderConfirmationPage() {
           </div>
 
           {/* Payment Method */}
-          <div className="bg-white rounded-xl border p-6">
+          <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6">
             <h3 className="font-semibold text-gray-900 flex items-center gap-2 mb-4">
               <CreditCard className="w-5 h-5" />
               Payment Method
             </h3>
-            <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-3 p-4 bg-white/50 rounded-lg border border-gray-200/50">
               <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
                 <Package className="w-5 h-5 text-green-700" />
               </div>
@@ -126,12 +131,12 @@ export default function OrderConfirmationPage() {
           </div>
 
           {/* Order Items */}
-          <div className="bg-white rounded-xl border p-6">
+          <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6">
             <h3 className="font-semibold text-gray-900 mb-4">Order Items ({order.items.length})</h3>
             <div className="space-y-4">
               {order.items.map((item, index) => (
                 <div key={index} className="flex gap-4">
-                  <div className="w-20 h-20 bg-gray-100 rounded flex-shrink-0">
+                  <div className="w-20 h-20 bg-white/50 rounded flex-shrink-0 border border-gray-200/50">
                     {item.image ? (
                       <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded" />
                     ) : (
@@ -148,38 +153,38 @@ export default function OrderConfirmationPage() {
                       </p>
                     )}
                     <p className="text-sm text-gray-600 mt-1">Quantity: {item.quantity}</p>
-                    <p className="text-sm font-semibold text-gray-900 mt-1">${item.price.toFixed(2)} each</p>
+                    <p className="text-sm font-semibold text-gray-900 mt-1">LKR {item.price.toFixed(2)} each</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-gray-900">${(item.price * item.quantity).toFixed(2)}</p>
+                    <p className="font-semibold text-gray-900">LKR {(item.price * item.quantity).toFixed(2)}</p>
                   </div>
                 </div>
               ))}
             </div>
 
             {/* Order Total */}
-            <div className="border-t mt-6 pt-4 space-y-2 text-sm">
+            <div className="border-t border-gray-200/50 mt-6 pt-4 space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Subtotal</span>
-                <span className="font-medium">${order.subtotal.toFixed(2)}</span>
+                <span className="font-medium">LKR {order.subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Shipping</span>
-                <span className="font-medium">{order.shipping === 0 ? 'Free' : `$${order.shipping.toFixed(2)}`}</span>
+                <span className="font-medium">{order.shipping === 0 ? 'Free' : `LKR ${order.shipping.toFixed(2)}`}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Tax</span>
-                <span className="font-medium">${order.tax.toFixed(2)}</span>
+                <span className="font-medium">LKR {order.tax.toFixed(2)}</span>
               </div>
-              <div className="border-t pt-2 flex justify-between font-semibold text-lg">
+              <div className="border-t border-gray-200/50 pt-2 flex justify-between font-semibold text-lg">
                 <span>Total</span>
-                <span>${order.total.toFixed(2)}</span>
+                <span>LKR {order.total.toFixed(2)}</span>
               </div>
             </div>
           </div>
 
           {/* Next Steps */}
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+          <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-6">
             <h3 className="font-semibold text-blue-900 mb-3">What's Next?</h3>
             <ul className="space-y-2 text-sm text-blue-800">
               <li className="flex items-start gap-2">
@@ -201,7 +206,7 @@ export default function OrderConfirmationPage() {
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
               href={`/store/${storeName}`}
-              className="flex-1 py-3 px-6 bg-gray-900 text-white rounded-lg font-semibold text-center hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+              className="flex-1 py-3 px-6 bg-blue-500 text-white rounded-full font-semibold text-center hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 shadow-md active:scale-95"
             >
               Continue Shopping
               <ArrowRight className="w-5 h-5" />

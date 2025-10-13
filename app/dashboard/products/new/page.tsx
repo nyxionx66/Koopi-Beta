@@ -15,7 +15,7 @@ import { RelatedProductSelector } from '@/components/dashboard/RelatedProductSel
 import { PageLoader } from '@/components/ui/PageLoader';
 
 const AddProductPage = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, userProfile, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get('from'); // 'dashboard' or 'products'
@@ -31,7 +31,7 @@ const AddProductPage = () => {
   const [vendor, setVendor] = useState('');
   const [tags, setTags] = useState('');
   const [category, setCategory] = useState('');
-  const [price, setPrice] = useState('0.00');
+  const [price, setPrice] = useState('100.00');
   const [compareAtPrice, setCompareAtPrice] = useState('');
   const [quantity, setQuantity] = useState('');
   const [inventoryTracked, setInventoryTracked] = useState(false);
@@ -225,9 +225,23 @@ const AddProductPage = () => {
       return;
     }
 
+    // Validate minimum price
+    const priceValue = parseFloat(price);
+    if (isNaN(priceValue) || priceValue < 100) {
+      alert('Price must be at least LKR 100.00');
+      return;
+    }
+
     setSaving(true);
 
     try {
+      // Check subscription limit
+      if (userProfile?.subscription?.plan === 'free' && userProfile.subscription.productCount >= userProfile.subscription.productLimit) {
+        alert(`You have reached your product limit of ${userProfile.subscription.productLimit} for the free plan. Please upgrade to add more products.`);
+        setSaving(false);
+        return;
+      }
+
       const storeRef = doc(db, 'stores', user.uid);
       const storeDoc = await getDoc(storeRef);
       const isFirstProduct = !storeDoc.exists() || !storeDoc.data()?.hasProducts;
@@ -268,6 +282,14 @@ const AddProductPage = () => {
       };
 
       await addDoc(collection(db, 'products'), productData);
+
+      // Increment product count for the user
+      if (userProfile?.subscription) {
+        const userRef = doc(db, 'users', user.uid);
+        await updateDoc(userRef, {
+          'subscription.productCount': userProfile.subscription.productCount + 1,
+        });
+      }
 
       if (storeDoc.exists()) {
         await updateDoc(storeRef, {
@@ -328,7 +350,13 @@ const AddProductPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50">
+    <div className="min-h-screen bg-[#f5f5f7] relative overflow-hidden">
+      {/* macOS-style background pattern */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
+      
       {showCelebration && (
         <Confetti
           width={windowSize.width}
@@ -339,29 +367,29 @@ const AddProductPage = () => {
         />
       )}
       
-      <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
-        {/* Header */}
+      <div className="relative z-10 max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
+        {/* Header - macOS style */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-8"
+          className="flex items-center justify-between mb-6 backdrop-blur-xl bg-white/60 rounded-[20px] p-4 sm:p-5 border border-white/20 shadow-lg"
         >
           <div className="flex items-center gap-4">
             <Link 
               href={from === 'dashboard' ? '/dashboard' : '/dashboard/products'}
-              className="group flex items-center justify-center w-10 h-10 rounded-xl bg-white border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-200"
+              className="group flex items-center justify-center w-9 h-9 rounded-full bg-black/5 hover:bg-black/10 active:scale-95 transition-all duration-150"
             >
-              <ArrowLeft className="w-5 h-5 text-gray-600 group-hover:text-gray-900 transition-colors" />
+              <ArrowLeft className="w-5 h-5 text-gray-700" />
             </Link>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Add New Product</h1>
-              <p className="text-sm text-gray-500 mt-1">Create and customize your product listing</p>
+              <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">Add New Product</h1>
+              <p className="text-sm text-gray-600 mt-0.5">Create and customize your product listing</p>
             </div>
           </div>
           <button 
             onClick={handleSave}
             disabled={saving}
-            className="hidden sm:flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-neutral-900 to-neutral-700 text-white rounded-xl text-sm font-semibold hover:shadow-lg hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white rounded-full text-sm font-medium shadow-md hover:shadow-lg active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
           >
             {saving ? (
               <>
@@ -374,37 +402,38 @@ const AddProductPage = () => {
           </button>
         </motion.div>
 
-        {/* Progress Steps */}
+        {/* Progress Steps - macOS style */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mb-8"
+          className="mb-6"
         >
-          <div className="flex items-center justify-between max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between max-w-3xl mx-auto backdrop-blur-xl bg-white/60 rounded-[20px] border border-white/20 shadow-lg p-8">
             {steps.map((step, index) => (
               <div key={step.id} className="flex items-center flex-1">
                 <div className="flex flex-col items-center w-full">
                   <motion.div 
-                    className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
                       currentStep > step.id 
-                        ? 'bg-gradient-to-br from-green-500 to-green-600 shadow-lg shadow-green-500/30' 
+                        ? 'bg-green-500 shadow-[0_0_20px_rgba(34,197,94,0.4)]' 
                         : currentStep === step.id 
-                        ? 'bg-gradient-to-br from-neutral-900 to-neutral-700 shadow-lg shadow-neutral-900/30' 
-                        : 'bg-gray-100 border-2 border-gray-200'
+                        ? 'bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.4)]' 
+                        : 'bg-gray-200'
                     }`}
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.08 }}
+                    whileTap={{ scale: 0.95 }}
                   >
-                    <step.icon className={`w-7 h-7 ${
+                    <step.icon className={`w-6 h-6 ${
                       currentStep >= step.id 
                         ? 'text-white' 
                         : 'text-gray-400'
                     }`} />
                   </motion.div>
-                  <div className="mt-3 text-center">
-                    <p className={`text-xs sm:text-sm font-bold transition-colors ${
+                  <div className="mt-2 text-center">
+                    <p className={`text-xs sm:text-sm font-medium transition-colors ${
                       currentStep >= step.id 
-                        ? 'text-neutral-900' 
+                        ? 'text-gray-900' 
                         : 'text-gray-400'
                     }`}>
                       {step.title}
@@ -412,10 +441,10 @@ const AddProductPage = () => {
                   </div>
                 </div>
                 {index < steps.length - 1 && (
-                  <div className={`flex-1 h-1 mx-2 sm:mx-4 rounded-full transition-all duration-300 ${
+                  <div className={`flex-1 h-0.5 mx-2 sm:mx-4 rounded-full transition-all duration-300 ${
                     currentStep > step.id 
-                      ? 'bg-gradient-to-r from-green-500 to-green-600' 
-                      : 'bg-gray-200'
+                        ? 'bg-green-500' 
+                        : 'bg-gray-300'
                   }`} />
                 )}
               </div>
@@ -423,12 +452,12 @@ const AddProductPage = () => {
           </div>
         </motion.div>
 
-        {/* Form Content */}
+        {/* Form Content - macOS glassmorphism */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 sm:p-10"
+          className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sm:p-10"
         >
           <AnimatePresence mode="wait">
             {/* Step 1: Basic Info */}
@@ -439,16 +468,16 @@ const AddProductPage = () => {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
-                className="space-y-8"
+                className="space-y-7"
               >
-                <div className="border-b border-gray-100 pb-6">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Basic Information</h2>
-                  <p className="text-gray-500">Tell us about your product to get started</p>
+                <div className="pb-5">
+                  <h2 className="text-3xl font-semibold text-gray-900 mb-1">Basic Information</h2>
+                  <p className="text-gray-600">Tell us about your product to get started</p>
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-5">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Product Title <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -456,46 +485,46 @@ const AddProductPage = () => {
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       placeholder="e.g., Premium Cotton T-Shirt"
-                      className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-neutral-900 focus:border-neutral-900 transition-all text-sm placeholder:text-gray-400"
+                      className="w-full px-4 py-3.5 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm placeholder:text-gray-400 shadow-sm"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Description
                     </label>
                     <textarea
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      rows={6}
-                      className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-neutral-900 focus:border-neutral-900 transition-all text-sm resize-none placeholder:text-gray-400"
+                      rows={5}
+                      className="w-full px-4 py-3.5 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm resize-none placeholder:text-gray-400 shadow-sm"
                       placeholder="Describe your product in detail... Tell customers what makes it special!"
                     />
-                    <p className="text-xs text-gray-400 mt-2">Give a detailed description to help customers understand your product</p>
+                    <p className="text-xs text-gray-500 mt-1.5">Give a detailed description to help customers understand your product</p>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
                         Category
                       </label>
                       <div className="relative">
                         <select
                           value={category}
                           onChange={(e) => setCategory(e.target.value)}
-                          className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-neutral-900 focus:border-neutral-900 transition-all text-sm appearance-none bg-white"
+                          className="w-full px-4 py-3.5 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm appearance-none shadow-sm"
                         >
                           <option value="">Select a category</option>
                           {getCategoriesForType().map(cat => (
                             <option key={cat.value} value={cat.value}>{cat.label}</option>
                           ))}
                         </select>
-                        <ChevronDown className="absolute right-4 top-5 w-5 h-5 text-gray-400 pointer-events-none" />
+                        <ChevronDown className="absolute right-4 top-4 w-5 h-5 text-gray-400 pointer-events-none" />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
                         Tags (Optional)
                       </label>
                       <input
@@ -503,7 +532,7 @@ const AddProductPage = () => {
                         value={tags}
                         onChange={(e) => setTags(e.target.value)}
                         placeholder="summer, cotton, casual"
-                        className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-neutral-900 focus:border-neutral-900 transition-all text-sm placeholder:text-gray-400"
+                        className="w-full px-4 py-3.5 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm placeholder:text-gray-400 shadow-sm"
                       />
                     </div>
                   </div>
@@ -519,41 +548,41 @@ const AddProductPage = () => {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
-                className="space-y-8"
+                className="space-y-7"
               >
                 {/* Product Images Section */}
                 <div>
-                  <div className="border-b border-gray-100 pb-6 mb-6">
-                    <h2 className="text-3xl font-bold text-gray-900 mb-2">Product Images</h2>
-                    <p className="text-gray-500">Upload high-quality images to showcase your product</p>
+                  <div className="pb-5 mb-6">
+                    <h2 className="text-3xl font-semibold text-gray-900 mb-1">Product Images</h2>
+                    <p className="text-gray-600">Upload high-quality images to showcase your product</p>
                   </div>
 
                   {mediaPreviews.length > 0 && (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-5">
                       {mediaPreviews.map((preview, index) => (
                         <motion.div 
                           key={index} 
-                          initial={{ opacity: 0, scale: 0.8 }}
+                          initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
                           className="relative group"
                         >
-                          <div className="relative aspect-square rounded-xl overflow-hidden border-2 border-gray-200 group-hover:border-neutral-900 transition-all">
+                          <div className="relative aspect-square rounded-2xl overflow-hidden bg-white/80 border border-gray-200 group-hover:shadow-lg transition-all">
                             <img 
                               src={preview} 
                               alt={`Preview ${index + 1}`}
                               className="w-full h-full object-cover"
                             />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[2px]" />
                           </div>
                           <button
                             onClick={() => removeMedia(index)}
-                            className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-lg opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
+                            className="absolute -top-1.5 -right-1.5 w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110 active:scale-95 flex items-center justify-center"
                           >
                             <X className="w-4 h-4" />
                           </button>
                           {index === 0 && (
-                            <span className="absolute bottom-2 left-2 bg-neutral-900 text-white text-xs px-2 py-1 rounded-lg font-semibold">
-                              Main Image
+                            <span className="absolute bottom-2 left-2 bg-blue-500 text-white text-xs px-2.5 py-1 rounded-full font-medium shadow-md">
+                              Main
                             </span>
                           )}
                         </motion.div>
@@ -562,23 +591,27 @@ const AddProductPage = () => {
                   )}
                   
                   <div
-                    className={`border-2 border-dashed rounded-2xl p-12 transition-all duration-300 ${
+                    className={`relative border-2 border-dashed rounded-2xl p-10 transition-all duration-300 overflow-hidden ${
                       isDragging 
-                        ? 'border-neutral-900 bg-gradient-to-br from-neutral-50 to-gray-50 scale-[1.02]' 
-                        : 'border-gray-300 hover:border-gray-400 bg-gray-50/50'
+                        ? 'border-blue-500 bg-blue-50/50 scale-[1.01]' 
+                        : 'border-gray-300 hover:border-gray-400 bg-white/50'
                     }`}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                   >
-                    <div className="flex flex-col items-center justify-center text-center">
-                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-neutral-900 to-neutral-700 flex items-center justify-center mb-4">
+                    <div className="flex flex-col items-center justify-center text-center relative z-10">
+                      <motion.div 
+                        className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-4 shadow-lg"
+                        whileHover={{ scale: 1.05, rotate: 5 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
                         <Upload className="w-8 h-8 text-white" />
-                      </div>
-                      <div className="mb-3">
+                      </motion.div>
+                      <div className="mb-2">
                         <label
                           htmlFor="file-upload"
-                          className="text-neutral-900 hover:text-neutral-700 font-bold text-base underline cursor-pointer"
+                          className="text-blue-600 hover:text-blue-700 font-semibold text-base cursor-pointer transition-colors"
                         >
                           Click to upload
                         </label>
@@ -587,7 +620,7 @@ const AddProductPage = () => {
                       <p className="text-sm text-gray-500">
                         PNG, JPG, GIF up to 10MB
                       </p>
-                      <p className="text-xs text-gray-400 mt-2">
+                      <p className="text-xs text-gray-400 mt-1.5">
                         First image will be the main product image
                       </p>
                       <input
@@ -603,10 +636,10 @@ const AddProductPage = () => {
                 </div>
 
                 {/* Variants Section */}
-                <div className="border-t border-gray-100 pt-8">
-                  <div className="mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Product Variants</h2>
-                    <p className="text-gray-500">Add options like size, color, or material (optional)</p>
+                <div className="pt-7 border-t border-gray-200/50">
+                  <div className="mb-5">
+                    <h2 className="text-2xl font-semibold text-gray-900 mb-1">Product Variants</h2>
+                    <p className="text-gray-600">Add options like size, color, or material (optional)</p>
                   </div>
                   <VariantEditor variants={variants} onChange={setVariants} />
                 </div>
@@ -621,55 +654,58 @@ const AddProductPage = () => {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
-                className="space-y-8"
+                className="space-y-7"
               >
-                <div className="border-b border-gray-100 pb-6">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Pricing & Inventory</h2>
-                  <p className="text-gray-500">Set your product pricing and manage stock levels</p>
+                <div className="pb-5">
+                  <h2 className="text-3xl font-semibold text-gray-900 mb-1">Pricing & Inventory</h2>
+                  <p className="text-gray-600">Set your product pricing and manage stock levels</p>
                 </div>
 
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl border-2 border-gray-200">
-                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                <div className="space-y-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className="bg-gradient-to-br from-blue-50/50 to-white/50 p-5 rounded-2xl border border-blue-200/50 shadow-sm">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
                         Price <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
-                        <span className="absolute left-5 top-4.5 text-gray-500 text-base font-semibold">Rs</span>
+                        <span className="absolute left-4 top-3.5 text-gray-600 text-base font-medium">LKR</span>
                         <input
                           type="number"
                           step="0.01"
+                          min="100"
                           value={price}
                           onChange={(e) => setPrice(e.target.value)}
-                          className="w-full pl-14 pr-5 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-neutral-900 focus:border-neutral-900 transition-all text-base font-semibold"
+                          className="w-full pl-16 pr-4 py-3.5 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base font-medium"
                         />
                       </div>
+                      <p className="text-xs text-gray-500 mt-1.5">Minimum: LKR 100.00</p>
                     </div>
-                    <div className="bg-gradient-to-br from-gray-50 to-white p-6 rounded-2xl border-2 border-gray-200">
-                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                    <div className="bg-gradient-to-br from-purple-50/50 to-white/50 p-5 rounded-2xl border border-purple-200/50 shadow-sm">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
                         Compare at Price
                         <span className="ml-2 text-xs text-gray-400 font-normal">(Optional)</span>
                       </label>
                       <div className="relative">
-                        <span className="absolute left-5 top-4.5 text-gray-500 text-base font-semibold">Rs</span>
+                        <span className="absolute left-4 top-3.5 text-gray-600 text-base font-medium">LKR</span>
                         <input
                           type="number"
                           step="0.01"
                           value={compareAtPrice}
                           onChange={(e) => setCompareAtPrice(e.target.value)}
                           placeholder="Original price"
-                          className="w-full pl-14 pr-5 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-neutral-900 focus:border-neutral-900 transition-all text-base placeholder:text-gray-400"
+                          className="w-full pl-16 pr-4 py-3.5 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base placeholder:text-gray-400"
                         />
                       </div>
+                      <p className="text-xs text-gray-500 mt-1.5">Show savings to customers</p>
                     </div>
                   </div>
 
                   {productType !== 'digital' && (
-                    <div className="bg-gradient-to-br from-blue-50 to-white p-6 rounded-2xl border-2 border-blue-200">
-                      <div className="flex items-center justify-between mb-4">
+                    <div className="bg-gradient-to-br from-green-50/50 to-white/50 p-5 rounded-2xl border border-green-200/50 shadow-sm">
+                      <div className="flex items-center justify-between mb-3">
                         <div>
-                          <label className="text-sm font-semibold text-gray-900">Track Inventory</label>
-                          <p className="text-xs text-gray-500 mt-1">Monitor stock levels for this product</p>
+                          <label className="text-sm font-medium text-gray-900">Track Inventory</label>
+                          <p className="text-xs text-gray-500 mt-0.5">Monitor stock levels for this product</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
@@ -678,7 +714,7 @@ const AddProductPage = () => {
                             onChange={(e) => setInventoryTracked(e.target.checked)}
                             className="sr-only peer"
                           />
-                          <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-neutral-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-neutral-900"></div>
+                          <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500 shadow-inner"></div>
                         </label>
                       </div>
                       
@@ -688,16 +724,16 @@ const AddProductPage = () => {
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: 'auto' }}
                             exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.3 }}
+                            transition={{ duration: 0.2 }}
                           >
-                            <label className="block text-sm font-semibold text-gray-700 mb-3 mt-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-2 mt-3">
                               Quantity in Stock
                             </label>
                             <input
                               type="number"
                               value={quantity}
                               onChange={(e) => setQuantity(e.target.value)}
-                              className="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-neutral-900 focus:border-neutral-900 transition-all text-base font-semibold"
+                              className="w-full px-4 py-3.5 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base font-medium"
                               placeholder="0"
                             />
                           </motion.div>
@@ -706,16 +742,16 @@ const AddProductPage = () => {
                     </div>
                   )}
 
-                  <div className="flex items-start gap-4 p-5 bg-gray-50 rounded-xl border border-gray-200">
+                  <div className="flex items-start gap-3 p-4 bg-white/50 rounded-xl border border-gray-200">
                     <input 
                       type="checkbox" 
                       checked={chargeTax}
                       onChange={(e) => setChargeTax(e.target.checked)}
-                      className="w-5 h-5 rounded mt-0.5"
+                      className="w-4 h-4 rounded mt-0.5 text-blue-600 focus:ring-blue-500"
                       id="tax"
                     />
                     <label htmlFor="tax" className="text-sm text-gray-700 cursor-pointer">
-                      <span className="font-semibold block">Charge tax on this product</span>
+                      <span className="font-medium block">Charge tax on this product</span>
                       <span className="text-xs text-gray-500">Tax will be calculated based on customer location</span>
                     </label>
                   </div>
@@ -724,45 +760,45 @@ const AddProductPage = () => {
             )}
           </AnimatePresence>
 
-          {/* Navigation Buttons */}
-          <div className="flex gap-4 mt-10 pt-8 border-t border-gray-200">
+          {/* Navigation Buttons - macOS style */}
+          <div className="flex gap-3 mt-8 pt-6">
             {currentStep > 1 && (
               <motion.button
                 type="button"
                 onClick={handlePrev}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="flex items-center gap-2 px-8 py-4 text-sm font-bold text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:border-gray-400 hover:shadow-md transition-all"
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.97 }}
+                className="flex items-center gap-2 px-6 py-3 text-sm font-medium text-gray-700 bg-white/80 border border-gray-300 rounded-full hover:bg-white hover:shadow-md active:scale-95 transition-all"
               >
-                <ArrowLeft className="w-5 h-5" /> Back
+                <ArrowLeft className="w-4 h-4" /> Back
               </motion.button>
             )}
             {currentStep < 3 ? (
               <motion.button
                 type="button"
                 onClick={handleNext}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="flex-1 flex items-center justify-center gap-2 px-8 py-4 text-sm font-bold text-white bg-gradient-to-r from-neutral-900 to-neutral-700 rounded-xl hover:shadow-lg transition-all"
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.97 }}
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all"
               >
-                Continue <ArrowRight className="w-5 h-5" />
+                Continue <ArrowRight className="w-4 h-4" />
               </motion.button>
             ) : (
               <motion.button
                 onClick={handleSave}
                 disabled={saving}
-                whileHover={{ scale: saving ? 1 : 1.02 }}
-                whileTap={{ scale: saving ? 1 : 0.98 }}
-                className="flex-1 flex items-center justify-center gap-2 px-8 py-4 text-sm font-bold text-white bg-gradient-to-r from-green-600 to-green-500 rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                whileHover={{ scale: saving ? 1 : 1.01 }}
+                whileTap={{ scale: saving ? 1 : 0.97 }}
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium text-white bg-green-500 hover:bg-green-600 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? (
                   <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     Saving Product...
                   </>
                 ) : (
                   <>
-                    <Package className="w-5 h-5" />
+                    <Package className="w-4 h-4" />
                     Save Product
                   </>
                 )}
@@ -776,16 +812,16 @@ const AddProductPage = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="sm:hidden fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-lg"
+          className="sm:hidden fixed bottom-0 left-0 right-0 p-4 backdrop-blur-xl bg-white/90 border-t border-gray-200/50 shadow-lg z-50"
         >
           <button 
             onClick={handleSave}
             disabled={saving}
-            className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-neutral-900 to-neutral-700 text-white rounded-xl text-sm font-bold hover:shadow-lg transition-all disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-500 hover:bg-blue-600 text-white rounded-full text-sm font-medium shadow-md active:scale-95 transition-all disabled:opacity-50"
           >
             {saving ? (
               <>
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 Saving...
               </>
             ) : (
@@ -794,96 +830,110 @@ const AddProductPage = () => {
           </button>
         </motion.div>
 
-        {/* Reviews */}
+        {/* Reviews - macOS style */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 sm:p-10 mt-6"
+          className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sm:p-10 mt-6"
         >
-          <div className="border-b border-gray-100 pb-6 mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Customer Reviews</h2>
-            <p className="text-gray-500">Manage customer reviews and ratings for this product</p>
+          <div className="pb-5 mb-6">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-1">Customer Reviews</h2>
+            <p className="text-gray-600">Manage customer reviews and ratings for this product</p>
           </div>
           <ReviewManagement reviews={[]} onApprove={() => {}} onDelete={() => {}} />
         </motion.div>
 
-        {/* Related Products */}
+        {/* Related Products - macOS style */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 sm:p-10 mt-6 mb-20 sm:mb-6"
+          className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sm:p-10 mt-6 mb-24 sm:mb-6"
         >
-          <div className="border-b border-gray-100 pb-6 mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Related Products</h2>
-            <p className="text-gray-500">Select products to recommend alongside this item</p>
+          <div className="pb-5 mb-6">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-1">Related Products</h2>
+            <p className="text-gray-600">Select products to recommend alongside this item</p>
           </div>
           <RelatedProductSelector selectedProducts={relatedProducts} onChange={setRelatedProducts} />
         </motion.div>
       </div>
       
-      {/* Upload Progress Modal */}
+      {/* Upload Progress Modal - macOS style */}
       <AnimatePresence>
         {uploading && (
           <>
-            {/* Backdrop */}
+            {/* Backdrop with macOS blur */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-              onClick={(e) => e.stopPropagation()}
+              className="fixed inset-0 bg-black/30 backdrop-blur-xl flex items-center justify-center z-[100] p-4"
             >
               {/* Modal */}
               <motion.div 
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                initial={{ opacity: 0, scale: 0.95, y: -20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                transition={{ type: "spring", duration: 0.5 }}
-                className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4"
-                onClick={(e) => e.stopPropagation()}
+                exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="backdrop-blur-2xl bg-white/90 rounded-[28px] shadow-[0_20px_60px_rgba(0,0,0,0.3)] border border-white/20 p-10 max-w-md w-full mx-4"
               >
                 <div className="text-center">
                   {/* Animated Icon */}
-                  <motion.div
-                    animate={{ 
-                      scale: [1, 1.1, 1],
-                      rotate: [0, 5, -5, 0]
-                    }}
-                    transition={{ 
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                    className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-neutral-900 to-neutral-700 flex items-center justify-center shadow-lg"
-                  >
-                    <Upload className="w-10 h-10 text-white" />
-                  </motion.div>
+                  <div className="relative inline-block mb-6">
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.05, 1],
+                      }}
+                      transition={{ 
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                      className="w-24 h-24 rounded-[24px] bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 flex items-center justify-center shadow-2xl shadow-blue-500/40"
+                    >
+                      <Upload className="w-12 h-12 text-white" />
+                    </motion.div>
+                    
+                    {/* Pulsing rings */}
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.3, 1],
+                        opacity: [0.5, 0, 0.5]
+                      }}
+                      transition={{ 
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeOut"
+                      }}
+                      className="absolute inset-0 rounded-[24px] border-2 border-blue-500"
+                    />
+                  </div>
                   
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Uploading Images</h3>
-                  <p className="text-sm text-gray-500 mb-6">Please wait while we upload your images...</p>
+                  <h3 className="text-2xl font-semibold text-gray-900 mb-2">Uploading Images</h3>
+                  <p className="text-sm text-gray-600 mb-7">Please wait while we process your files...</p>
                   
-                  {/* Progress Bar */}
-                  <div className="relative w-full h-4 bg-gray-200 rounded-full overflow-hidden mb-3 shadow-inner">
+                  {/* Progress Bar - macOS style */}
+                  <div className="relative w-full h-2 bg-gray-200/80 rounded-full overflow-hidden mb-4 shadow-inner">
                     <motion.div 
                       initial={{ width: 0 }}
                       animate={{ width: `${uploadProgress}%` }}
-                      transition={{ duration: 0.3 }}
-                      className="h-full bg-gradient-to-r from-neutral-900 via-neutral-700 to-neutral-900 rounded-full relative"
+                      transition={{ duration: 0.3, ease: "easeOut" }}
+                      className="h-full bg-gradient-to-r from-blue-500 via-blue-600 to-purple-600 rounded-full relative"
                     >
+                      {/* Shimmer effect */}
                       <motion.div
-                        animate={{ x: [0, 100, 0] }}
+                        animate={{ x: [-100, 200] }}
                         transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent w-20"
                       />
                     </motion.div>
                   </div>
                   
                   {/* Progress Text */}
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600 font-medium">{uploadProgress}% complete</span>
-                    <span className="text-neutral-900 font-bold">{mediaFiles.length} file{mediaFiles.length !== 1 ? 's' : ''}</span>
+                  <div className="flex items-center justify-between text-sm px-1">
+                    <span className="text-gray-600 font-medium">{uploadProgress}%</span>
+                    <span className="text-gray-900 font-semibold">{mediaFiles.length} file{mediaFiles.length !== 1 ? 's' : ''}</span>
                   </div>
                 </div>
               </motion.div>

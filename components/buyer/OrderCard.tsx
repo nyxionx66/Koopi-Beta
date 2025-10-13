@@ -61,17 +61,17 @@ export function OrderCard({ order, theme = 'modern' }: OrderCardProps) {
       button: 'px-6 py-2.5 bg-gray-800 text-white text-sm font-semibold rounded-md hover:bg-gray-900 transition-colors flex items-center gap-2',
     },
     modern: {
-      container: 'bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300',
-      header: 'p-6 bg-gradient-to-br from-blue-50 to-white',
+      container: 'bg-white/70 backdrop-blur-xl rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-white/30',
+      header: 'p-6',
       orderNumber: 'text-xl font-bold text-gray-900',
       storeName: 'text-sm text-blue-600 mt-1 font-semibold',
       date: 'text-xs text-gray-500 mt-1',
       itemsGrid: 'flex gap-3 px-6 py-4',
-      itemImage: 'w-24 h-24 bg-gray-100 rounded-xl border-2 border-gray-200',
-      footer: 'px-6 py-5 bg-gray-50 flex items-center justify-between',
+      itemImage: 'w-24 h-24 bg-white/50 rounded-xl border-2 border-white/30',
+      footer: 'px-6 py-5 bg-white/50 flex items-center justify-between',
       totalLabel: 'text-sm text-gray-600 font-medium',
       totalAmount: 'text-3xl font-bold text-gray-900',
-      button: 'px-6 py-3 bg-blue-600 text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-all transform hover:scale-105 flex items-center gap-2',
+      button: 'px-6 py-3 bg-blue-500 text-white text-sm font-bold rounded-full hover:bg-blue-600 transition-all transform hover:scale-105 flex items-center gap-2 shadow-md',
     },
     minimalist: {
       container: 'bg-white border border-gray-300 overflow-hidden hover:border-black transition-all',
@@ -156,7 +156,7 @@ export function OrderCard({ order, theme = 'modern' }: OrderCardProps) {
       <div className={styles.footer}>
         <div>
           <p className={styles.totalLabel}>Total</p>
-          <p className={styles.totalAmount}>${order.total.toFixed(2)}</p>
+          <p className={styles.totalAmount}>LKR {order.total.toFixed(2)}</p>
         </div>
         <Link href={`/buyer/track-order/${order.id}`} className={styles.button}>
           Track Order

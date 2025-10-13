@@ -14,8 +14,11 @@ export default function LoadingSpinner({ size = 'md', color = '#000000' }: Loadi
 
   return (
     <div
-      className={`${sizes[size]} border-t-transparent rounded-full animate-spin`}
-      style={{ borderColor: color + '30', borderTopColor: color }}
+      className={`${sizes[size]} rounded-full animate-spin`}
+      style={{
+        borderColor: color,
+        borderTopColor: 'transparent'
+      }}
     />
   );
 }

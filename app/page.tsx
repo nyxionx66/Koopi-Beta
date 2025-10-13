@@ -3,6 +3,7 @@ import { Hero } from "@/components/Hero";
 import { Features } from "@/components/Features";
 import { CTA } from "@/components/CTA";
 import { Footer } from "@/components/Footer";
+import { Pricing } from "@/components/Pricing";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -12,10 +13,11 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-[#f5f5f7]">
       <Header />
       <Hero />
       <Features />
+      <Pricing />
       <CTA />
       <Footer />
     </div>

@@ -17,9 +17,9 @@ export function ButtonLoader({ color = '#ffffff', size = 'md' }: ButtonLoaderPro
   return (
     <div
       className={`${sizeMap[size]} rounded-full animate-spin`}
-      style={{ 
-        borderColor: `${color}30`, 
-        borderTopColor: color 
+      style={{
+        borderColor: color,
+        borderTopColor: 'transparent'
       }}
     />
   );

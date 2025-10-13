@@ -52,153 +52,113 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-neutral-950">
+    <div className="min-h-screen bg-[#f5f5f7] relative overflow-hidden">
       <Header />
-      <main className="pt-20 pb-20 px-6 lg:px-8 flex items-center justify-center min-h-screen">
-        <div className="w-full max-w-6xl grid md:grid-cols-2 gap-12 items-center">
-          {/* Left side - Hero content */}
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            className="hidden md:block"
-          >
-            <div className="relative">
-              <h1 className="text-5xl lg:text-6xl font-bold text-neutral-900 dark:text-white mb-6 leading-tight">
-                Welcome back to <span className="text-transparent bg-clip-text bg-gradient-to-r from-neutral-700 to-neutral-900 dark:from-neutral-300 dark:to-neutral-100">Koopi</span>
-              </h1>
-              <p className="text-xl text-neutral-600 dark:text-neutral-400 mb-8 leading-relaxed">
-                Continue building your dream store. Your products and customers are waiting.
-              </p>
-              
-              <div className="space-y-4">
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
-                    <div className="w-5 h-5 rounded-full border-2 border-neutral-600 dark:border-neutral-400 flex items-center justify-center">
-                      <div className="w-2 h-2 rounded-full bg-neutral-600 dark:bg-neutral-400" />
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-neutral-900 dark:text-white mb-1">Secure & Reliable</h3>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400">Your data is protected with enterprise-grade security</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
-                    <div className="w-5 h-5 rounded-full border-2 border-neutral-600 dark:border-neutral-400 flex items-center justify-center">
-                      <div className="w-2 h-2 rounded-full bg-neutral-600 dark:bg-neutral-400" />
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-neutral-900 dark:text-white mb-1">Always Available</h3>
-                    <p className="text-sm text-neutral-600 dark:text-neutral-400">Access your store anywhere, anytime, on any device</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Right side - Login form */}
+      {/* macOS-style background pattern */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
+      
+      <main className="relative z-10 pt-20 pb-20 px-6 lg:px-8 flex items-center justify-center min-h-screen">
+        <div className="w-full max-w-md">
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="w-full"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-8 md:p-10"
           >
-            <div className="bg-white dark:bg-neutral-900 border-2 border-neutral-200 dark:border-neutral-800 rounded-2xl p-8 md:p-10 shadow-xl">
-              <div className="mb-8">
-                <h2 className="text-3xl font-bold text-neutral-900 dark:text-white mb-2">
-                  Sign in
-                </h2>
-                <p className="text-neutral-600 dark:text-neutral-400">
-                  Enter your credentials to access your account
-                </p>
+            <div className="mb-8 text-center">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                Sign in
+              </h2>
+              <p className="text-gray-600">
+                Enter your credentials to access your account
+              </p>
+            </div>
+
+            <form onSubmit={handleLogin} className="space-y-5">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  Email address
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                    <Mail className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    placeholder="you@example.com"
+                    className="w-full pl-12 pr-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm placeholder:text-gray-400 shadow-sm"
+                  />
+                </div>
               </div>
 
-              <form onSubmit={handleLogin} className="space-y-5">
-                <div>
-                  <label htmlFor="email" className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
-                    Email address
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                      <Mail className="h-5 w-5 text-neutral-400" />
-                    </div>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      placeholder="you@example.com"
-                      className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-neutral-800 border-2 border-neutral-300 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white focus:border-transparent transition-all text-neutral-900 dark:text-white placeholder-neutral-400"
-                    />
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                    <Lock className="h-5 w-5 text-gray-400" />
                   </div>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    placeholder="Enter your password"
+                    className="w-full pl-12 pr-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm placeholder:text-gray-400 shadow-sm"
+                  />
                 </div>
+              </div>
 
-                <div>
-                  <label htmlFor="password" className="block text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                      <Lock className="h-5 w-5 text-neutral-400" />
-                    </div>
-                    <input
-                      type="password"
-                      id="password"
-                      name="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      placeholder="Enter your password"
-                      className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-neutral-800 border-2 border-neutral-300 dark:border-neutral-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white focus:border-transparent transition-all text-neutral-900 dark:text-white placeholder-neutral-400"
-                    />
-                  </div>
-                </div>
-
-                {error && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-2 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl"
-                  >
-                    <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0" />
-                    <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-                  </motion.div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full flex justify-center items-center gap-2 px-8 py-4 text-base font-semibold text-white bg-neutral-900 dark:bg-white dark:text-neutral-900 rounded-xl hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg"
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-2 p-4 bg-red-500/10 border border-red-500/20 rounded-xl"
                 >
-                  {isLoading ? (
-                    <>
-                      <ButtonLoader color="#ffffff" size="md" />
-                      Signing in...
-                    </>
-                  ) : (
-                    <>
-                      Sign in <ArrowRight className="w-5 h-5" />
-                    </>
-                  )}
-                </button>
-              </form>
+                  <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
+                  <p className="text-sm text-red-600">{error}</p>
+                </motion.div>
+              )}
 
-              <div className="mt-8 text-center">
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                  Don't have an account?{' '}
-                  <Link 
-                    href="/signup" 
-                    className="font-semibold text-neutral-900 dark:text-white hover:underline"
-                  >
-                    Create one for free
-                  </Link>
-                </p>
-              </div>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full flex justify-center items-center gap-2 px-8 py-4 text-base font-semibold text-white bg-blue-500 rounded-full hover:bg-blue-600 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              >
+                {isLoading ? (
+                  <>
+                    <ButtonLoader color="#ffffff" size="md" />
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    Sign in <ArrowRight className="w-5 h-5" />
+                  </>
+                )}
+              </button>
+            </form>
+
+            <div className="mt-8 text-center">
+              <p className="text-sm text-gray-600">
+                Don't have an account?{' '}
+                <Link
+                  href="/signup"
+                  className="font-semibold text-blue-600 hover:underline"
+                >
+                  Create one for free
+                </Link>
+              </p>
             </div>
           </motion.div>
         </div>

@@ -2,26 +2,39 @@
 
 import React from 'react';
 import { templates } from '@/lib/templates';
+import { Lock } from 'lucide-react';
 
 type TemplatePreviewProps = {
   templateId: keyof typeof templates;
   isSelected: boolean;
+  isLocked?: boolean;
   onClick: () => void;
 };
 
-export function TemplatePreview({ templateId, isSelected, onClick }: TemplatePreviewProps) {
+export function TemplatePreview({ templateId, isSelected, isLocked, onClick }: TemplatePreviewProps) {
   const template = templates[templateId];
 
   return (
     <button
       onClick={onClick}
-      className={`w-full p-2 border-2 rounded-lg transition-all ${
-        isSelected ? 'border-gray-900 shadow-lg' : 'border-transparent hover:border-gray-300'
+      disabled={isLocked}
+      className={`relative w-full p-2 border-2 rounded-xl transition-all duration-200 ${
+        isSelected
+          ? 'border-blue-500 ring-2 ring-blue-500/50 shadow-lg'
+          : isLocked
+          ? 'border-gray-300/50 cursor-not-allowed'
+          : 'border-gray-300/50 hover:border-gray-400/50 hover:shadow-md'
       }`}
     >
-      <div 
-        className="h-32 rounded-md flex flex-col justify-between p-3"
-        style={{ 
+      {isLocked && (
+        <div className="absolute inset-0 bg-white/70 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center z-10">
+          <Lock className="w-6 h-6 text-gray-500 mb-2" />
+          <span className="text-xs font-semibold text-gray-600">Upgrade to Pro</span>
+        </div>
+      )}
+      <div
+        className={`h-32 rounded-lg flex flex-col justify-between p-3 bg-white/80 ${isLocked ? 'opacity-50' : ''}`}
+        style={{
           backgroundColor: template.theme.backgroundColor,
           fontFamily: template.theme.fontFamily,
         }}
@@ -35,7 +48,7 @@ export function TemplatePreview({ templateId, isSelected, onClick }: TemplatePre
           <div className="w-1/2 h-2 rounded-full" style={{ backgroundColor: template.theme.textColor, opacity: 0.7 }}></div>
         </div>
       </div>
-      <p className="text-sm font-medium capitalize mt-2">{templateId}</p>
+      <p className={`text-sm font-medium capitalize mt-2 ${isLocked ? 'text-gray-500' : 'text-gray-800'}`}>{templateId}</p>
     </button>
   );
 }

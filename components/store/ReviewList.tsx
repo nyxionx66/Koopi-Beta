@@ -129,7 +129,7 @@ export function ReviewList({ productId, theme }: ReviewListProps) {
   return (
     <div className="space-y-8">
       {/* Rating Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 rounded-lg" style={{ backgroundColor: theme.backgroundColor || '#f9fafb' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 rounded-lg bg-white/50 border border-gray-200/50">
         {/* Average Rating */}
         <div className="text-center md:border-r" style={{ borderColor: theme.textColor + '20' }}>
           <div className="text-5xl font-bold mb-2" style={{ color: theme.primaryColor }}>
@@ -137,10 +137,10 @@ export function ReviewList({ productId, theme }: ReviewListProps) {
           </div>
           <div className="flex items-center justify-center mb-2">
             {[...Array(5)].map((_, i) => (
-              <Star 
-                key={i} 
+              <Star
+                key={i}
                 className={`w-5 h-5 ${
-                  i < Math.round(parseFloat(avgRating))
+                  i < Math.round(parseFloat(avgRating.toString()))
                     ? 'text-yellow-400 fill-yellow-400'
                     : 'text-gray-300'
                 }`}
@@ -160,12 +160,12 @@ export function ReviewList({ productId, theme }: ReviewListProps) {
             return (
               <div key={star} className="flex items-center gap-3">
                 <span className="text-sm w-8" style={{ color: theme.textColor }}>{star}★</span>
-                <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div 
+                <div className="flex-1 h-2 bg-gray-200/50 rounded-full overflow-hidden">
+                  <div
                     className="h-full rounded-full transition-all"
-                    style={{ 
+                    style={{
                       width: `${percentage}%`,
-                      backgroundColor: theme.primaryColor 
+                      backgroundColor: theme.primaryColor
                     }}
                   />
                 </div>
@@ -181,17 +181,16 @@ export function ReviewList({ productId, theme }: ReviewListProps) {
       {/* Individual Reviews */}
       <div className="space-y-6">
         {reviews.map((review) => (
-          <div 
-            key={review.id} 
-            className="p-6 rounded-lg border"
+          <div
+            key={review.id}
+            className="p-6 rounded-lg border bg-white/50"
             style={{ borderColor: theme.textColor + '20' }}
           >
             {/* Review Header */}
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-3">
-                <div 
-                  className="w-10 h-10 rounded-full flex items-center justify-center"
-                  style={{ backgroundColor: theme.primaryColor + '20' }}
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center bg-white/80"
                 >
                   <User className="w-5 h-5" style={{ color: theme.primaryColor }} />
                 </div>
@@ -201,11 +200,10 @@ export function ReviewList({ productId, theme }: ReviewListProps) {
                       {review.buyerName}
                     </span>
                     {review.verified && (
-                      <div 
-                        className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
-                        style={{ 
-                          backgroundColor: theme.primaryColor + '20',
-                          color: theme.primaryColor 
+                      <div
+                        className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-white/50"
+                        style={{
+                          color: theme.primaryColor
                         }}
                       >
                         <Shield className="w-3 h-3" />
@@ -220,8 +218,8 @@ export function ReviewList({ productId, theme }: ReviewListProps) {
               </div>
               <div className="flex items-center">
                 {[...Array(5)].map((_, i) => (
-                  <Star 
-                    key={i} 
+                  <Star
+                    key={i}
                     className={`w-4 h-4 ${
                       i < review.rating
                         ? 'text-yellow-400 fill-yellow-400'
@@ -241,12 +239,12 @@ export function ReviewList({ productId, theme }: ReviewListProps) {
             <button
               onClick={() => handleHelpful(review.id)}
               disabled={helpfulClicked.has(review.id)}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all ${
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-all ${
                 helpfulClicked.has(review.id) ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-70'
               }`}
-              style={{ 
+              style={{
                 backgroundColor: theme.primaryColor + '10',
-                color: theme.primaryColor 
+                color: theme.primaryColor
               }}
             >
               <ThumbsUp className="w-4 h-4" />

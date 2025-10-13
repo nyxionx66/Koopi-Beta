@@ -20,15 +20,39 @@ type Customer = {
 };
 
 type Order = {
-  buyerEmail: string;
+  id: string;
+  orderNumber: string;
+  status: string;
+  storeName: string;
+  storeId: string;
   buyerId: string;
+  buyerEmail: string;
   shippingAddress: {
     name: string;
     phone: string;
+    addressLine1: string;
+    addressLine2?: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
   };
+  items: Array<{
+    productId: string;
+    name: string;
+    price: number;
+    quantity: number;
+    image?: string;
+    variant?: { [key: string]: string };
+  }>;
+  subtotal: number;
+  shipping: number;
+  tax: number;
   total: number;
+  paymentMethod: string;
+  isGuest?: boolean;
   createdAt: any;
-  status: string;
+  updatedAt: any;
 };
 
 export default function CustomersPage() {
@@ -146,17 +170,30 @@ export default function CustomersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f1f1f1] p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-[#f5f5f7] relative overflow-hidden p-4 sm:p-6 lg:p-8">
+      {/* macOS-style background pattern */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
+      
+      <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Customers</h1>
-          <p className="text-gray-600">Manage and view your customer base</p>
+        <div className="flex items-center justify-between mb-6 backdrop-blur-xl bg-white/60 rounded-[20px] p-4 sm:p-5 border border-white/20 shadow-lg">
+          <div className="flex items-center gap-4">
+            <div className="group flex items-center justify-center w-9 h-9 rounded-full bg-black/5">
+              <Users className="w-5 h-5 text-gray-700" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">Customers</h1>
+              <p className="text-sm text-gray-600 mt-0.5">Manage and view your customer base</p>
+            </div>
+          </div>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+          <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-gray-600">Total Customers</span>
               <Users className="w-5 h-5 text-gray-400" />
@@ -164,7 +201,7 @@ export default function CustomersPage() {
             <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
           </div>
 
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+          <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-gray-600">Total Orders</span>
               <Package className="w-5 h-5 text-blue-500" />
@@ -172,45 +209,45 @@ export default function CustomersPage() {
             <div className="text-2xl font-bold text-blue-600">{stats.totalOrders}</div>
           </div>
 
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+          <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-gray-600">Total Revenue</span>
               <TrendingUp className="w-5 h-5 text-green-500" />
             </div>
-            <div className="text-2xl font-bold text-green-600">Rs {stats.totalRevenue.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-green-600">LKR {stats.totalRevenue.toFixed(2)}</div>
           </div>
 
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+          <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-gray-600">Avg Order Value</span>
               <ShoppingCart className="w-5 h-5 text-purple-500" />
             </div>
-            <div className="text-2xl font-bold text-purple-600">Rs {stats.avgOrderValue.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-purple-600">LKR {stats.avgOrderValue.toFixed(2)}</div>
           </div>
         </div>
 
         {/* Search */}
-        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 mb-6">
+        <div className="backdrop-blur-xl bg-white/60 rounded-[20px] p-4 border border-white/20 shadow-lg mb-6">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by name or email..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-neutral-900 focus:border-transparent"
+              className="w-full pl-12 pr-4 py-2.5 bg-white/80 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
             />
           </div>
         </div>
 
         {/* Customers Table */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl overflow-hidden">
           {filteredCustomers.length === 0 ? (
             <div className="text-center py-12">
               <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No customers found</h3>
               <p className="text-gray-600">
-                {searchTerm 
+                {searchTerm
                   ? 'Try adjusting your search'
                   : 'Customers will appear here once you receive orders'}
               </p>
@@ -218,7 +255,7 @@ export default function CustomersPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
+                <thead className="bg-white/50 border-b border-gray-200/50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Customer
@@ -240,12 +277,12 @@ export default function CustomersPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-200/30">
                   {filteredCustomers.map((customer) => (
-                    <tr key={customer.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={customer.id} className="hover:bg-white/50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="w-10 h-10 rounded-full bg-neutral-900 flex items-center justify-center text-white font-semibold">
+                          <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold shadow-md">
                             {customer.name.charAt(0).toUpperCase()}
                           </div>
                           <div className="ml-4">
@@ -264,10 +301,10 @@ export default function CustomersPage() {
                         {customer.totalOrders} {customer.totalOrders === 1 ? 'order' : 'orders'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        Rs {customer.totalSpent.toFixed(2)}
+                        LKR {customer.totalSpent.toFixed(2)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        Rs {(customer.totalSpent / customer.totalOrders).toFixed(2)}
+                        LKR {(customer.totalSpent / customer.totalOrders).toFixed(2)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {formatDate(customer.lastOrderDate)}

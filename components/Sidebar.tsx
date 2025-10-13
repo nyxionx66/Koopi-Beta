@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, ShoppingCart, Package, Users, BarChart, Settings, LogOut, ChevronDown, Globe, Star } from "lucide-react";
+import { Home, ShoppingCart, Package, Users, BarChart, Settings, LogOut, ChevronDown, Globe, Star, Bell } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { auth } from "@/firebase";
+import { auth, db } from "@/firebase";
 import { signOut } from "firebase/auth";
 import { useState, useRef, useEffect } from "react";
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 
 const navLinks = [
   { href: "/dashboard", label: "Home", icon: Home },
@@ -23,6 +24,24 @@ const Sidebar = () => {
   const { user } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const notificationsRef = collection(db, 'notifications');
+    const q = query(
+      notificationsRef,
+      where('userId', '==', user.uid),
+      where('isRead', '==', false)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setUnreadCount(snapshot.size);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -69,7 +88,7 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="w-64 h-screen bg-white/80 backdrop-blur-xl text-gray-800 flex flex-col border-r border-white/20 shadow-lg">
+    <aside className="w-64 h-screen bg-white/80 backdrop-blur-xl text-gray-800 flex flex-col border-r border-white/20 shadow-lg relative">
       {/* Navigation Links */}
       <nav className="flex-1 px-4 py-6 space-y-1">
         {navLinks.map((link) => {
@@ -93,6 +112,24 @@ const Sidebar = () => {
 
       {/* Settings & Subscription */}
      <div className="px-4 pb-3 space-y-1">
+        <Link
+          href="/dashboard/notifications"
+          className={`flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+            pathname === '/dashboard/notifications'
+              ? "bg-blue-500 text-white shadow-md"
+              : "text-gray-700 hover:bg-blue-500/10 hover:text-blue-600"
+          }`}
+        >
+          <div className="flex items-center">
+            <Bell className="w-5 h-5 mr-3" strokeWidth={2} />
+            Notifications
+          </div>
+          {unreadCount > 0 && (
+            <span className="w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+              {unreadCount}
+            </span>
+          )}
+        </Link>
        <Link
          href="/dashboard/subscription"
          className={`flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
@@ -119,10 +156,10 @@ const Sidebar = () => {
 
       {/* User Profile Section at Bottom */}
       <div className="p-4 border-t border-gray-200/50">
-        <div className="relative" ref={dropdownRef}>
+        <div ref={dropdownRef}>
           {/* Dropdown Menu */}
           {isDropdownOpen && (
-            <div className="absolute bottom-full left-0 right-0 mb-2 bg-white/80 backdrop-blur-xl rounded-xl shadow-2xl border border-white/30 overflow-hidden z-50">
+            <div className="absolute bottom-20 left-4 right-4 mb-2 bg-white/80 backdrop-blur-xl rounded-xl shadow-2xl border border-white/30 overflow-hidden z-50">
               {/* User Info Header */}
               <div className="px-3 py-2.5 border-b border-gray-200/50 bg-white/50">
                 <p className="text-sm font-semibold text-gray-900 truncate">
@@ -144,13 +181,8 @@ const Sidebar = () => {
             </div>
           )}
 
-          {/* Profile Button */}
-          <button
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-colors ${
-              isDropdownOpen ? 'bg-white/90 shadow-inner' : 'hover:bg-white/80'
-            }`}
-          >
+          {/* Profile Section */}
+          <div className="w-full flex items-center gap-3 px-3 py-2">
             <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0 shadow-md">
               {getUserInitial()}
             </div>
@@ -159,12 +191,14 @@ const Sidebar = () => {
                 {getUserName()}
               </p>
             </div>
-            <ChevronDown
-              className={`w-4 h-4 text-gray-500 flex-shrink-0 transition-transform ${
-                isDropdownOpen ? 'rotate-180' : ''
-              }`}
-            />
-          </button>
+            <button onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+              <ChevronDown
+                className={`w-4 h-4 text-gray-500 flex-shrink-0 transition-transform ${
+                  isDropdownOpen ? 'rotate-180' : ''
+                }`}
+              />
+            </button>
+          </div>
         </div>
       </div>
     </aside>

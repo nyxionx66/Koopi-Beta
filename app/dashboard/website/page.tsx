@@ -637,7 +637,7 @@ export default function WebsitePage() {
                     <select
                       value={fontFamily}
                       onChange={(e) => setFontFamily(e.target.value)}
-                      disabled={userProfile?.subscription?.plan === 'free'}
+                      disabled={false}
                       className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm appearance-none shadow-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
                     >
                       <option value="inter">Inter (Modern)</option>
@@ -647,9 +647,6 @@ export default function WebsitePage() {
                     </select>
                     <ChevronDown className="absolute right-4 top-3.5 w-5 h-5 text-gray-400 pointer-events-none" />
                   </div>
-                  {userProfile?.subscription?.plan === 'free' && (
-                    <p className="text-xs text-gray-500 mt-2">Upgrade to Pro to unlock more fonts.</p>
-                  )}
                 </div>
               </div>
             </div>
@@ -681,12 +678,8 @@ export default function WebsitePage() {
                    key={id}
                    templateId={id as keyof typeof templates}
                    isSelected={templateId === id}
-                   isLocked={userProfile?.subscription?.plan === 'free' && id !== 'classic'}
+                   isLocked={false}
                    onClick={() => {
-                     if (userProfile?.subscription?.plan === 'free' && id !== 'classic') {
-                       alert('Upgrade to Pro to use this template.');
-                       return;
-                     }
                      setInstallingTemplate(true);
                      setTimeout(() => {
                        setTemplateId(id);
@@ -719,29 +712,29 @@ export default function WebsitePage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Primary Color</label>
                   <div className="flex items-center gap-3">
-                    <input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} disabled={userProfile?.subscription?.plan === 'free'} className="w-12 h-10 p-1 border border-gray-300 rounded-lg cursor-pointer bg-white/80 disabled:cursor-not-allowed" />
-                    <input type="text" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} disabled={userProfile?.subscription?.plan === 'free'} className="flex-1 px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-sm disabled:bg-gray-100" />
+                    <input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} disabled={false} className="w-12 h-10 p-1 border border-gray-300 rounded-lg cursor-pointer bg-white/80 disabled:cursor-not-allowed" />
+                    <input type="text" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} disabled={false} className="flex-1 px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-sm disabled:bg-gray-100" />
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Accent Color</label>
                   <div className="flex items-center gap-3">
-                    <input type="color" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} disabled={userProfile?.subscription?.plan === 'free'} className="w-12 h-10 p-1 border border-gray-300 rounded-lg cursor-pointer bg-white/80 disabled:cursor-not-allowed" />
-                    <input type="text" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} disabled={userProfile?.subscription?.plan === 'free'} className="flex-1 px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-sm disabled:bg-gray-100" />
+                    <input type="color" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} disabled={false} className="w-12 h-10 p-1 border border-gray-300 rounded-lg cursor-pointer bg-white/80 disabled:cursor-not-allowed" />
+                    <input type="text" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} disabled={false} className="flex-1 px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-sm disabled:bg-gray-100" />
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Background Color</label>
                   <div className="flex items-center gap-3">
-                    <input type="color" value={backgroundColor} onChange={(e) => setBackgroundColor(e.target.value)} disabled={userProfile?.subscription?.plan === 'free'} className="w-12 h-10 p-1 border border-gray-300 rounded-lg cursor-pointer bg-white/80 disabled:cursor-not-allowed" />
-                    <input type="text" value={backgroundColor} onChange={(e) => setBackgroundColor(e.target.value)} disabled={userProfile?.subscription?.plan === 'free'} className="flex-1 px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-sm disabled:bg-gray-100" />
+                    <input type="color" value={backgroundColor} onChange={(e) => setBackgroundColor(e.target.value)} disabled={false} className="w-12 h-10 p-1 border border-gray-300 rounded-lg cursor-pointer bg-white/80 disabled:cursor-not-allowed" />
+                    <input type="text" value={backgroundColor} onChange={(e) => setBackgroundColor(e.target.value)} disabled={false} className="flex-1 px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-sm disabled:bg-gray-100" />
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Text Color</label>
                   <div className="flex items-center gap-3">
-                    <input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} disabled={userProfile?.subscription?.plan === 'free'} className="w-12 h-10 p-1 border border-gray-300 rounded-lg cursor-pointer bg-white/80 disabled:cursor-not-allowed" />
-                    <input type="text" value={textColor} onChange={(e) => setTextColor(e.target.value)} disabled={userProfile?.subscription?.plan === 'free'} className="flex-1 px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-sm disabled:bg-gray-100" />
+                    <input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} disabled={false} className="w-12 h-10 p-1 border border-gray-300 rounded-lg cursor-pointer bg-white/80 disabled:cursor-not-allowed" />
+                    <input type="text" value={textColor} onChange={(e) => setTextColor(e.target.value)} disabled={false} className="flex-1 px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-sm disabled:bg-gray-100" />
                   </div>
                 </div>
                 <div className="mt-4 p-3 border border-gray-200/50 rounded-lg shadow-inner" style={{ backgroundColor: backgroundColor }}>
@@ -772,7 +765,7 @@ export default function WebsitePage() {
                       type="checkbox"
                       checked={showPoweredBy}
                       onChange={(e) => setShowPoweredBy(e.target.checked)}
-                      disabled={userProfile?.subscription?.plan === 'free'}
+                      disabled={false}
                       className="sr-only peer"
                     />
                     <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500 shadow-inner peer-disabled:cursor-not-allowed"></div>

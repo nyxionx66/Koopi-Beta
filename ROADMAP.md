@@ -314,10 +314,13 @@ collections/
 ## 🎉 Recent Accomplishments
 
 **October 2025 - Version 2.4.0:**
-- ✅ **Email Notification System** - Integrated SendGrid for transactional emails.
-  - Automated order confirmation emails for customers.
-  - Automated order status update emails (processing, shipped, delivered).
-  - Created a set of reusable, professional email templates.
+- ✅ **Advanced Notification System** - Implemented a comprehensive notification system for real-time updates.
+  - In-app notifications for sellers when new messages are received.
+  - Dedicated notifications page in the dashboard to view and manage all alerts.
+  - Real-time unread notification counter in the sidebar.
+  - Automated email alerts to sellers for new messages.
+  - Automated email alerts to buyers when a seller replies.
+  - Redesigned all email templates with a modern, professional aesthetic.
 - ✅ **Improved Onboarding Flow** - Redesigned the signup and onboarding process for a smoother, more interactive user experience.
   - Removed unnecessary loading screens and delays.
   - Implemented a conversational, "interview-style" onboarding questionnaire.

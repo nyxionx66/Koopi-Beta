@@ -40,11 +40,11 @@ export function TemplatePreview({ templateId, isSelected, isLocked, onClick }: T
         }}
       >
         <div className="flex justify-between items-start">
-          <div className="w-8 h-3 rounded-full" style={{ backgroundColor: template.theme.textColor }}></div>
+          <div className="w-8 h-3 rounded-full" style={{ backgroundColor: template.theme.accentColor }}></div>
           <div className="w-4 h-4 rounded-full" style={{ backgroundColor: template.theme.primaryColor }}></div>
         </div>
         <div className="space-y-1">
-          <div className="w-3/4 h-3 rounded-full" style={{ backgroundColor: template.theme.textColor }}></div>
+          <div className="w-3/4 h-3 rounded-full" style={{ backgroundColor: template.theme.accentColor }}></div>
           <div className="w-1/2 h-2 rounded-full" style={{ backgroundColor: template.theme.textColor, opacity: 0.7 }}></div>
         </div>
       </div>

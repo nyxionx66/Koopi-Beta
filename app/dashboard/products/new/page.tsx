@@ -13,6 +13,7 @@ import { VariantEditor } from '@/components/dashboard/VariantEditor';
 import { ReviewManagement } from '@/components/dashboard/ReviewManagement';
 import { RelatedProductSelector } from '@/components/dashboard/RelatedProductSelector';
 import { PageLoader } from '@/components/ui/PageLoader';
+import { ImageCropper } from '@/components/dashboard/ImageCropper';
 
 const AddProductPage = () => {
   const { user, userProfile, loading: authLoading } = useAuth();
@@ -46,6 +47,7 @@ const AddProductPage = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [saving, setSaving] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [croppingImage, setCroppingImage] = useState<string | null>(null);
   
   // Celebration state
   const [showCelebration, setShowCelebration] = useState(false);
@@ -235,13 +237,6 @@ const AddProductPage = () => {
     setSaving(true);
 
     try {
-      // Check subscription limit
-      if (userProfile?.subscription?.plan === 'free' && userProfile.subscription.productCount >= userProfile.subscription.productLimit) {
-        alert(`You have reached your product limit of ${userProfile.subscription.productLimit} for the free plan. Please upgrade to add more products.`);
-        setSaving(false);
-        return;
-      }
-
       const storeRef = doc(db, 'stores', user.uid);
       const storeDoc = await getDoc(storeRef);
       const isFirstProduct = !storeDoc.exists() || !storeDoc.data()?.hasProducts;
@@ -282,14 +277,6 @@ const AddProductPage = () => {
       };
 
       await addDoc(collection(db, 'products'), productData);
-
-      // Increment product count for the user
-      if (userProfile?.subscription) {
-        const userRef = doc(db, 'users', user.uid);
-        await updateDoc(userRef, {
-          'subscription.productCount': userProfile.subscription.productCount + 1,
-        });
-      }
 
       if (storeDoc.exists()) {
         await updateDoc(storeRef, {
@@ -560,19 +547,25 @@ const AddProductPage = () => {
                   {mediaPreviews.length > 0 && (
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-5">
                       {mediaPreviews.map((preview, index) => (
-                        <motion.div 
-                          key={index} 
+                        <motion.div
+                          key={index}
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
                           className="relative group"
                         >
                           <div className="relative aspect-square rounded-2xl overflow-hidden bg-white/80 border border-gray-200 group-hover:shadow-lg transition-all">
-                            <img 
-                              src={preview} 
+                            <img
+                              src={preview}
                               alt={`Preview ${index + 1}`}
                               className="w-full h-full object-cover"
                             />
                             <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[2px]" />
+                            <button
+                              onClick={() => setCroppingImage(preview)}
+                              className="absolute bottom-2 right-2 w-8 h-8 bg-white/80 text-gray-700 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110 active:scale-95 flex items-center justify-center"
+                            >
+                              <ImageIcon className="w-4 h-4" />
+                            </button>
                           </div>
                           <button
                             onClick={() => removeMedia(index)}
@@ -859,19 +852,36 @@ const AddProductPage = () => {
         </motion.div>
       </div>
       
+      {/* Image Cropper Modal */}
+      {croppingImage && (
+        <ImageCropper
+          src={croppingImage}
+          onCropComplete={(croppedImageUrl) => {
+            const index = mediaPreviews.indexOf(croppingImage);
+            if (index !== -1) {
+              const newMediaPreviews = [...mediaPreviews];
+              newMediaPreviews[index] = croppedImageUrl;
+              setMediaPreviews(newMediaPreviews);
+            }
+            setCroppingImage(null);
+          }}
+          onClose={() => setCroppingImage(null)}
+        />
+      )}
+
       {/* Upload Progress Modal - macOS style */}
       <AnimatePresence>
         {uploading && (
           <>
             {/* Backdrop with macOS blur */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/30 backdrop-blur-xl flex items-center justify-center z-[100] p-4"
             >
               {/* Modal */}
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, scale: 0.95, y: -20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: -20 }}
@@ -882,10 +892,10 @@ const AddProductPage = () => {
                   {/* Animated Icon */}
                   <div className="relative inline-block mb-6">
                     <motion.div
-                      animate={{ 
+                      animate={{
                         scale: [1, 1.05, 1],
                       }}
-                      transition={{ 
+                      transition={{
                         duration: 2,
                         repeat: Infinity,
                         ease: "easeInOut"
@@ -897,11 +907,11 @@ const AddProductPage = () => {
                     
                     {/* Pulsing rings */}
                     <motion.div
-                      animate={{ 
+                      animate={{
                         scale: [1, 1.3, 1],
                         opacity: [0.5, 0, 0.5]
                       }}
-                      transition={{ 
+                      transition={{
                         duration: 2,
                         repeat: Infinity,
                         ease: "easeOut"
@@ -915,7 +925,7 @@ const AddProductPage = () => {
                   
                   {/* Progress Bar - macOS style */}
                   <div className="relative w-full h-2 bg-gray-200/80 rounded-full overflow-hidden mb-4 shadow-inner">
-                    <motion.div 
+                    <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${uploadProgress}%` }}
                       transition={{ duration: 0.3, ease: "easeOut" }}

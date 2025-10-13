@@ -114,11 +114,10 @@ function SignUpPage() {
         email: user.email,
         createdAt: new Date(),
         subscription: {
-         plan: 'pro',
-         status: 'trialing',
+         plan: 'free',
+         status: 'active',
          productCount: 0,
-         productLimit: Infinity, // Unlimited during trial
-         trialEndDate: new Date(new Date().setDate(new Date().getDate() + 14)),
+         productLimit: Infinity, // Unlimited - completely free for now
        },
         userType: 'seller',
         onboarding: {

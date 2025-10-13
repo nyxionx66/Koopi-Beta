@@ -21,8 +21,8 @@ export const themes = {
     fontFamily: 'system',
   },
   bold: {
-    primaryColor: '#ffcc00',
-    accentColor: '#ffffff',
+    primaryColor: '#000000',
+    accentColor: '#ffcc00',
     backgroundColor: '#111111',
     textColor: '#ffffff',
     fontFamily: 'mono',

@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
-import { Star, Tag, TrendingUp } from 'lucide-react';
+import { Star, Tag, TrendingUp, Image as ImageIcon } from 'lucide-react';
 import { useState } from 'react';
 
 type ProductCardProps = {
@@ -55,18 +54,15 @@ const ProductCard = ({ product, storeName, theme }: ProductCardProps) => {
       <div className="group relative bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
         {/* Image Container */}
         <div className="relative w-full aspect-square bg-gray-100 overflow-hidden">
-          {!imageError ? (
-            <img
-              src={imageUrl}
-              alt={product.name}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-              onError={() => setImageError(true)}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-200">
-              <Tag className="w-12 h-12 text-gray-400" />
-            </div>
-          )}
+          <img
+            src={imageUrl}
+            alt={product.name}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            onError={(e) => {
+              e.currentTarget.src = '/placeholder.svg';
+              e.currentTarget.onerror = null; // Prevent infinite loop
+            }}
+          />
           
           {/* Discount Badge */}
           {hasDiscount && (

@@ -6,40 +6,47 @@ import { PageLoader } from '@/components/ui/PageLoader';
 import { Check, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 const SubscriptionPage = () => {
   const { user, userProfile, loading } = useAuth();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   const handleUpgrade = async () => {
-    if (!user) return;
+    if (!user || !userProfile) return;
 
     setIsRedirecting(true);
     try {
-      const response = await fetch('/api/stripe/checkout-session', {
+      const response = await fetch('/api/payhere/checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId: user.uid }),
+        body: JSON.stringify({
+          userId: user.uid,
+          email: user.email,
+          name: userProfile.name || user.email?.split('@')[0],
+        }),
       });
 
-      const { sessionId } = await response.json();
-      const stripe = await stripePromise;
-      if (stripe) {
-        const { error } = await stripe.redirectToCheckout({ sessionId });
-        if (error) {
-          console.error('Error redirecting to Stripe checkout:', error);
-          alert('Failed to start the upgrade process. Please try again.');
-        }
+      const checkoutData = await response.json();
+
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = 'https://sandbox.payhere.lk/pay/checkout';
+      
+      for (const key in checkoutData) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = checkoutData[key];
+        form.appendChild(input);
       }
+
+      document.body.appendChild(form);
+      form.submit();
     } catch (error) {
-      console.error('Error redirecting to Stripe checkout:', error);
+      console.error('Error redirecting to PayHere checkout:', error);
       alert('Failed to start the upgrade process. Please try again.');
-    } finally {
       setIsRedirecting(false);
     }
   };

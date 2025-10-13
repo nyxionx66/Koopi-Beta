@@ -19,7 +19,6 @@
     "@headlessui/react": "^2.2.9",
     "@heroicons/react": "^2.2.0",
     "@sendgrid/mail": "^8.1.6",
-    "@stripe/stripe-js": "^8.0.0",
     "@types/react-scroll": "^1.8.10",
     "firebase": "^12.3.0",
     "framer-motion": "^12.23.22",
@@ -30,8 +29,7 @@
     "react-confetti": "^6.4.0",
     "react-dom": "19.1.0",
     "react-image-crop": "^11.0.10",
-    "react-scroll": "^1.9.3",
-    "stripe": "^19.1.0"
+    "react-scroll": "^1.9.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

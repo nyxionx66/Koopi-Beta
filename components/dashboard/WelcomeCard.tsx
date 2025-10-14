@@ -170,8 +170,8 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
           {/* Current Active Task - Prominent Display */}
           <div className="bg-white/50 rounded-xl p-6 border-2 border-blue-200/50 mb-6 shadow-sm">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-gray-200">
-                <TaskIcon className="w-6 h-6 text-gray-900" />
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                <TaskIcon className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1">
                 <div className="flex items-start justify-between gap-4 mb-3">
@@ -203,10 +203,12 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
             {/* Step 1 */}
             <div className="flex items-center gap-2">
               {hasProducts ? (
-                <CheckCircle className="w-5 h-5 text-green-600" />
+                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
+                  <Package className="w-4 h-4 text-green-600" />
+                </div>
               ) : (
-                <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                  <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
+                  <Package className="w-4 h-4 text-gray-400" />
                 </div>
               )}
               <span className={`text-sm font-medium ${hasProducts ? 'text-green-600' : 'text-gray-500'}`}>
@@ -220,10 +222,12 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
             {/* Step 2 */}
             <div className="flex items-center gap-2">
               {hasCustomizedStore ? (
-                <CheckCircle className="w-5 h-5 text-green-600" />
+                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
+                  <Palette className="w-4 h-4 text-green-600" />
+                </div>
               ) : (
-                <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                  <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
+                  <Palette className="w-4 h-4 text-gray-400" />
                 </div>
               )}
               <span className={`text-sm font-medium ${hasCustomizedStore ? 'text-green-600' : 'text-gray-500'}`}>
@@ -237,10 +241,12 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
             {/* Step 3 */}
             <div className="flex items-center gap-2">
               {hasPaymentSetup ? (
-                <CheckCircle className="w-5 h-5 text-green-600" />
+                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
+                  <CreditCard className="w-4 h-4 text-green-600" />
+                </div>
               ) : (
-                <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center">
-                  <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
+                  <CreditCard className="w-4 h-4 text-gray-400" />
                 </div>
               )}
               <span className={`text-sm font-medium ${hasPaymentSetup ? 'text-green-600' : 'text-gray-500'}`}>
@@ -253,11 +259,7 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
         {/* Right Side Illustration */}
         <div className="hidden lg:block flex-shrink-0">
           <div className="w-40 h-40 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl flex items-center justify-center">
-            <img
-              src="https://cdn.shopify.com/shopifycloud/web/assets/v1/vite/client/en/assets/digital-product-C3y7g_9j.svg"
-              alt="Digital business"
-              className="w-28 h-28 object-contain"
-            />
+            <Package className="w-20 h-20 text-blue-500" />
           </div>
         </div>
       </div>

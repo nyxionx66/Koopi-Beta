@@ -3,7 +3,6 @@ import sgMail from '@sendgrid/mail';
 import { createOrderConfirmationHtml } from '@/lib/email/templates/orderConfirmation';
 import { createOrderStatusUpdateHtml } from '@/lib/email/templates/orderStatusUpdate';
 import { createGenericEmailHtml } from '@/lib/email/templates/generic';
-import { createNewMessageNotificationEmailHtml } from '@/lib/email/templates/newMessageNotification';
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
 
@@ -31,10 +30,6 @@ export async function POST(request: Request) {
       case 'generic':
         subject = data.title;
         html = createGenericEmailHtml(data);
-        break;
-      case 'newMessageNotification':
-        subject = `New Message on Order #${data.orderNumber}`;
-        html = createNewMessageNotificationEmailHtml(data);
         break;
       default:
         return NextResponse.json({ error: 'Invalid template specified' }, { status: 400 });

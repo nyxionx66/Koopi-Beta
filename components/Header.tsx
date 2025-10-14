@@ -28,9 +28,9 @@ export function Header() {
                 <ScrollLink to="features" smooth={true} duration={500} spy={true} offset={-50} className="cursor-pointer text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
                   Features
                 </ScrollLink>
-                <NextLink href="/about" className="cursor-pointer text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                <ScrollLink to="about" smooth={true} duration={500} spy={true} offset={-50} className="cursor-pointer text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
                   About
-                </NextLink>
+                </ScrollLink>
               </>
             )}
             {user ? (
@@ -73,9 +73,9 @@ export function Header() {
                 <ScrollLink to="features" smooth={true} duration={500} spy={true} offset={-50} className="cursor-pointer block text-sm font-medium text-gray-600 hover:text-gray-900">
                   Features
                 </ScrollLink>
-                <NextLink href="/about" className="cursor-pointer block text-sm font-medium text-gray-600 hover:text-gray-900">
+                <ScrollLink to="about" smooth={true} duration={500} spy={true} offset={-50} className="cursor-pointer block text-sm font-medium text-gray-600 hover:text-gray-900">
                   About
-                </NextLink>
+                </ScrollLink>
               </>
             )}
             {user ? (

@@ -146,37 +146,18 @@ function OrderDetailPage() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !user || !storeName || !order) return;
+    if (!newMessage.trim() || !user || !storeName) return;
 
     setSendingMessage(true);
     try {
-      const messageContent = newMessage.trim();
       await addDoc(collection(db, 'messages'), {
         orderId,
         senderId: user.uid,
         senderType: 'seller',
         senderName: storeName,
-        message: messageContent,
+        message: newMessage.trim(),
         createdAt: serverTimestamp(),
       });
-
-      // Send email to buyer
-      await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: order.buyerEmail,
-          template: 'newMessageNotification',
-          data: {
-            recipientName: order.shippingAddress.name,
-            senderName: 'the ' + storeName + ' team',
-            orderNumber: order.orderNumber,
-            message: messageContent,
-            orderUrl: `${window.location.origin}/buyer/track-order/${orderId}`,
-          },
-        }),
-      });
-
       setNewMessage('');
     } catch (error) {
       console.error('Error sending message:', error);

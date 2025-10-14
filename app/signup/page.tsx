@@ -117,7 +117,7 @@ function SignUpPage() {
          plan: 'free',
          status: 'active',
          productCount: 0,
-         productLimit: Infinity, // Unlimited - completely free for now
+         productLimit: Infinity, // Unlimited - everything is free!
        },
         userType: 'seller',
         onboarding: {

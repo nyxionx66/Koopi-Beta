@@ -36,7 +36,6 @@ export default function RootLayout({
             <CartProvider>{children}</CartProvider>
           </BuyerAuthProvider>
         </AuthProvider>
-        <div id="portal-root"></div>
       </body>
     </html>
   );

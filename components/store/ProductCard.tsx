@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Star, Tag, TrendingUp, Image as ImageIcon } from 'lucide-react';
-import { useState } from 'react';
+import { Star, Package, TrendingUp } from 'lucide-react';
 
 type ProductCardProps = {
   product: {
@@ -28,11 +27,11 @@ type ProductCardProps = {
 };
 
 const ProductCard = ({ product, storeName, theme }: ProductCardProps) => {
-  const [imageError, setImageError] = useState(false);
+  // Get images from product
+  const productImages = product.images || [];
   
-  // Handle multiple possible image field names
-  const images = product.images || product.imageUrls || product.mediaUrls || [];
-  const imageUrl = images.length > 0 ? images[0] : '/placeholder.png';
+  // Debug logging
+  console.log('ProductCard:', product.name, 'Images:', productImages);
   
   // Calculate discount percentage
   const hasDiscount = product.compareAtPrice && product.compareAtPrice > product.price;
@@ -53,22 +52,26 @@ const ProductCard = ({ product, storeName, theme }: ProductCardProps) => {
     <Link href={`/store/${storeName}/product/${product.id}`}>
       <div className="group relative bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
         {/* Image Container */}
-        <div className="relative w-full aspect-square bg-gray-100 overflow-hidden">
-          <img
-            src={imageUrl}
-            alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-            onError={(e) => {
-              e.currentTarget.src = '/placeholder.svg';
-              e.currentTarget.onerror = null; // Prevent infinite loop
-            }}
-          />
+        <div className="relative w-full aspect-square bg-gray-50 overflow-hidden">
+          {productImages.length > 0 ? (
+            <img
+              src={productImages[0]}
+              alt={product.name}
+              className="w-full h-full object-cover"
+              style={{ display: 'block', maxWidth: '100%', height: '100%' }}
+              crossOrigin="anonymous"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+              <Package className="w-16 h-16 text-gray-400" />
+            </div>
+          )}
           
           {/* Discount Badge */}
           {hasDiscount && (
             <div 
               className="absolute top-3 left-3 px-3 py-1 rounded-full text-white text-xs font-bold shadow-lg flex items-center gap-1"
-              style={{ backgroundColor: primaryColor }}
+              style={{ backgroundColor: primaryColor, zIndex: 10 }}
             >
               <TrendingUp className="w-3 h-3" />
               {discountPercent}% OFF
@@ -77,13 +80,10 @@ const ProductCard = ({ product, storeName, theme }: ProductCardProps) => {
 
           {/* Out of Stock Badge */}
           {product.status === 'Inactive' && (
-            <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-red-500 text-white text-xs font-bold shadow-lg">
+            <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-red-500 text-white text-xs font-bold shadow-lg" style={{ zIndex: 10 }}>
               Out of Stock
             </div>
           )}
-
-          {/* Quick View Overlay */}
-          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity duration-300" />
         </div>
 
         {/* Product Info */}
@@ -135,7 +135,7 @@ const ProductCard = ({ product, storeName, theme }: ProductCardProps) => {
           {/* Variants Info */}
           {hasVariants && (
             <div className="flex items-center gap-1 text-xs text-gray-500">
-              <Tag className="w-3 h-3" />
+              <Package className="w-3 h-3" />
               <span>{variantCount} options available</span>
             </div>
           )}

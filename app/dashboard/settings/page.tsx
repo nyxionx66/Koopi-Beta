@@ -225,11 +225,10 @@ const StoreSettings = () => {
 const BillingSettings = () => (
   <div>
     <h2 className="text-2xl font-bold text-gray-900 mb-6">Billing</h2>
-    <div className="text-center py-12 bg-gradient-to-br from-green-50 to-blue-50 rounded-xl border border-green-200/50">
-      <CreditCard className="w-12 h-12 text-green-600 mx-auto mb-4" />
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">Everything is Free!</h3>
-      <p className="text-gray-600 text-sm">You're enjoying unlimited access to all features at no cost.</p>
-      <p className="text-gray-500 text-xs mt-2">Premium plans coming soon with even more features.</p>
+    <div className="text-center py-12 bg-white/50 rounded-xl border border-gray-200/50">
+      <CreditCard className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">Coming Soon</h3>
+      <p className="text-gray-600 text-sm">Manage your subscription and payment methods.</p>
     </div>
   </div>
 );

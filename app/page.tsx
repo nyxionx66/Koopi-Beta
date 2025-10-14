@@ -4,7 +4,6 @@ import { Features } from "@/components/Features";
 import { CTA } from "@/components/CTA";
 import { Footer } from "@/components/Footer";
 import { Pricing } from "@/components/Pricing";
-import { FAQ } from "@/components/FAQ";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -19,7 +18,6 @@ export default function Home() {
       <Hero />
       <Features />
       <Pricing />
-      <FAQ />
       <CTA />
       <Footer />
     </div>

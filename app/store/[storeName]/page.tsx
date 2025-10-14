@@ -47,10 +47,10 @@ export default function StorePage() {
       const productsQuery = query(productsRef, where('storeId', '==', store.ownerId), where('status', '==', 'Active'));
       const productsSnapshot = await getDocs(productsQuery);
       const productsData = productsSnapshot.docs.map(doc => {
-        const data = { id: doc.id, ...doc.data() };
+        const data = { id: doc.id, ...doc.data() } as Product;
         console.log('Product data:', data.name, 'Images:', data.images);
         return data;
-      }) as Product[];
+      });
       setProducts(productsData);
     } catch (err) {
       console.error('Error fetching products:', err);

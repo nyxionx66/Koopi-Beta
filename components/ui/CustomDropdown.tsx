@@ -19,7 +19,7 @@ export default function CustomDropdown({ options, selected, setSelected }: Custo
     <Listbox value={selected} onChange={setSelected}>
       <div className="relative mt-1">
         <Listbox.Button className="relative w-full cursor-default rounded-xl bg-white/80 py-3 pl-4 pr-10 text-left shadow-sm border border-gray-300 focus:outline-none focus-visible:border-blue-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-blue-300 sm:text-sm">
-          <span className="block truncate">{selected.name}</span>
+          <span className="block">{selected.name}</span>
           <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
             <ChevronUpDownIcon
               className="h-5 w-5 text-gray-400"
@@ -33,7 +33,7 @@ export default function CustomDropdown({ options, selected, setSelected }: Custo
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white/80 backdrop-blur-sm py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm border border-white/30">
+          <Listbox.Options className="absolute mt-1 max-h-60 w-auto min-w-full overflow-auto rounded-xl bg-white/80 backdrop-blur-sm py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm border border-white/30">
             {options.map((option, optionIdx) => (
               <Listbox.Option
                 key={optionIdx}
@@ -47,7 +47,7 @@ export default function CustomDropdown({ options, selected, setSelected }: Custo
                 {({ selected }) => (
                   <>
                     <span
-                      className={`block truncate ${
+                      className={`block ${
                         selected ? 'font-medium' : 'font-normal'
                       }`}
                     >

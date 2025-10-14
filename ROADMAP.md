@@ -313,6 +313,14 @@ collections/
 
 ## 🎉 Recent Accomplishments
 
+**October 2025 - Version 2.5.0:**
+- ✅ **Dashboard Enhancements** - Added a "Quick Look" widget for at-a-glance stats.
+  - Implemented a customizable dashboard layout with drag-and-drop functionality.
+  - Redesigned the subscription page with a modern aesthetic and countdown timer.
+- ✅ **Product Management** - Added the ability to delete products.
+- ✅ **UI/UX Improvements** - Redesigned the products page to match the modern aesthetic.
+  - Fixed various styling issues and improved the overall user experience.
+
 **October 2025 - Version 2.4.0:**
 - ✅ **Email Notification System** - Integrated SendGrid for transactional emails.
   - Automated order confirmation emails for customers.

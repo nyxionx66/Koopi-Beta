@@ -1,13 +1,13 @@
 "use client";
 
-import { PlusCircle, Package } from "lucide-react";
+import { PlusCircle, Package, Edit, Trash2 } from "lucide-react";
 import ProductTableSkeleton from "@/components/dashboard/ProductTableSkeleton";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import Confetti from 'react-confetti';
 import { useAuth } from "@/contexts/AuthContext";
 import { db } from "@/firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, deleteDoc, doc } from "firebase/firestore";
 
 type Product = {
   id: string;
@@ -49,6 +49,17 @@ const ProductsPage = () => {
     }
   };
 
+  const handleDelete = async (productId: string) => {
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      try {
+        await deleteDoc(doc(db, "products", productId));
+        fetchProducts();
+      } catch (error) {
+        console.error("Error deleting product: ", error);
+      }
+    }
+  };
+
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -56,14 +67,12 @@ const ProductsPage = () => {
   return (
     <div className="min-h-screen bg-[#f5f5f7] relative overflow-hidden">
       {showConfetti && <Confetti />}
-      {/* macOS-style background pattern */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
       
       <div className="relative z-10 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        {/* Header - macOS style */}
         <div className="flex items-center justify-between mb-6 backdrop-blur-xl bg-white/60 rounded-[20px] p-4 sm:p-5 border border-white/20 shadow-lg">
           <div className="flex items-center gap-4">
             <div className="group flex items-center justify-center w-9 h-9 rounded-full bg-black/5">
@@ -83,7 +92,6 @@ const ProductsPage = () => {
           </Link>
         </div>
 
-        {/* Filter Bar */}
         <div className="backdrop-blur-xl bg-white/60 rounded-[20px] p-4 border border-white/20 shadow-lg mb-6">
           <div className="relative">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -106,7 +114,6 @@ const ProductsPage = () => {
             <ProductTableSkeleton />
           </div>
         ) : filteredProducts.length > 0 ? (
-          // Products Table
           <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl overflow-hidden">
             <table className="w-full">
               <thead>
@@ -116,6 +123,7 @@ const ProductsPage = () => {
                   <th className="p-4">INVENTORY</th>
                   <th className="p-4">TYPE</th>
                   <th className="p-4">VENDOR</th>
+                  <th className="p-4 text-right">ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
@@ -134,13 +142,17 @@ const ProductsPage = () => {
                     <td className="p-4 text-sm text-gray-600">{product.inventory} in stock</td>
                     <td className="p-4 text-sm text-gray-600">{product.type}</td>
                     <td className="p-4 text-sm text-gray-600">{product.vendor}</td>
+                    <td className="p-4 text-right">
+                      <button onClick={() => handleDelete(product.id)} className="p-2 text-gray-500 hover:text-red-500">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         ) : (
-          // Empty State
           <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-12">
             <div className="max-w-2xl mx-auto text-center">
               <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />

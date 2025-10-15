@@ -284,21 +284,21 @@ function OrderDetailPage() {
       
       <div className="relative z-10 max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between print:hidden">
+        <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between print:hidden gap-4">
           <div>
             <Link
               href="/dashboard/orders"
-              className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
+              className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-2 sm:mb-4"
             >
               <ArrowLeft className="w-5 h-5" />
               <span className="font-medium">Back to Orders</span>
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900">Order #{order.orderNumber}</h1>
-            <p className="text-gray-600">Placed on {order.createdAt?.toDate?.()?.toLocaleDateString() || 'Recently'}</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Order #{order.orderNumber}</h1>
+            <p className="text-gray-600 text-sm sm:text-base">Placed on {order.createdAt?.toDate?.()?.toLocaleDateString() || 'Recently'}</p>
           </div>
           <button
             onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2 bg-white/80 border border-gray-300 rounded-full hover:bg-white transition-colors shadow-md active:scale-95"
+            className="flex self-start sm:self-center items-center gap-2 px-4 py-2 bg-white/80 border border-gray-300 rounded-full hover:bg-white transition-colors shadow-md active:scale-95"
           >
             <Printer className="w-4 h-4" />
             Print Invoice
@@ -309,8 +309,8 @@ function OrderDetailPage() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Order Status */}
-            <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 print:border-0">
-              <div className="flex items-center justify-between mb-4">
+            <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-4 sm:p-6 print:border-0">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
                 <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                   <StatusIcon className="w-5 h-5" />
                   Order Status
@@ -338,12 +338,12 @@ function OrderDetailPage() {
             </div>
 
             {/* Order Items */}
-            <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 print:border-0">
+            <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-4 sm:p-6 print:border-0">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Order Items</h2>
               <div className="space-y-4">
                 {order.items.map((item, index) => (
-                  <div key={index} className="flex gap-4">
-                    <div className="w-20 h-20 bg-white/50 rounded-xl flex-shrink-0 print:w-16 print:h-16 border border-gray-200/50">
+                  <div key={index} className="flex flex-col sm:flex-row gap-4">
+                    <div className="w-24 h-24 sm:w-20 sm:h-20 bg-white/50 rounded-xl flex-shrink-0 print:w-16 print:h-16 border border-gray-200/50 self-center">
                       {item.image ? (
                         <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-xl" />
                       ) : (
@@ -362,7 +362,7 @@ function OrderDetailPage() {
                       <p className="text-sm text-gray-600 mt-1">Quantity: {item.quantity}</p>
                       <p className="text-sm font-semibold text-gray-900 mt-1">LKR {item.price.toFixed(2)} each</p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-left sm:text-right mt-2 sm:mt-0">
                       <p className="font-semibold text-gray-900">LKR {(item.price * item.quantity).toFixed(2)}</p>
                     </div>
                   </div>

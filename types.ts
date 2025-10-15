@@ -124,6 +124,10 @@ export type UserProfile = {
   uid: string;
   email: string;
   name?: string;
+  storeName?: string;
+  storeLogoUrl?: string;
+  subscriptionTier?: 'free' | 'pro';
+  hasClaimedProOffer?: boolean;
   subscription?: {
     plan: 'free' | 'pro';
     status: 'active' | 'trialing' | 'cancelled';
@@ -134,4 +138,20 @@ export type UserProfile = {
   onboarding?: {
     isCompleted?: boolean;
   };
+};
+
+export type Notification = {
+  id: string;
+  userId: string;
+  storeId: string;
+  type: 'LOW_STOCK_PRODUCT' | 'LOW_STOCK_VARIANT';
+  message: string;
+  productId: string;
+  productName: string;
+  variantId?: string;
+  variantName?: string;
+  remainingStock: number;
+  isRead: boolean;
+  createdAt: any;
+  link?: string;
 };

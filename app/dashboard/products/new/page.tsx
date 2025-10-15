@@ -417,19 +417,19 @@ const AddProductPage = () => {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center justify-between mb-6 backdrop-blur-xl bg-white/60 rounded-[20px] p-4 sm:p-5 border border-white/20 shadow-lg"
         >
-          <div className="flex items-center gap-4">
-            <Link 
+          <div className="flex items-center gap-3 sm:gap-4">
+            <Link
               href={from === 'dashboard' ? '/dashboard' : '/dashboard/products'}
               className="group flex items-center justify-center w-9 h-9 rounded-full bg-black/5 hover:bg-black/10 active:scale-95 transition-all duration-150"
             >
               <ArrowLeft className="w-5 h-5 text-gray-700" />
             </Link>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">Add New Product</h1>
-              <p className="text-sm text-gray-600 mt-0.5">Create and customize your product listing</p>
+              <h1 className="text-xl sm:text-3xl font-semibold text-gray-900 tracking-tight">Add New Product</h1>
+              <p className="text-xs sm:text-sm text-gray-600 mt-0.5">Create and customize your product listing</p>
             </div>
           </div>
-          <button 
+          <button
             onClick={handleSave}
             disabled={saving}
             className="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white rounded-full text-sm font-medium shadow-md hover:shadow-lg active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
@@ -452,41 +452,41 @@ const AddProductPage = () => {
           transition={{ delay: 0.1 }}
           className="mb-6"
         >
-          <div className="flex items-center justify-between max-w-3xl mx-auto backdrop-blur-xl bg-white/60 rounded-[20px] border border-white/20 shadow-lg p-8">
+          <div className="flex items-center justify-between max-w-3xl mx-auto backdrop-blur-xl bg-white/60 rounded-[20px] border border-white/20 shadow-lg p-4 sm:p-8">
             {steps.map((step, index) => (
               <div key={step.id} className="flex items-center flex-1">
                 <div className="flex flex-col items-center w-full">
-                  <motion.div 
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
-                      currentStep > step.id 
-                        ? 'bg-green-500 shadow-[0_0_20px_rgba(34,197,94,0.4)]' 
-                        : currentStep === step.id 
-                        ? 'bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.4)]' 
+                  <motion.div
+                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
+                      currentStep > step.id
+                        ? 'bg-green-500 shadow-[0_0_20px_rgba(34,197,94,0.4)]'
+                        : currentStep === step.id
+                        ? 'bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.4)]'
                         : 'bg-gray-200'
                     }`}
                     whileHover={{ scale: 1.08 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <step.icon className={`w-6 h-6 ${
-                      currentStep >= step.id 
-                        ? 'text-white' 
+                    <step.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${
+                      currentStep >= step.id
+                        ? 'text-white'
                         : 'text-gray-400'
                     }`} />
                   </motion.div>
                   <div className="mt-2 text-center">
-                    <p className={`text-xs sm:text-sm font-medium transition-colors ${
-                      currentStep >= step.id 
-                        ? 'text-gray-900' 
+                    <p className={`text-xs font-medium transition-colors ${
+                      currentStep >= step.id
+                        ? 'text-gray-900'
                         : 'text-gray-400'
                     }`}>
-                      {step.title}
+                      <span className="hidden sm:inline">{step.title}</span>
                     </p>
                   </div>
                 </div>
                 {index < steps.length - 1 && (
-                  <div className={`flex-1 h-0.5 mx-2 sm:mx-4 rounded-full transition-all duration-300 ${
-                    currentStep > step.id 
-                        ? 'bg-green-500' 
+                  <div className={`flex-1 h-0.5 mx-1 sm:mx-4 rounded-full transition-all duration-300 ${
+                    currentStep > step.id
+                        ? 'bg-green-500'
                         : 'bg-gray-300'
                   }`} />
                 )}
@@ -514,8 +514,8 @@ const AddProductPage = () => {
                 className="space-y-7"
               >
                 <div className="pb-5">
-                  <h2 className="text-3xl font-semibold text-gray-900 mb-1">Basic Information</h2>
-                  <p className="text-gray-600">Tell us about your product to get started</p>
+                  <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-1">Basic Information</h2>
+                  <p className="text-sm sm:text-base text-gray-600">Tell us about your product to get started</p>
                 </div>
 
                 <div className="space-y-5">
@@ -548,7 +548,7 @@ const AddProductPage = () => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Category <span className="text-red-500">*</span>
@@ -601,8 +601,8 @@ const AddProductPage = () => {
                 {/* Product Images Section */}
                 <div>
                   <div className="pb-5 mb-6">
-                    <h2 className="text-3xl font-semibold text-gray-900 mb-1">Product Images</h2>
-                    <p className="text-gray-600">Upload high-quality images to showcase your product</p>
+                    <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-1">Product Images</h2>
+                    <p className="text-sm sm:text-base text-gray-600">Upload high-quality images to showcase your product</p>
                   </div>
 
                   {mediaPreviews.length > 0 && (
@@ -751,7 +751,7 @@ const AddProductPage = () => {
                         <h2 className="text-2xl font-semibold text-gray-900 mb-1">Variant Stock Levels</h2>
                         <p className="text-gray-600">Set stock quantity for each variant combination</p>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {getVariantCombinations().map((combination, index) => {
                           const variantKey = Object.values(combination).join(' / ');
                           return (
@@ -785,12 +785,12 @@ const AddProductPage = () => {
                 className="space-y-7"
               >
                 <div className="pb-5">
-                  <h2 className="text-3xl font-semibold text-gray-900 mb-1">Pricing</h2>
-                  <p className="text-gray-600">Set your product pricing</p>
+                  <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-1">Pricing</h2>
+                  <p className="text-sm sm:text-base text-gray-600">Set your product pricing</p>
                 </div>
 
                 <div className="space-y-5">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className="bg-gradient-to-br from-blue-50/50 to-white/50 p-5 rounded-2xl border border-blue-200/50 shadow-sm">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Price <span className="text-red-500">*</span>

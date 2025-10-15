@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, ShoppingCart, Package, Users, BarChart, Settings, LogOut, ChevronDown, Globe, Star, Bell } from "lucide-react";
+import { Home, ShoppingCart, Package, Users, BarChart, Settings, LogOut, ChevronDown, Globe, Star, Bell, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { auth, db } from "@/firebase";
 import { signOut } from "firebase/auth";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Dispatch, SetStateAction } from "react";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 
 const navLinks = [
@@ -19,7 +19,12 @@ const navLinks = [
   { href: "/dashboard/notifications", label: "Notifications", icon: Bell, showBadge: true },
 ];
 
-const Sidebar = () => {
+interface SidebarProps {
+  isOpen: boolean;
+  setIsOpen: Dispatch<SetStateAction<boolean>>;
+}
+
+const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuth();
@@ -90,11 +95,30 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="w-64 h-screen bg-white/80 backdrop-blur-xl text-gray-800 flex flex-col border-r border-white/20 shadow-lg">
-      {/* Navigation Links */}
-      <nav className="flex-1 px-4 py-6 space-y-1">
-        {navLinks.map((link) => {
-          const isActive = pathname === link.href;
+    <>
+      {/* Overlay for mobile */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/30 z-30 md:hidden"
+          onClick={() => setIsOpen(false)}
+        ></div>
+      )}
+
+      <aside
+        className={`fixed md:fixed top-0 left-0 w-64 h-screen bg-white/80 backdrop-blur-xl text-gray-800 flex flex-col border-r border-white/20 shadow-lg z-40 transform transition-transform duration-300 ease-in-out md:translate-x-0 overflow-y-auto ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex items-center justify-between p-4 md:hidden">
+          <h1 className="text-lg font-semibold">Menu</h1>
+          <button onClick={() => setIsOpen(false)}>
+            <X className="h-6 w-6" />
+          </button>
+        </div>
+        {/* Navigation Links */}
+        <nav className="flex-1 px-4 py-6 space-y-1">
+          {navLinks.map((link) => {
+            const isActive = pathname === link.href;
           return (
             <Link
               key={link.label}
@@ -193,7 +217,8 @@ const Sidebar = () => {
           </button>
         </div>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 };
 

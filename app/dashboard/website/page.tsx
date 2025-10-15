@@ -31,7 +31,6 @@ export default function WebsitePage() {
   const [initialState, setInitialState] = useState<any>(null);
   
   const [websiteEnabled, setWebsiteEnabled] = useState(false);
-  const [logoUrl, setLogoUrl] = useState('');
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   
@@ -61,28 +60,29 @@ export default function WebsitePage() {
   const [fontFamily, setFontFamily] = useState('inter');
 
   useEffect(() => {
-    if (user) {
+    if (userProfile) {
       fetchWebsiteSettings();
     }
-  }, [user]);
+  }, [userProfile]);
 
   const fetchWebsiteSettings = async () => {
-    if (!user) return;
+    if (!user || !userProfile) return;
 
     try {
+      // Set store name and logo from the user's profile (source of truth)
+      setStoreName(userProfile.storeName || '');
+
       const storeDoc = await getDoc(doc(db, 'stores', user.uid));
       
       if (storeDoc.exists()) {
         const storeData = storeDoc.data();
-        setStoreName(storeData.storeName || '');
         setHasProducts(storeData.hasProducts || false);
         
         const website = storeData.website || {};
         setWebsiteEnabled(website.enabled || false);
-        setLogoUrl(website.logo || '');
         
-        // Hero
-        setHeroTitle(website.hero?.title || `Welcome to ${storeData.storeName}`);
+        // Hero - Use userProfile.storeName for defaults
+        setHeroTitle(website.hero?.title || `Welcome to ${userProfile.storeName}`);
         setHeroSubtitle(website.hero?.subtitle || storeData.storeDescription || 'Discover amazing products');
         setHeroCtaText(website.hero?.ctaText || 'Shop Now');
         setHeroBackgroundImage(website.hero?.backgroundImage || '');
@@ -95,9 +95,9 @@ export default function WebsitePage() {
         setTextColor(website.theme?.textColor || '#000000');
         setFontFamily(website.theme?.fontFamily || 'inter');
         
-        // About
+        // About - Use userProfile.storeName for defaults
         setShowAbout(website.about?.show !== false);
-        setAboutTitle(website.about?.title || `About ${storeData.storeName}`);
+        setAboutTitle(website.about?.title || `About ${userProfile.storeName}`);
         setAboutContent(website.about?.content || storeData.storeDescription || '');
         
         // Footer
@@ -108,16 +108,17 @@ export default function WebsitePage() {
         if (website.sectionOrder && Array.isArray(website.sectionOrder)) {
           setSectionOrder(website.sectionOrder);
         } else {
-          // Default order for stores that haven't saved this yet
           setSectionOrder(['hero', 'about']);
         }
         
         setTemplateId(website.templateId || 'classic');
+
+       // Set initial state for dirty checking
        const websiteData = storeData.website || {};
        const fetchedState = {
          websiteEnabled: websiteData.enabled || false,
-         logoUrl: websiteData.logo || '',
-         heroTitle: websiteData.hero?.title || `Welcome to ${storeData.storeName}`,
+         logoUrl: userProfile.storeLogoUrl || '',
+         heroTitle: websiteData.hero?.title || `Welcome to ${userProfile.storeName}`,
          heroSubtitle: websiteData.hero?.subtitle || storeData.storeDescription || 'Discover amazing products',
          heroCtaText: websiteData.hero?.ctaText || 'Shop Now',
          heroBackgroundImage: websiteData.hero?.backgroundImage || '',
@@ -128,7 +129,7 @@ export default function WebsitePage() {
          textColor: websiteData.theme?.textColor || '#000000',
          fontFamily: websiteData.theme?.fontFamily || 'inter',
          showAbout: websiteData.about?.show !== false,
-         aboutTitle: websiteData.about?.title || `About ${storeData.storeName}`,
+         aboutTitle: websiteData.about?.title || `About ${userProfile.storeName}`,
          aboutContent: websiteData.about?.content || storeData.storeDescription || '',
          footerText: websiteData.footer?.text || '',
          showPoweredBy: websiteData.footer?.showPoweredBy !== false,
@@ -152,7 +153,7 @@ export default function WebsitePage() {
 
     const currentState = {
       websiteEnabled,
-      logoUrl,
+      logoUrl: userProfile?.storeLogoUrl || '',
       heroTitle,
       heroSubtitle,
       heroCtaText,
@@ -178,7 +179,7 @@ export default function WebsitePage() {
       setIsDirty(false);
     }
   }, [
-    websiteEnabled, logoUrl, heroTitle, heroSubtitle, heroCtaText, heroBackgroundImage,
+    websiteEnabled, userProfile?.storeLogoUrl, heroTitle, heroSubtitle, heroCtaText, heroBackgroundImage,
     heroAlignment, primaryColor, accentColor, backgroundColor, textColor, fontFamily,
     showAbout, aboutTitle, aboutContent, footerText, showPoweredBy, sectionOrder,
     templateId, initialState
@@ -209,7 +210,11 @@ export default function WebsitePage() {
       const storageRef = ref(storage, `stores/${user.uid}/logo/${file.name}`);
       await uploadBytes(storageRef, file);
       const url = await getDownloadURL(storageRef);
-      setLogoUrl(url);
+
+      // Also update the user's profile
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, { storeLogoUrl: url });
+
       setLogoFile(file);
       success('Logo uploaded successfully!');
     } catch (err) {
@@ -217,6 +222,18 @@ export default function WebsitePage() {
       error('Failed to upload logo. Please try again.');
     } finally {
       setUploadingLogo(false);
+    }
+  };
+
+  const handleRemoveLogo = async () => {
+    if (user) {
+      try {
+        const userRef = doc(db, 'users', user.uid);
+        await updateDoc(userRef, { storeLogoUrl: '' });
+      } catch (err) {
+        console.error('Error removing logo:', err);
+        error('Failed to remove logo.');
+      }
     }
   };
 
@@ -230,7 +247,7 @@ export default function WebsitePage() {
       await updateDoc(storeRef, {
         website: {
           enabled: websiteEnabled,
-          logo: logoUrl,
+          logo: userProfile?.storeLogoUrl || '',
           hero: {
             title: heroTitle,
             subtitle: heroSubtitle,
@@ -262,7 +279,7 @@ export default function WebsitePage() {
 
       const currentState = {
         websiteEnabled,
-        logoUrl,
+        logoUrl: userProfile?.storeLogoUrl || '',
         heroTitle,
         heroSubtitle,
         heroCtaText,
@@ -329,7 +346,7 @@ export default function WebsitePage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center gap-2 mb-4">
               <Type className="w-5 h-5 text-gray-700" />
-              <h2 className="text-lg font-semibold text-gray-900">Hero Section</h2>
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900">Hero Section</h2>
             </div>
             
             <div className="space-y-4">
@@ -422,7 +439,7 @@ export default function WebsitePage() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Layout className="w-5 h-5 text-gray-700" />
-                <h2 className="text-lg font-semibold text-gray-900">About Section</h2>
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">About Section</h2>
               </div>
               <button
                 onClick={() => setShowAbout(!showAbout)}
@@ -487,21 +504,21 @@ export default function WebsitePage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-6 backdrop-blur-xl bg-white/60 rounded-[20px] p-4 sm:p-5 border border-white/20 shadow-lg"
+          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 backdrop-blur-xl bg-white/60 rounded-[20px] p-4 sm:p-5 border border-white/20 shadow-lg"
         >
           <div className="flex items-center gap-4">
             <div className="group flex items-center justify-center w-9 h-9 rounded-full bg-black/5">
               <Globe className="w-5 h-5 text-gray-700" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">Website Customization</h1>
+              <h1 className="text-xl sm:text-3xl font-semibold text-gray-900 tracking-tight">Website Customization</h1>
               <p className="text-sm text-gray-600 mt-0.5 flex items-center gap-2">
                 Design and manage your online storefront
                 {isDirty && <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
             {websiteEnabled && storeName && (
               <Link
                 href={storeUrl}
@@ -530,9 +547,9 @@ export default function WebsitePage() {
           transition={{ delay: 0.1 }}
           className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sm:p-8 mb-6"
         >
-          <div className="flex items-start justify-between">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
             <div className="flex-1">
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">Store Website Status</h2>
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Store Website Status</h2>
               <p className="text-sm text-gray-600 mb-4">
                 {hasProducts
                   ? 'Make your store accessible to customers with a custom website'
@@ -573,10 +590,10 @@ export default function WebsitePage() {
 
         {/* Preview Section */}
         <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sm:p-8 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Live Preview</h2>
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">Live Preview</h2>
           <div className="border border-gray-200/50 rounded-xl overflow-hidden shadow-inner">
             <div
-              className="p-12"
+              className="p-6 sm:p-12"
               style={{
                 backgroundColor: heroBackgroundImage ? 'transparent' : backgroundColor,
                 backgroundImage: heroBackgroundImage ? `url(${heroBackgroundImage})` : 'none',
@@ -584,9 +601,9 @@ export default function WebsitePage() {
                 backgroundPosition: 'center'
               }}
             >
-              <div className={heroBackgroundImage ? 'bg-white/90 backdrop-blur-sm rounded-xl p-8' : ''}>
-                <h1 className="text-4xl font-bold mb-3" style={{ color: textColor }}>{heroTitle || 'Hero Title'}</h1>
-                <p className="text-lg mb-6" style={{ color: textColor, opacity: 0.8 }}>{heroSubtitle || 'Hero subtitle goes here'}</p>
+              <div className={heroBackgroundImage ? 'bg-white/90 backdrop-blur-sm rounded-xl p-4 sm:p-8' : ''}>
+                <h1 className="text-2xl sm:text-4xl font-bold mb-3" style={{ color: textColor }}>{heroTitle || 'Hero Title'}</h1>
+                <p className="text-base sm:text-lg mb-6" style={{ color: textColor, opacity: 0.8 }}>{heroSubtitle || 'Hero subtitle goes here'}</p>
                 <button
                   className="px-6 py-3 rounded-lg font-medium text-white shadow-md"
                   style={{ backgroundColor: primaryColor }}
@@ -605,16 +622,16 @@ export default function WebsitePage() {
             <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sm:p-8">
               <div className="flex items-center gap-3 mb-5">
                 <ImageIcon className="w-6 h-6 text-gray-700" />
-                <h2 className="text-xl font-semibold text-gray-900">Logo & Branding</h2>
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Logo & Branding</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Store Logo</label>
-                  <div className="flex items-center gap-4">
-                    {logoUrl ? (
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    {userProfile?.storeLogoUrl ? (
                       <div className="relative group">
-                        <img src={logoUrl} alt="Logo" className="h-16 object-contain bg-white/80 border border-gray-200 rounded-xl p-2 shadow-sm" />
-                        <button onClick={() => setLogoUrl('')} className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-all transform scale-0 group-hover:scale-100">
+                        <img src={userProfile.storeLogoUrl} alt="Logo" className="h-16 object-contain bg-white/80 border border-gray-200 rounded-xl p-2 shadow-sm" />
+                        <button onClick={handleRemoveLogo} className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-all transform scale-0 group-hover:scale-100">
                           <Trash2 className="w-3 h-3" />
                         </button>
                       </div>
@@ -668,9 +685,9 @@ export default function WebsitePage() {
             <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sm:p-8">
               <div className="flex items-center gap-3 mb-5">
                 <Layout className="w-6 h-6 text-gray-700" />
-                <h2 className="text-xl font-semibold text-gray-900">Templates</h2>
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Templates</h2>
               </div>
-              <div className="relative grid grid-cols-2 gap-4">
+              <div className="relative grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {installingTemplate && <InstallingAnimation />}
                 {Object.keys(templates).map((id) => (
                   <TemplatePreview
@@ -705,7 +722,7 @@ export default function WebsitePage() {
             <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sm:p-8">
               <div className="flex items-center gap-3 mb-5">
                 <Palette className="w-6 h-6 text-gray-700" />
-                <h2 className="text-xl font-semibold text-gray-900">Theme Colors</h2>
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Theme Colors</h2>
               </div>
               <div className="space-y-4">
                 <div>
@@ -750,7 +767,7 @@ export default function WebsitePage() {
             <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sm:p-8">
               <div className="flex items-center gap-3 mb-5">
                 <Layout className="w-6 h-6 text-gray-700" />
-                <h2 className="text-xl font-semibold text-gray-900">Footer</h2>
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Footer</h2>
               </div>
               <div className="space-y-4">
                 <div>

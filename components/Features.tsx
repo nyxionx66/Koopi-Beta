@@ -57,22 +57,22 @@ export function Features() {
   ];
 
   return (
-    <section id="features" className="py-32 px-6 lg:px-8 bg-[#f5f5f7]">
+    <section id="features" className="py-20 sm:py-24 md:py-32 px-4 sm:px-6 lg:px-8 bg-[#f5f5f7]">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center max-w-3xl mx-auto mb-20">
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 tracking-tight">
+        <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6 tracking-tight">
             Everything you need to sell online
           </h2>
-          <p className="text-lg text-gray-600">
+          <p className="text-base sm:text-lg text-gray-600">
             Powerful features that help you grow your business and serve your customers better.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <div
               key={index}
-              className="group p-8 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/30 shadow-2xl transition-all hover:shadow-lg"
+              className="group p-8 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/30 shadow-lg transition-all hover:shadow-xl hover:-translate-y-1"
             >
               <div className="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-white mb-6 shadow-md">
                 {feature.icon}

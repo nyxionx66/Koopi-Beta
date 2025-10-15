@@ -155,10 +155,10 @@ function SignUpPage() {
          status: 'active',
          productCount: 0,
          productLimit: Infinity, // Unlimited - everything is free!
-         ...(isPro && {
+         ...(isPro ? {
            promoUser: true,
            promoExpiry: null,
-         }),
+         } : {}),
        },
         userType: 'seller',
         onboarding: {
@@ -213,7 +213,7 @@ function SignUpPage() {
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
       
-      <main className="relative z-10 pt-20 pb-20 px-6 lg:px-8">
+      <main className="relative z-10 pt-20 pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {isSubmitting ? (
             <motion.div
@@ -221,22 +221,22 @@ function SignUpPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              className="text-center py-20"
+              className="text-center py-10 sm:py-20"
             >
-              <Lottie animationData={animationData} loop={true} className="w-48 h-48 mx-auto" />
-              <h2 className="text-3xl font-bold text-gray-900 mt-8 mb-3">Creating your store...</h2>
-              <p className="text-lg text-gray-600">This will only take a moment</p>
+              <Lottie animationData={animationData} loop={true} className="w-32 h-32 sm:w-48 sm:h-48 mx-auto" />
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mt-6 sm:mt-8 mb-3">Creating your store...</h2>
+              <p className="text-base sm:text-lg text-gray-600">This will only take a moment</p>
             </motion.div>
           ) : (
             <>
               {/* Desktop: Banner on left, form on right */}
-              <div className="grid lg:grid-cols-2 gap-12 items-stretch">
+              <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
                 {/* Left Side - Banner (hidden on mobile) */}
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.5 }}
-                  className="hidden lg:block"
+                  className="hidden lg:block lg:sticky lg:top-20"
                 >
                   <SignupBanner />
                 </motion.div>
@@ -246,21 +246,21 @@ function SignUpPage() {
                   <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-center lg:text-left mb-8"
+                    className="text-center lg:text-left mb-6 sm:mb-8"
                   >
-                    <div className="inline-flex items-center gap-2 mb-4">
-                      <span className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                    <div className="inline-flex items-center gap-2 mb-3 sm:mb-4">
+                      <span className="text-xs sm:text-sm font-semibold text-gray-600 uppercase tracking-wide">
                         Start Your Journey
                       </span>
                     </div>
-                    <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">
                       Create Your Store
                     </h1>
-                    <p className="text-lg text-gray-600">
+                    <p className="text-base sm:text-lg text-gray-600">
                       Join thousands of entrepreneurs building their dream business
                     </p>
                   </motion.div>
-                <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-8 md:p-10">
+                <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sm:p-8 md:p-10">
                   <form onSubmit={handleSubmit}>
                     <AnimatePresence mode="wait">
                       {currentStep === 1 && (
@@ -270,10 +270,10 @@ function SignUpPage() {
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: -20 }}
                           transition={{ duration: 0.3 }}
-                          className="space-y-6"
+                          className="space-y-5 sm:space-y-6"
                         >
                           <div>
-                            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                               Create your account
                             </h2>
                             <p className="text-gray-600">

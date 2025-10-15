@@ -43,18 +43,18 @@ const plans = [
 
 export const Pricing = () => {
   return (
-    <section id="pricing" className="py-24 sm:py-32 bg-white">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <section id="pricing" className="py-20 sm:py-24 md:py-32 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-base font-semibold leading-7 text-blue-500">Pricing</h2>
-          <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+          <p className="mt-2 text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-gray-900">
             The perfect plan, free forever.
           </p>
         </div>
-        <p className="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600">
+        <p className="mx-auto mt-6 max-w-2xl text-center text-base sm:text-lg leading-8 text-gray-600">
           We believe in empowering entrepreneurs. That's why our core platform is free, with powerful Pro features on the horizon.
         </p>
-        <div className="isolate mx-auto mt-20 grid max-w-md grid-cols-1 gap-8 lg:max-w-4xl lg:grid-cols-2">
+        <div className="isolate mx-auto mt-16 sm:mt-20 grid max-w-md grid-cols-1 gap-8 lg:max-w-4xl lg:grid-cols-2">
           {plans.map((plan, planIdx) => (
             <motion.div
               key={plan.name}
@@ -62,15 +62,15 @@ export const Pricing = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.3 }}
               transition={{ delay: planIdx * 0.1, duration: 0.5, ease: "easeOut" }}
-              className={`relative flex flex-col rounded-3xl p-8 ring-1 ${
+              className={`relative flex flex-col rounded-3xl p-8 ring-1 shadow-lg ${
                 plan.featured
                   ? 'bg-gray-900 ring-gray-900'
-                  : 'ring-gray-200'
+                  : 'bg-white ring-gray-200'
               }`}
             >
               {plan.featured && (
                 <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2">
-                  <span className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-white">
+                  <span className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-white shadow-md">
                     <Zap className="inline w-4 h-4 mr-1" />
                     Coming Soon
                   </span>

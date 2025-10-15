@@ -60,16 +60,16 @@ function LoginPage() {
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
       
-      <main className="relative z-10 pt-20 pb-20 px-6 lg:px-8 flex items-center justify-center min-h-screen">
+      <main className="relative z-10 pt-20 pb-20 px-4 sm:px-6 lg:px-8 flex items-center justify-center min-h-screen">
         <div className="w-full max-w-md">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-8 md:p-10"
+            className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sm:p-8 md:p-10"
           >
             <div className="mb-8 text-center">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                 Sign in
               </h2>
               <p className="text-gray-600">

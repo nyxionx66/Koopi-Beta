@@ -325,27 +325,27 @@ const EditProductPage = () => {
         {/* Header */}
         <div className="mb-6 backdrop-blur-xl bg-white/60 rounded-[20px] p-4 sm:p-5 border border-white/20 shadow-lg">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               <Link href="/dashboard/products" className="p-2 hover:bg-white/50 rounded-full transition-colors">
                 <ArrowLeft className="w-5 h-5 text-gray-700" />
               </Link>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">Edit Product</h1>
-                <p className="text-sm text-gray-600 mt-0.5">Update product information</p>
+                <h1 className="text-xl sm:text-3xl font-semibold text-gray-900 tracking-tight">Edit Product</h1>
+                <p className="text-xs sm:text-sm text-gray-600 mt-0.5">Update product information</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Progress Steps */}
-        <div className="mb-8 backdrop-blur-xl bg-white/60 rounded-[20px] p-6 border border-white/20 shadow-lg">
+        <div className="mb-8 backdrop-blur-xl bg-white/60 rounded-[20px] p-4 sm:p-6 border border-white/20 shadow-lg">
           <div className="flex items-center justify-between relative">
             {[1, 2, 3].map((step, index) => (
               <React.Fragment key={step}>
                 <div className="flex flex-col items-center flex-1">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all ${
-                    currentStep >= step 
-                      ? 'bg-blue-500 text-white shadow-md' 
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all ${
+                    currentStep >= step
+                      ? 'bg-blue-500 text-white shadow-md'
                       : 'bg-white/50 text-gray-400'
                   }`}>
                     {step}
@@ -353,9 +353,11 @@ const EditProductPage = () => {
                   <span className={`text-xs mt-2 font-medium ${
                     currentStep >= step ? 'text-gray-900' : 'text-gray-500'
                   }`}>
-                    {step === 1 && 'Details'}
-                    {step === 2 && 'Media & Inventory'}
-                    {step === 3 && 'Pricing'}
+                    <span className="hidden sm:inline">
+                      {step === 1 && 'Details'}
+                      {step === 2 && 'Media & Inventory'}
+                      {step === 3 && 'Pricing'}
+                    </span>
                   </span>
                 </div>
                 {index < 2 && (
@@ -382,8 +384,8 @@ const EditProductPage = () => {
             {currentStep === 1 && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-3xl font-semibold text-gray-900 mb-1">Product Details</h2>
-                  <p className="text-gray-600">Basic information about your product</p>
+                  <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-1">Product Details</h2>
+                  <p className="text-sm sm:text-base text-gray-600">Basic information about your product</p>
                 </div>
 
                 <div>
@@ -415,7 +417,7 @@ const EditProductPage = () => {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-900 mb-2">
                       Category <span className="text-red-500">*</span>
@@ -502,8 +504,8 @@ const EditProductPage = () => {
             {currentStep === 2 && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-3xl font-semibold text-gray-900 mb-1">Product Media</h2>
-                  <p className="text-gray-600">Upload images of your product</p>
+                  <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-1">Product Media</h2>
+                  <p className="text-sm sm:text-base text-gray-600">Upload images of your product</p>
                 </div>
 
                 {/* Existing Images */}
@@ -664,7 +666,7 @@ const EditProductPage = () => {
                         <h2 className="text-2xl font-semibold text-gray-900 mb-1">Variant Stock Levels</h2>
                         <p className="text-gray-600">Set stock quantity for each variant combination</p>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {getVariantCombinations().map((combination, index) => {
                           const variantKey = Object.values(combination).join(' / ');
                           return (
@@ -691,11 +693,11 @@ const EditProductPage = () => {
             {currentStep === 3 && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-3xl font-semibold text-gray-900 mb-1">Pricing</h2>
-                  <p className="text-gray-600">Set your product pricing</p>
+                  <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-1">Pricing</h2>
+                  <p className="text-sm sm:text-base text-gray-600">Set your product pricing</p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-900 mb-2">
                       Price (LKR) <span className="text-red-500">*</span>

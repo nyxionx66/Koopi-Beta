@@ -20,7 +20,7 @@ export default function SocialMediaKitCard({ storeName, storeUrl, onDismiss }: S
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-8 h-full flex flex-col"
+        className="relative backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sm:p-8 h-full flex flex-col"
       >
         {onDismiss && (
           <button
@@ -33,7 +33,7 @@ export default function SocialMediaKitCard({ storeName, storeUrl, onDismiss }: S
         )}
 
         <div className="flex-grow flex flex-col">
-          <div className="flex items-center justify-between gap-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-4">
                 <motion.div
@@ -48,13 +48,13 @@ export default function SocialMediaKitCard({ storeName, storeUrl, onDismiss }: S
                   }}
                   className="px-3 py-1 rounded-full bg-green-100 border border-green-200"
                 >
-                  <span className="text-sm font-medium text-green-700">
+                  <span className="text-xs sm:text-sm font-medium text-green-700">
                     Your Website is Live!
                   </span>
                 </motion.div>
               </div>
 
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                 Share Your Store
               </h2>
               <p className="text-gray-600 text-base">
@@ -62,9 +62,9 @@ export default function SocialMediaKitCard({ storeName, storeUrl, onDismiss }: S
               </p>
             </div>
             
-            <div className="hidden sm:block">
-              <div className="w-32 h-32 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl flex items-center justify-center">
-                <Share2 className="w-16 h-16 text-blue-500" />
+            <div className="hidden sm:block self-center">
+              <div className="w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl flex items-center justify-center">
+                <Share2 className="w-12 h-12 md:w-16 md:h-16 text-blue-500" />
               </div>
             </div>
           </div>

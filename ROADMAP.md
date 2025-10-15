@@ -1,3 +1,11 @@
+## ✅ Completed Features
+
+*   **Full Mobile Responsiveness:** The entire seller dashboard is now optimized for all screen sizes.
+*   **Dynamic Subscription Page:** A redesigned subscription page that dynamically displays a promotional offer with live data from Firebase.
+*   **Low-Stock Notifications:** An automated system that alerts sellers via in-app notifications and email when product inventory is low.
+
+---
+
 # 🚀 Koopi E-Commerce Platform
 ## Product Roadmap & Features
 

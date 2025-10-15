@@ -48,28 +48,28 @@ export default function SettingsPage() {
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-6 backdrop-blur-xl bg-white/60 rounded-[20px] p-4 sm:p-5 border border-white/20 shadow-lg"
+          className="flex items-center justify-between mb-6 backdrop-blur-xl bg-white/60 rounded-[20px] p-4 border border-white/20 shadow-lg"
         >
-          <div className="flex items-center gap-4">
-            <div className="group flex items-center justify-center w-9 h-9 rounded-full bg-black/5">
-              <Settings className="w-5 h-5 text-gray-700" />
+          <div className="flex items-center gap-3">
+            <div className="group flex items-center justify-center w-8 h-8 rounded-full bg-black/5">
+              <Settings className="w-4 h-4 text-gray-700" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">Settings</h1>
+              <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 tracking-tight">Settings</h1>
               <p className="text-sm text-gray-600 mt-0.5">Manage your account and store settings</p>
             </div>
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="md:col-span-1">
-            <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-4">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+          <div className="lg:col-span-1">
+            <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-3">
               <nav className="space-y-1">
                 {tabs.map(tab => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-all ${
+                    className={`w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all ${
                       activeTab === tab.id
                         ? 'bg-blue-500 text-white shadow-md'
                         : 'text-gray-700 hover:bg-blue-500/10 hover:text-blue-600'
@@ -83,8 +83,8 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="md:col-span-3">
-            <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-8">
+          <div className="lg:col-span-3">
+            <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-4 sm:p-6">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeTab}
@@ -135,18 +135,18 @@ const AccountSettings = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Account Settings</h2>
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Account Settings</h2>
       <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-          <input type="text" className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" defaultValue={user?.displayName || ''} />
+          <input type="text" className="w-full px-4 py-2 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" defaultValue={user?.displayName || ''} />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-          <input type="email" className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input type="email" className="w-full px-4 py-2 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         {message && <p className="text-sm text-green-600">{message}</p>}
-        <button onClick={handleEmailChange} disabled={isSaving} className="px-6 py-3 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 transition-colors shadow-md disabled:opacity-50">
+        <button onClick={handleEmailChange} disabled={isSaving} className="px-4 py-2 text-sm bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 transition-colors shadow-md disabled:opacity-50">
           {isSaving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
@@ -155,7 +155,7 @@ const AccountSettings = () => {
 };
 
 const StoreSettings = () => {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const [storeName, setStoreName] = useState('');
   const [storeDescription, setStoreDescription] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -163,18 +163,20 @@ const StoreSettings = () => {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
+    if (userProfile) {
+      setStoreName(userProfile.storeName || '');
+    }
     if (user) {
       const storeRef = doc(db, 'stores', user.uid);
       getDoc(storeRef).then(docSnap => {
         if (docSnap.exists()) {
           const data = docSnap.data();
-          setStoreName(data.storeName || '');
           setStoreDescription(data.storeDescription || '');
         }
         setIsLoading(false);
       });
     }
-  }, [user]);
+  }, [user, userProfile]);
 
   const handleSave = async () => {
     if (!user) return;
@@ -183,11 +185,17 @@ const StoreSettings = () => {
     setMessage('');
 
     try {
+      // Update the user's profile
+      const userRef = doc(db, 'users', user.uid);
+      await updateDoc(userRef, { storeName });
+
+      // Update the store document
       const storeRef = doc(db, 'stores', user.uid);
       await updateDoc(storeRef, {
         storeName,
         storeDescription,
       });
+      
       setMessage('Store settings saved successfully!');
     } catch (error) {
       console.error("Error updating store settings:", error);
@@ -203,18 +211,18 @@ const StoreSettings = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Store Settings</h2>
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Store Settings</h2>
       <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Store Name</label>
-          <input type="text" className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" value={storeName} onChange={(e) => setStoreName(e.target.value)} />
+          <input type="text" className="w-full px-4 py-2 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" value={storeName} onChange={(e) => setStoreName(e.target.value)} />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Store Description</label>
-          <textarea rows={4} className="w-full px-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" value={storeDescription} onChange={(e) => setStoreDescription(e.target.value)}></textarea>
+          <textarea rows={4} className="w-full px-4 py-2 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" value={storeDescription} onChange={(e) => setStoreDescription(e.target.value)}></textarea>
         </div>
         {message && <p className="text-sm text-green-600">{message}</p>}
-        <button onClick={handleSave} disabled={isSaving} className="px-6 py-3 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 transition-colors shadow-md disabled:opacity-50">
+        <button onClick={handleSave} disabled={isSaving} className="px-4 py-2 text-sm bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 transition-colors shadow-md disabled:opacity-50">
           {isSaving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
@@ -224,7 +232,7 @@ const StoreSettings = () => {
 
 const BillingSettings = () => (
   <div>
-    <h2 className="text-2xl font-bold text-gray-900 mb-6">Billing</h2>
+    <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Billing</h2>
     <div className="text-center py-12 bg-white/50 rounded-xl border border-gray-200/50">
       <CreditCard className="w-12 h-12 text-gray-300 mx-auto mb-4" />
       <h3 className="text-lg font-semibold text-gray-900 mb-2">Coming Soon</h3>
@@ -309,14 +317,14 @@ const NotificationsSettings = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-2">Notification Preferences</h2>
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Notification Preferences</h2>
       <p className="text-sm text-gray-600 mb-6">
         Manage how you receive notifications about your store activity
       </p>
 
       <div className="space-y-6">
         {/* In-App Notifications */}
-        <div className="flex items-start justify-between pb-4 border-b border-gray-200">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between pb-4 border-b border-gray-200">
           <div className="flex-1">
             <h3 className="font-semibold text-gray-900 mb-1">In-App Notifications</h3>
             <p className="text-sm text-gray-600">
@@ -325,7 +333,7 @@ const NotificationsSettings = () => {
           </div>
           <button
             onClick={() => handleToggle('inAppNotifications')}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors mt-2 sm:mt-0 ${
               settings.inAppNotifications ? 'bg-blue-500' : 'bg-gray-300'
             }`}
           >
@@ -338,7 +346,7 @@ const NotificationsSettings = () => {
         </div>
 
         {/* Email on New Message */}
-        <div className="flex items-start justify-between pb-4 border-b border-gray-200">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between pb-4 border-b border-gray-200">
           <div className="flex-1">
             <h3 className="font-semibold text-gray-900 mb-1">Email on New Message</h3>
             <p className="text-sm text-gray-600">
@@ -347,7 +355,7 @@ const NotificationsSettings = () => {
           </div>
           <button
             onClick={() => handleToggle('emailOnNewMessage')}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors mt-2 sm:mt-0 ${
               settings.emailOnNewMessage ? 'bg-blue-500' : 'bg-gray-300'
             }`}
           >
@@ -360,7 +368,7 @@ const NotificationsSettings = () => {
         </div>
 
         {/* Email on New Order */}
-        <div className="flex items-start justify-between pb-4 border-b border-gray-200">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between pb-4 border-b border-gray-200">
           <div className="flex-1">
             <h3 className="font-semibold text-gray-900 mb-1">Email on New Order</h3>
             <p className="text-sm text-gray-600">
@@ -369,7 +377,7 @@ const NotificationsSettings = () => {
           </div>
           <button
             onClick={() => handleToggle('emailOnNewOrder')}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors mt-2 sm:mt-0 ${
               settings.emailOnNewOrder ? 'bg-blue-500' : 'bg-gray-300'
             }`}
           >
@@ -382,7 +390,7 @@ const NotificationsSettings = () => {
         </div>
 
         {/* Email on Order Status Change */}
-        <div className="flex items-start justify-between pb-4 border-b border-gray-200">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between pb-4 border-b border-gray-200">
           <div className="flex-1">
             <h3 className="font-semibold text-gray-900 mb-1">Email on Order Status Change</h3>
             <p className="text-sm text-gray-600">
@@ -391,7 +399,7 @@ const NotificationsSettings = () => {
           </div>
           <button
             onClick={() => handleToggle('emailOnOrderStatusChange')}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors mt-2 sm:mt-0 ${
               settings.emailOnOrderStatusChange ? 'bg-blue-500' : 'bg-gray-300'
             }`}
           >
@@ -415,7 +423,7 @@ const NotificationsSettings = () => {
       <button
         onClick={handleSave}
         disabled={isSaving}
-        className="mt-6 px-6 py-3 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+        className="mt-6 px-4 py-2 text-sm bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isSaving ? 'Saving...' : 'Save Preferences'}
       </button>

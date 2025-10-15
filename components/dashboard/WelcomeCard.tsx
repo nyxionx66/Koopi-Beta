@@ -100,20 +100,20 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
           initial={{ opacity: 1, scale: 1 }}
           animate={{ opacity: 0, scale: 0.8, transition: { duration: 0.5, delay: 2 } }}
           onAnimationComplete={() => setIsComplete(true)}
-          className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-8 mb-8"
+          className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-4 sm:p-6 md:p-8 mb-8"
         >
-          <div className="flex items-start justify-between">
+          <div className="flex flex-col lg:flex-row items-start justify-between gap-8">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
                   <CheckCircle className="w-7 h-7 text-green-600" />
                 </div>
-                <h2 className="text-xl font-semibold text-green-600">
+                <h2 className="text-lg sm:text-xl font-semibold text-green-600">
                   All tasks complete!
                 </h2>
               </div>
               
-              <h1 className="text-3xl font-semibold text-gray-900 mb-3">
+              <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-3">
                 Your store is ready to launch
               </h1>
               <p className="text-gray-600 text-base mb-4">
@@ -128,17 +128,17 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
                     <Link
                       href={`/store/${storeName}`}
                       target="_blank"
-                      className="text-sm text-gray-600 hover:text-gray-900 hover:underline flex items-center gap-1"
+                      className="text-sm text-gray-600 hover:text-gray-900 hover:underline flex items-center gap-1 break-all"
                     >
                       {typeof window !== 'undefined' ? window.location.origin : ''}/store/{storeName}
-                      <ExternalLink className="w-3 h-3" />
+                      <ExternalLink className="w-3 h-3 flex-shrink-0" />
                     </Link>
                   </div>
                 </div>
               )}
             </div>
             
-            <div className="hidden lg:block ml-8 flex-shrink-0">
+            <div className="hidden lg:block ml-8 flex-shrink-0 self-center">
               <div className="w-40 h-40 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl flex items-center justify-center">
                 <CheckCircle className="w-24 h-24 text-green-600" />
               </div>
@@ -153,8 +153,8 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
   }
 
   return (
-    <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-8 mb-8">
-      <div className="flex items-start justify-between gap-8">
+    <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-4 sm:p-6 md:p-8 mb-8">
+      <div className="flex flex-col lg:flex-row items-start justify-between gap-8">
         <div className="flex-1">
           {/* Header */}
           <div className="mb-6">
@@ -162,12 +162,12 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
               <div className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center flex-shrink-0 border border-gray-200/50">
                 <Circle className="w-6 h-6 text-gray-600" />
               </div>
-              <span className="text-base font-medium text-gray-500">
+              <span className="text-sm sm:text-base font-medium text-gray-500">
                 {completedTasks} of {totalTasks} tasks complete
               </span>
             </div>
             
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
               Set up your digital product business
             </h1>
             <p className="text-gray-600 text-base">
@@ -176,22 +176,22 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
           </div>
 
           {/* Current Active Task - Prominent Display */}
-          <div className="bg-white/50 rounded-xl p-6 border-2 border-blue-200/50 mb-6 shadow-sm">
-            <div className="flex items-start gap-4">
+          <div className="bg-white/50 rounded-xl p-4 sm:p-6 border-2 border-blue-200/50 mb-6 shadow-sm">
+            <div className="flex flex-col sm:flex-row items-start gap-4">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
                 <TaskIcon className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1">
-                <div className="flex items-start justify-between gap-4 mb-3">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-3">
+                  <div className="flex-1">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
                       {currentTask.title}
                     </h3>
                     <p className="text-sm text-gray-600">
                       {currentTask.description}
                     </p>
                   </div>
-                  <span className="text-xs font-medium text-gray-500 bg-white px-2 py-1 rounded-full border border-gray-200 flex-shrink-0">
+                  <span className="text-xs font-medium text-gray-500 bg-white px-2 py-1 rounded-full border border-gray-200 flex-shrink-0 self-start sm:self-center">
                     Step {currentTask.step}
                   </span>
                 </div>
@@ -207,7 +207,7 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
           </div>
 
           {/* Progress Steps */}
-          <div className="flex items-center gap-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
             {/* Step 1 */}
             <div className="flex items-center gap-2">
               {hasProducts ? (
@@ -225,7 +225,7 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
             </div>
 
             {/* Divider */}
-            <div className="w-8 h-px bg-gray-300"></div>
+            <div className="w-full sm:w-8 h-px bg-gray-300"></div>
 
             {/* Step 2 */}
             <div className="flex items-center gap-2">
@@ -247,7 +247,7 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
         </div>
         
         {/* Right Side Illustration */}
-        <div className="hidden lg:block flex-shrink-0">
+        <div className="hidden lg:block flex-shrink-0 self-center">
           <div className="w-40 h-40 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl flex items-center justify-center">
             <Package className="w-20 h-20 text-blue-500" />
           </div>

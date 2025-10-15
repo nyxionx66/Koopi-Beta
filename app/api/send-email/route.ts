@@ -4,6 +4,7 @@ import { createOrderConfirmationHtml } from '@/lib/email/templates/orderConfirma
 import { createOrderStatusUpdateHtml } from '@/lib/email/templates/orderStatusUpdate';
 import { createGenericEmailHtml } from '@/lib/email/templates/generic';
 import { createNewMessageEmailHtml } from '@/lib/email/templates/newMessage';
+import { createLowStockAlertHtml } from '@/lib/email/templates/lowStockAlert';
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
 
@@ -35,6 +36,10 @@ export async function POST(request: Request) {
       case 'generic':
         subject = data.title;
         html = createGenericEmailHtml(data);
+        break;
+      case 'lowStockAlert':
+        subject = `Low Stock Alert for ${data.productName}`;
+        html = createLowStockAlertHtml(data);
         break;
       default:
         return NextResponse.json({ error: 'Invalid template specified' }, { status: 400 });

@@ -54,29 +54,29 @@ export function RelatedProductSelector({ selectedProducts, onChange, currentProd
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
         {products.map(product => {
           const isSelected = selectedProducts.includes(product.id);
           return (
             <button
               key={product.id}
               onClick={() => toggleProduct(product.id)}
-              className={`relative group bg-white/80 border rounded-xl p-3 transition-all duration-200 ${
+              className={`relative group bg-white/80 border rounded-xl p-2 sm:p-3 transition-all duration-200 ${
                 isSelected
                   ? 'border-blue-500 ring-2 ring-blue-500 shadow-lg'
                   : 'border-gray-300 hover:border-gray-400 hover:shadow-md'
               }`}
             >
-              <div className="aspect-square bg-gray-100 rounded-lg mb-3 overflow-hidden">
+              <div className="aspect-square bg-gray-100 rounded-lg mb-2 sm:mb-3 overflow-hidden">
                 {product.images && product.images.length > 0 ? (
                   <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full bg-gray-200/50"></div>
                 )}
               </div>
-              <p className="text-xs font-medium text-gray-800 truncate">{product.name}</p>
+              <p className="text-[11px] sm:text-xs font-medium text-gray-800 truncate text-left">{product.name}</p>
               
-              <div className={`absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200 ${
+              <div className={`absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200 ${
                 isSelected
                   ? 'bg-blue-500 scale-100'
                   : 'bg-gray-300 scale-0 group-hover:scale-100'

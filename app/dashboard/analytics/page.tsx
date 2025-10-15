@@ -51,7 +51,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Coming Soon Card */}
-        <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-12">
+        <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sm:p-8 lg:p-12">
           <div className="text-center max-w-md mx-auto">
             <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
               <BarChart className="w-10 h-10 text-white" />
@@ -62,7 +62,7 @@ export default function AnalyticsPage() {
             </p>
             
             {/* Feature Preview */}
-            <div className="grid grid-cols-2 gap-4 mt-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
               <div className="p-4 bg-white/50 rounded-xl border border-gray-200/50">
                 <TrendingUp className="w-8 h-8 text-green-500 mx-auto mb-2" />
                 <p className="text-sm font-medium text-gray-900">Sales Trends</p>

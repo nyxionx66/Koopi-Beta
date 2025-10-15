@@ -142,7 +142,7 @@ function OrdersPage() {
 
         {/* Filter Bar */}
         <div className="backdrop-blur-xl bg-white/60 rounded-[20px] p-4 border border-white/20 shadow-lg mb-6">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {filterTabs.map(tab => (
               <button
                 key={tab.value}
@@ -191,50 +191,50 @@ function OrdersPage() {
             </div>
           </div>
         ) : (
-          <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl overflow-hidden">
-            <table className="w-full">
+          <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl overflow-x-auto">
+            <table className="w-full min-w-[640px]">
               <thead>
                 <tr className="text-left text-xs font-medium text-gray-500 border-b border-gray-200/50 bg-white/50">
-                  <th className="p-4">ORDER</th>
-                  <th className="p-4">CUSTOMER</th>
-                  <th className="p-4">ITEMS</th>
-                  <th className="p-4">TOTAL</th>
-                  <th className="p-4">STATUS</th>
-                  <th className="p-4">DATE</th>
-                  <th className="p-4 text-right">ACTIONS</th>
+                  <th className="p-2 sm:p-4">ORDER</th>
+                  <th className="p-2 sm:p-4 hidden sm:table-cell">CUSTOMER</th>
+                  <th className="p-2 sm:p-4 hidden md:table-cell">ITEMS</th>
+                  <th className="p-2 sm:p-4 hidden md:table-cell">TOTAL</th>
+                  <th className="p-2 sm:p-4">STATUS</th>
+                  <th className="p-2 sm:p-4 hidden md:table-cell">DATE</th>
+                  <th className="p-2 sm:p-4 text-right">ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredOrders.map((order) => (
                   <tr key={order.id} className="border-b border-gray-200/30 hover:bg-white/50 transition-colors">
-                    <td className="p-4">
+                    <td className="p-2 sm:p-4">
                       <div>
                         <p className="text-sm font-medium text-gray-900">#{order.orderNumber}</p>
-                        <p className="text-xs text-gray-500">{order.isGuest ? 'Guest' : 'Account'}</p>
+                        <p className="text-xs text-gray-500 sm:hidden">{order.shippingAddress.name}</p>
                       </div>
                     </td>
-                    <td className="p-4">
+                    <td className="p-2 sm:p-4 hidden sm:table-cell">
                       <div>
                         <p className="text-sm text-gray-900">{order.shippingAddress.name}</p>
                         <p className="text-xs text-gray-500">{order.buyerEmail}</p>
                         <p className="text-xs text-gray-500">{order.shippingAddress.phone}</p>
                       </div>
                     </td>
-                    <td className="p-4">
+                    <td className="p-2 sm:p-4 hidden md:table-cell">
                       <p className="text-sm text-gray-600">{order.items.length} item(s)</p>
                     </td>
-                    <td className="p-4">
+                    <td className="p-2 sm:p-4 hidden md:table-cell">
                       <p className="text-sm font-semibold text-gray-900">LKR {order.total.toFixed(2)}</p>
                     </td>
-                    <td className="p-4">
+                    <td className="p-2 sm:p-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${getStatusColor(order.status)}`}>
                         {order.status}
                       </span>
                     </td>
-                    <td className="p-4 text-sm text-gray-600">
+                    <td className="p-2 sm:p-4 text-sm text-gray-600 hidden md:table-cell">
                       {order.createdAt?.toDate?.()?.toLocaleDateString() || 'Recent'}
                     </td>
-                    <td className="p-4 text-right">
+                    <td className="p-2 sm:p-4 text-right">
                       <Link
                         href={`/dashboard/orders/${order.id}`}
                         className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-500 text-white text-xs rounded-full hover:bg-blue-600 transition-colors shadow-sm active:scale-95"

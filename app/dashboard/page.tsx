@@ -54,15 +54,15 @@ const DashboardHomePage = () => {
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
       
-      <div className="relative z-10 max-w-7xl mx-auto space-y-8">
+      <div className="relative z-10 max-w-7xl mx-auto space-y-6 sm:space-y-8">
         <AnimatedWidget>
           <QuickLookWidget />
         </AnimatedWidget>
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
-          <div className="lg:col-span-3">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-8 items-start">
+          <div className="lg:col-span-3 space-y-6 sm:space-y-8">
             {welcomeCardCompleted ? (
               <AnimatedWidget>
-                <div>
+                <div className="space-y-6 sm:space-y-8">
                   <QuickActionsWidget />
                   <BrandingAnimation />
                 </div>
@@ -78,7 +78,7 @@ const DashboardHomePage = () => {
             )}
          </div>
          {showSocialMediaKit && storeName && (
-           <div className="lg:col-span-2 space-y-8">
+           <div className="lg:col-span-2 space-y-6 sm:space-y-8">
              <SocialMediaKitCard
                storeName={storeName}
                 storeUrl={storeUrl}

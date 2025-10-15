@@ -85,22 +85,22 @@ export function ProOfferPopup() {
           >
             <div
               ref={popupRef}
-              className="relative w-full max-w-5xl md:min-h-[620px] backdrop-blur-xl border border-gray-200 text-gray-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+              className="relative w-full max-w-md sm:max-w-lg md:max-w-3xl lg:max-w-5xl backdrop-blur-xl border border-gray-200 text-gray-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col"
             >
               <button
                 onClick={handleClose}
-                className="absolute top-5 right-5 p-1.5 rounded-full bg-gray-500/10 hover:bg-gray-500/20 transition-colors z-10"
+                className="absolute top-4 right-4 sm:top-5 sm:right-5 p-1.5 rounded-full bg-gray-500/10 hover:bg-gray-500/20 transition-colors z-10"
               >
                 <X className="w-5 h-5 text-gray-600" />
               </button>
 
-              <div className="md:flex flex-grow">
+              <div className="flex flex-col md:flex-row flex-grow">
                 {/* Left Column - Content */}
-                <div className="md:w-1/2 p-10 md:p-12 bg-white/80">
+                <div className="w-full md:w-1/2 p-8 sm:p-10 md:p-12 bg-white/80">
                   <h2 className="text-sm font-semibold uppercase tracking-widest text-blue-500">
                     Introducing
                   </h2>
-                  <h3 className="mt-4 text-4xl md:text-5xl font-bold tracking-tight text-gray-900">
+                  <h3 className="mt-4 text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gray-900">
                     Lifetime Pro Access
                   </h3>
                   
@@ -119,8 +119,8 @@ export function ProOfferPopup() {
                 </div>
 
                 {/* Right Column - Visual */}
-                <div className="hidden md:flex md:w-1/2 flex-col p-12 bg-gray-100/80">
-                  <div className="flex-grow flex flex-col items-center justify-center gap-6 w-full">
+                <div className="w-full md:w-1/2 flex flex-col p-8 sm:p-10 md:p-12 bg-gray-100/80">
+                  <div className="flex-grow flex flex-col items-center justify-center gap-4 sm:gap-6 w-full">
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -147,9 +147,9 @@ export function ProOfferPopup() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.2, duration: 0.5 }}
-                      className="flex items-center gap-3 bg-white border border-gray-200 rounded-full px-6 py-3 text-lg font-medium shadow-md"
+                      className="flex items-center gap-3 bg-white border border-gray-200 rounded-full px-6 py-3 text-base sm:text-lg font-medium shadow-md"
                     >
-                      <BarChart2 className="w-6 h-6 text-blue-500" />
+                      <BarChart2 className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
                       <span>Advanced Analytics</span>
                     </motion.div>
 
@@ -157,7 +157,7 @@ export function ProOfferPopup() {
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.4, duration: 0.3 }}
-                      className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-2xl text-gray-500"
+                      className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-200 rounded-full flex items-center justify-center text-xl sm:text-2xl text-gray-500"
                     >
                       +
                     </motion.div>
@@ -166,9 +166,9 @@ export function ProOfferPopup() {
                       initial={{ opacity: 0, y: -20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.6, duration: 0.5 }}
-                      className="flex items-center gap-3 bg-white border border-gray-200 rounded-full px-6 py-3 text-lg font-medium shadow-md"
+                      className="flex items-center gap-3 bg-white border border-gray-200 rounded-full px-6 py-3 text-base sm:text-lg font-medium shadow-md"
                     >
-                      <ShieldCheck className="w-6 h-6 text-blue-500" />
+                      <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
                       <span>Priority Support</span>
                     </motion.div>
                   </div>

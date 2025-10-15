@@ -28,9 +28,15 @@ const withOnboarding = <P extends object>(WrappedComponent: React.ComponentType<
       const userDocRef = doc(db, 'users', user.uid);
       const docSnap = await getDoc(userDocRef);
       
-      if (docSnap.exists() && docSnap.data().onboarding?.isCompleted) {
-        router.push('/dashboard');
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        // Redirect to dashboard only if onboarding is complete AND a logo URL exists.
+        if (userData.onboarding?.isCompleted && userData.storeLogoUrl) {
+          router.push('/dashboard');
+        }
+        // Otherwise, the user should be on the onboarding page, so we do nothing.
       }
+      // If the doc doesn't exist, the user is new, so they should be on the onboarding page.
       
       setChecking(false);
     };

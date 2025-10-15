@@ -4,20 +4,11 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/firebase';
 import { collection, query, where, onSnapshot, orderBy, doc, updateDoc, writeBatch, getDocs } from 'firebase/firestore';
-import { Bell, MessageSquare, CheckCheck } from 'lucide-react';
-import Link from 'next/link';
-import TimeAgo from 'react-timeago';
+import { Bell, CheckCheck } from 'lucide-react';
 import { PageLoader } from '@/components/ui/PageLoader';
 import withAuth from '@/components/withAuth';
-
-type Notification = {
-  id: string;
-  message: string;
-  isRead: boolean;
-  createdAt: any;
-  link: string;
-  type: 'new_message' | 'new_order';
-};
+import NotificationCard from '@/components/dashboard/NotificationCard';
+import { Notification } from '@/types';
 
 const NotificationsPage = () => {
   const { user, loading: authLoading } = useAuth();
@@ -59,12 +50,20 @@ const NotificationsPage = () => {
     );
     
     const snapshot = await getDocs(q);
+    if (snapshot.empty) return;
+
     snapshot.docs.forEach(doc => {
       batch.update(doc.ref, { isRead: true });
     });
 
     await batch.commit();
   };
+
+  useEffect(() => {
+    if (user) {
+      handleMarkAllAsRead();
+    }
+  }, [user]);
   
   if (authLoading || loading) {
     return <PageLoader message="Loading notifications..." />;
@@ -92,29 +91,11 @@ const NotificationsPage = () => {
           </div>
         ) : (
           notifications.map(notif => (
-            <Link
+            <NotificationCard
               key={notif.id}
-              href={notif.link}
-              onClick={() => handleMarkAsRead(notif.id)}
-              className={`flex items-start gap-4 p-6 transition-colors border-b border-gray-200/50 ${
-                !notif.isRead ? 'bg-blue-500/10' : 'hover:bg-gray-500/10'
-              }`}
-            >
-              <div className={`w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center mt-1 ${
-                !notif.isRead ? 'bg-blue-500 text-white shadow-md shadow-blue-500/30' : 'bg-gray-200 text-gray-600'
-              }`}>
-                <MessageSquare className="w-5 h-5" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm text-gray-800 leading-relaxed font-medium">{notif.message}</p>
-                <p className="text-xs text-gray-500 mt-1 font-semibold">
-                  <TimeAgo date={notif.createdAt?.toDate()} />
-                </p>
-              </div>
-              {!notif.isRead && (
-                <div className="w-2.5 h-2.5 bg-blue-500 rounded-full self-center shadow-md shadow-blue-500/50 animate-pulse"></div>
-              )}
-            </Link>
+              notification={notif}
+              onMarkAsRead={handleMarkAsRead}
+            />
           ))
         )}
       </div>

@@ -73,7 +73,7 @@ const ProductsPage = () => {
       </div>
       
       <div className="relative z-10 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        <div className="flex items-center justify-between mb-6 backdrop-blur-xl bg-white/60 rounded-[20px] p-4 sm:p-5 border border-white/20 shadow-lg">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 backdrop-blur-xl bg-white/60 rounded-[20px] p-4 sm:p-5 border border-white/20 shadow-lg">
           <div className="flex items-center gap-4">
             <div className="group flex items-center justify-center w-9 h-9 rounded-full bg-black/5">
               <Package className="w-5 h-5 text-gray-700" />
@@ -85,7 +85,7 @@ const ProductsPage = () => {
           </div>
           <Link
             href="/dashboard/products/new"
-            className="flex items-center gap-2 px-5 py-2.5 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white rounded-full text-sm font-medium shadow-md hover:shadow-lg active:scale-95 transition-all duration-150"
+            className="flex items-center justify-center sm:justify-start gap-2 px-5 py-2.5 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white rounded-full text-sm font-medium shadow-md hover:shadow-lg active:scale-95 transition-all duration-150 w-full sm:w-auto"
           >
             <PlusCircle className="w-4 h-4" />
             Add Product
@@ -115,14 +115,15 @@ const ProductsPage = () => {
           </div>
         ) : filteredProducts.length > 0 ? (
           <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl overflow-hidden">
-            <table className="w-full">
+            <div className="overflow-x-auto">
+              <table className="w-full">
               <thead>
                 <tr className="text-left text-xs font-medium text-gray-500 border-b border-gray-200/50 bg-white/50">
                   <th className="p-4">PRODUCT</th>
                   <th className="p-4">STATUS</th>
                   <th className="p-4">INVENTORY</th>
-                  <th className="p-4">TYPE</th>
-                  <th className="p-4">VENDOR</th>
+                  <th className="p-4 hidden md:table-cell">TYPE</th>
+                  <th className="p-4 hidden md:table-cell">VENDOR</th>
                   <th className="p-4 text-right">ACTIONS</th>
                 </tr>
               </thead>
@@ -139,9 +140,9 @@ const ProductsPage = () => {
                         {product.status}
                       </span>
                     </td>
-                    <td className="p-4 text-sm text-gray-600">{product.inventory} in stock</td>
-                    <td className="p-4 text-sm text-gray-600">{product.type}</td>
-                    <td className="p-4 text-sm text-gray-600">{product.vendor}</td>
+                    <td className="p-4 text-sm text-gray-600">{product.inventory} <span className="hidden sm:inline">in stock</span></td>
+                    <td className="p-4 text-sm text-gray-600 hidden md:table-cell">{product.type}</td>
+                    <td className="p-4 text-sm text-gray-600 hidden md:table-cell">{product.vendor}</td>
                     <td className="p-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Link 
@@ -164,6 +165,7 @@ const ProductsPage = () => {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         ) : (
           <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-12">

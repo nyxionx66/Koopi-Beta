@@ -2,18 +2,18 @@
 
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { CheckCircle, AlertCircle, Clock, Activity } from 'lucide-react';
+import { CheckCircle, AlertCircle, Clock, Activity, Zap, Server, Database, Shield, Mail, Wifi } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const systemStatus = {
   overall: 'operational', // operational, degraded, down
   services: [
-    { name: 'Web Application', status: 'operational', uptime: '99.99%' },
-    { name: 'API Services', status: 'operational', uptime: '99.98%' },
-    { name: 'Database (Firebase)', status: 'operational', uptime: '99.99%' },
-    { name: 'File Storage', status: 'operational', uptime: '99.97%' },
-    { name: 'Authentication', status: 'operational', uptime: '100%' },
-    { name: 'Email Notifications', status: 'operational', uptime: '99.95%' },
+    { name: 'Web Application', status: 'operational', uptime: '99.99%', icon: Wifi },
+    { name: 'API Services', status: 'operational', uptime: '99.98%', icon: Server },
+    { name: 'Database (Firebase)', status: 'operational', uptime: '99.99%', icon: Database },
+    { name: 'File Storage', status: 'operational', uptime: '99.97%', icon: Server },
+    { name: 'Authentication', status: 'operational', uptime: '100%', icon: Shield },
+    { name: 'Email Notifications', status: 'operational', uptime: '99.95%', icon: Mail },
   ],
 };
 
@@ -94,27 +94,82 @@ export default function Status() {
     <div className="min-h-screen bg-[#f5f5f7]">
       <Header />
       
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden bg-gradient-to-br from-green-50 via-white to-blue-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      {/* Unique Hero - System Monitoring Inspired */}
+      <section className="relative pt-32 pb-20 overflow-hidden">
+        {/* Server Rack Visual */}
+        <div className="absolute inset-0 overflow-hidden opacity-10">
+          <div className="absolute top-20 left-20 space-y-2">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="w-48 h-8 border-2 border-green-500 rounded-[4px]"></div>
+            ))}
+          </div>
+          <div className="absolute bottom-20 right-20 space-y-2">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="w-48 h-8 border-2 border-blue-500 rounded-[4px]"></div>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className={`inline-flex items-center gap-2 ${overallStatus.bgColor} border border-${overallStatus.iconColor}/20 rounded-full px-4 py-2 mb-6`}>
-              <Activity className={`w-4 h-4 ${overallStatus.iconColor}`} />
-              <span className={`text-sm font-semibold ${overallStatus.textColor}`}>System Status</span>
-            </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-              All Systems <span className="text-green-500">Operational</span>
+            {/* Animated Activity Monitor */}
+            <motion.div className="inline-flex items-center justify-center mb-6">
+              <div className="relative w-24 h-24">
+                {/* Heartbeat lines */}
+                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
+                  <motion.path
+                    d="M 0,50 L 20,50 L 25,30 L 30,70 L 35,40 L 40,50 L 100,50"
+                    stroke="#10B981"
+                    strokeWidth="3"
+                    fill="none"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center shadow-2xl">
+                    <Activity className="w-8 h-8 text-white" />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+            
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-gray-900 mb-6">
+              Platform <span className="text-green-500">Status</span>
             </h1>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
               Real-time status and uptime monitoring for all Koopi services
             </p>
-            <div className="mt-8 inline-flex items-center gap-2 px-6 py-3 bg-white/70 backdrop-blur-xl rounded-full border border-white/30 shadow-lg">
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-              <span className="text-sm font-semibold text-gray-700">Last checked: Just now</span>
+
+            {/* Live Metrics Bar */}
+            <div className="flex flex-wrap items-center justify-center gap-6">
+              {[
+                { label: "Uptime", value: "99.9%", icon: Zap, color: "green" },
+                { label: "Response Time", value: "45ms", icon: Activity, color: "blue" },
+                { label: "Last Check", value: "Just now", icon: Clock, color: "purple" },
+              ].map((metric, i) => {
+                const Icon = metric.icon;
+                return (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2 + i * 0.1 }}
+                    className="backdrop-blur-xl bg-white/70 rounded-[20px] border border-white/50 shadow-xl px-6 py-4 flex items-center gap-3"
+                  >
+                    <Icon className={`w-5 h-5 text-${metric.color}-500`} />
+                    <div className="text-left">
+                      <div className="text-xs text-gray-600">{metric.label}</div>
+                      <div className="text-lg font-bold text-gray-900">{metric.value}</div>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           </motion.div>
         </div>
@@ -124,9 +179,10 @@ export default function Status() {
       <section className="py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-gray-900 mb-8">Service Status</h2>
-          <div className="backdrop-blur-xl bg-white/70 rounded-[24px] border border-white/30 shadow-xl overflow-hidden">
+          <div className="backdrop-blur-xl bg-white/70 rounded-[24px] border border-white/50 shadow-xl overflow-hidden">
             {systemStatus.services.map((service, index) => {
               const badge = getStatusBadge(service.status);
+              const ServiceIcon = service.icon;
               return (
                 <motion.div
                   key={index}
@@ -136,15 +192,20 @@ export default function Status() {
                   className="flex items-center justify-between p-6 border-b border-gray-200/50 last:border-0 hover:bg-white/50 transition-colors"
                 >
                   <div className="flex items-center gap-4">
-                    <badge.icon className={`w-6 h-6 ${badge.iconColor}`} />
+                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                      <ServiceIcon className="w-6 h-6 text-gray-600" />
+                    </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">{service.name}</h3>
                       <p className="text-sm text-gray-600">Uptime: {service.uptime}</p>
                     </div>
                   </div>
-                  <span className={`px-3 py-1 ${badge.bgColor} ${badge.textColor} rounded-full text-sm font-medium`}>
-                    {badge.text}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <badge.icon className={`w-6 h-6 ${badge.iconColor}`} />
+                    <span className={`px-4 py-2 ${badge.bgColor} ${badge.textColor} rounded-full text-sm font-semibold`}>
+                      {badge.text}
+                    </span>
+                  </div>
                 </motion.div>
               );
             })}
@@ -164,11 +225,11 @@ export default function Status() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="backdrop-blur-xl bg-blue-500/10 border border-blue-500/20 rounded-[20px] p-6"
+                  className="backdrop-blur-xl bg-blue-50 border-2 border-blue-500/20 rounded-[20px] p-6"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                      <Clock className="w-5 h-5 text-blue-600" />
+                    <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 shadow-lg">
+                      <Clock className="w-6 h-6 text-white" />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
@@ -197,11 +258,11 @@ export default function Status() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="backdrop-blur-xl bg-white/70 rounded-[20px] border border-white/30 shadow-xl p-6"
+                className="backdrop-blur-xl bg-white/70 rounded-[20px] border border-white/50 shadow-xl p-6"
               >
                 <div className="flex items-start gap-4">
-                  <div className={`w-10 h-10 rounded-full ${incident.status === 'resolved' ? 'bg-green-500/20' : 'bg-red-500/20'} flex items-center justify-center flex-shrink-0`}>
-                    <CheckCircle className={`w-5 h-5 ${incident.status === 'resolved' ? 'text-green-600' : 'text-red-600'}`} />
+                  <div className={`w-12 h-12 rounded-full ${incident.status === 'resolved' ? 'bg-green-500' : 'bg-red-500'} flex items-center justify-center flex-shrink-0 shadow-lg`}>
+                    <CheckCircle className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-2">
@@ -217,29 +278,6 @@ export default function Status() {
                 </div>
               </motion.div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Subscribe to Updates */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center backdrop-blur-xl bg-gradient-to-r from-blue-500 to-purple-600 rounded-[24px] p-12 shadow-2xl">
-          <Activity className="w-16 h-16 text-white mx-auto mb-4" />
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Get status updates
-          </h2>
-          <p className="text-blue-100 mb-8 text-lg">
-            Subscribe to receive notifications about incidents and maintenance
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="your@email.com"
-              className="flex-1 px-4 py-3 rounded-full focus:outline-none focus:ring-2 focus:ring-white"
-            />
-            <button className="px-8 py-3 bg-white text-blue-600 rounded-full font-semibold hover:bg-gray-100 transition-all active:scale-95">
-              Subscribe
-            </button>
           </div>
         </div>
       </section>

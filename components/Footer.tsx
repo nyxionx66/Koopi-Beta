@@ -102,7 +102,7 @@ export function Footer() {
               <Link href="/terms" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
                 Terms
               </Link>
-              <Link href="/terms" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+              <Link href="/privacy" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
                 Privacy
               </Link>
             </div>

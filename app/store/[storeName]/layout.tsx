@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/firebase';
 import { StoreContext } from '@/contexts/StoreContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import { UniversalLoader } from '@/components/ui/UniversalLoader';
 
 import { StoreData } from '@/types';
@@ -67,8 +68,10 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <StoreContext.Provider value={{ storeData, loading }}>
-      {children}
-    </StoreContext.Provider>
+    <ThemeProvider>
+      <StoreContext.Provider value={{ storeData, loading }}>
+        {children}
+      </StoreContext.Provider>
+    </ThemeProvider>
   );
 }

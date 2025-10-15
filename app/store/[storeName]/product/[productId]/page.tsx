@@ -84,6 +84,45 @@ export default function ProductDetailPage() {
     }
   };
 
+  const getVariantCombinations = () => {
+    if (!product || !product.variants || product.variants.length === 0) return [];
+
+    const combinations = product.variants.reduce((acc, variant) => {
+      if (acc.length === 0) {
+        return variant.options.map(option => ({ [variant.name]: option }));
+      }
+      return acc.flatMap(combination =>
+        variant.options.map(option => ({ ...combination, [variant.name]: option }))
+      );
+    }, [] as { [key: string]: string }[]);
+
+    return combinations;
+  };
+
+  const isOptionDisabled = (variantName: string, option: string) => {
+    if (!product?.inventoryTracked || !product.variantStock || !product.variants) return false;
+
+    const testCombination = { ...selectedVariants };
+    testCombination[variantName] = option;
+
+    const allCombinations = getVariantCombinations();
+
+    const relevantCombinations = allCombinations.filter(combo => {
+      return Object.keys(testCombination).every(key => testCombination[key] === combo[key]);
+    });
+
+    if (relevantCombinations.length === 0) {
+      return true;
+    }
+
+    const allOutOfStock = relevantCombinations.every(combo => {
+      const key = product.variants!.map(v => combo[v.name]).join(' / ');
+      return product.variantStock![key] === 0;
+    });
+
+    return allOutOfStock;
+  };
+
   if (loading) {
     const theme = store?.website?.theme || { primaryColor: '#000000', backgroundColor: '#ffffff' };
     return <PageLoader message="Loading product..." primaryColor={theme.primaryColor} backgroundColor={theme.backgroundColor} />;
@@ -124,7 +163,23 @@ export default function ProductDetailPage() {
 
   const displayPrice = typeof product.price === 'number' ? product.price.toFixed(2) : parseFloat(product.price || '0').toFixed(2);
 
+  // Check if product is out of stock
+  const isOutOfStock = () => {
+    if (!product.inventoryTracked) return false;
+    if (product.variants && product.variants.length > 0) {
+      const variantKey = Object.values(selectedVariants).join(' / ');
+      return product.variantStock?.[variantKey] === 0;
+    }
+    return product.quantity === 0;
+  };
+
   const handleAddToCart = () => {
+    // Check if product is out of stock
+    if (isOutOfStock()) {
+      alert('This product is currently out of stock');
+      return;
+    }
+
     // Validate that all required variants are selected
     if (product.variants && product.variants.length > 0) {
       const missingVariants = product.variants.filter(
@@ -171,7 +226,9 @@ export default function ProductDetailPage() {
       quantity, 
       setQuantity,
       selectedVariants,
-      handleVariantChange
+      handleVariantChange,
+      isOutOfStock: isOutOfStock(),
+      isOptionDisabled
     };
     switch (store.website?.templateId) {
       case 'modern':

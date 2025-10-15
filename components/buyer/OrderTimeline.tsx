@@ -3,12 +3,14 @@
 import React from 'react';
 import { Package, Clock, Truck, CheckCircle } from 'lucide-react';
 
+import { useTheme } from '@/contexts/ThemeContext';
+
 type OrderTimelineProps = {
   currentStatus: string;
-  theme?: 'classic' | 'modern' | 'minimalist' | 'bold';
 };
 
-export function OrderTimeline({ currentStatus, theme = 'modern' }: OrderTimelineProps) {
+export function OrderTimeline({ currentStatus }: OrderTimelineProps) {
+  const { theme } = useTheme();
   const statuses = ['pending', 'processing', 'shipped', 'delivered'];
   const currentIndex = statuses.indexOf(currentStatus);
 

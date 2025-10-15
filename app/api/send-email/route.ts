@@ -3,6 +3,7 @@ import sgMail from '@sendgrid/mail';
 import { createOrderConfirmationHtml } from '@/lib/email/templates/orderConfirmation';
 import { createOrderStatusUpdateHtml } from '@/lib/email/templates/orderStatusUpdate';
 import { createGenericEmailHtml } from '@/lib/email/templates/generic';
+import { createNewMessageEmailHtml } from '@/lib/email/templates/newMessage';
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
 
@@ -26,6 +27,10 @@ export async function POST(request: Request) {
       case 'orderStatusUpdate':
         subject = `Update on your order #${data.orderNumber}`;
         html = createOrderStatusUpdateHtml(data);
+        break;
+      case 'newMessage':
+        subject = `💬 New message - Order #${data.orderNumber}`;
+        html = createNewMessageEmailHtml(data);
         break;
       case 'generic':
         subject = data.title;

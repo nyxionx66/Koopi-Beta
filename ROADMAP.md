@@ -1,9 +1,9 @@
-"# 🚀 Koopi E-Commerce Platform
+# 🚀 Koopi E-Commerce Platform
 ## Product Roadmap & Features
 
 **Last Updated:** October 2025
-**Version:** 2.4.0
-**Status:** Phase 1 Complete ✅
+**Version:** 2.7.0
+**Status:** Phase 1 Complete ✅ | Phase 2 In Progress
 
 ---
 
@@ -17,8 +17,8 @@
 | Buyer Experience | ✅ Complete | 100% |
 | Payment (COD) | ✅ Complete | 100% |
 | Messaging System | ✅ Complete | 100% |
-| Advanced Features | 🔄 In Progress | 40% |
-| Marketing Tools | 📋 Planned | 0% |
+| Advanced Features | 🔄 In Progress | 50% |
+| Marketing Tools | 📋 Planned | 10% |
 
 ---
 
@@ -313,6 +313,12 @@ collections/
 
 ## 🎉 Recent Accomplishments
 
+**October 2025 - Version 2.6.0:**
+- ✅ **Dashboard Overhaul** - Redesigned the customers page with a modern, card-based layout and animations.
+  - Added a "Growth Center" widget to the dashboard with actionable tips.
+  - Implemented entrance animations for all dashboard widgets for a more dynamic feel.
+  - Added a "Powered by Koopi" branding animation.
+
 **October 2025 - Version 2.5.0:**
 - ✅ **Dashboard Enhancements** - Added a "Quick Look" widget for at-a-glance stats.
   - Implemented a customizable dashboard layout with drag-and-drop functionality.
@@ -415,4 +421,3 @@ Your store is production-ready and can start accepting orders today!
 ---
 
 *Built with ❤️ by the Koopi Team*
-"

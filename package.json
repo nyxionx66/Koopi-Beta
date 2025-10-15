@@ -20,9 +20,11 @@
     "@heroicons/react": "^2.2.0",
     "@sendgrid/mail": "^8.1.6",
     "@tailwindcss/typography": "^0.5.19",
+    "@types/react-resizable": "^3.0.8",
     "@types/react-scroll": "^1.8.10",
     "dom-to-image-more": "^3.7.1",
     "firebase": "^12.3.0",
+    "firebase-admin": "^13.5.0",
     "framer-motion": "^12.23.22",
     "html2canvas": "^1.4.1",
     "lottie-react": "^2.4.1",
@@ -32,7 +34,9 @@
     "react-confetti": "^6.4.0",
     "react-dom": "19.1.0",
     "react-image-crop": "^11.0.10",
-    "react-scroll": "^1.9.3"
+    "react-resizable": "^3.0.5",
+    "react-scroll": "^1.9.3",
+    "react-timeago": "^8.3.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

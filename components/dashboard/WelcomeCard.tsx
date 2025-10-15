@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/firebase';
+import Confetti from 'react-confetti';
+import { motion } from 'framer-motion';
 
 type WelcomeCardProps = {
   hasProducts: boolean;
@@ -20,15 +22,22 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
   const [mounted, setMounted] = useState(false);
   const [websiteEnabled, setWebsiteEnabled] = useState(false);
   const [storeName, setStoreName] = useState('');
+  const [isExploding, setIsExploding] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
   
   useEffect(() => {
     setMounted(true);
-    console.log('WelcomeCard mounted with:', { hasProducts, hasCustomizedStore, hasPaymentSetup });
+    if (localStorage.getItem('welcomeCardComplete') === 'true') {
+      setIsComplete(true);
+    }
   }, []);
 
   useEffect(() => {
-    console.log('WelcomeCard state changed:', { hasProducts, hasCustomizedStore, hasPaymentSetup });
-  }, [hasProducts, hasCustomizedStore, hasPaymentSetup]);
+    if (hasProducts && hasCustomizedStore) {
+      setIsExploding(true);
+      localStorage.setItem('welcomeCardComplete', 'true');
+    }
+  }, [hasProducts, hasCustomizedStore]);
 
   useEffect(() => {
     if (!user) return;
@@ -46,8 +55,8 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
   }, [user]);
   
   // Calculate progress
-  const completedTasks = [hasProducts, hasCustomizedStore, hasPaymentSetup].filter(Boolean).length;
-  const totalTasks = 3;
+  const completedTasks = [hasProducts, hasCustomizedStore].filter(Boolean).length;
+  const totalTasks = 2;
   const allTasksComplete = completedTasks === totalTasks;
 
   // Determine current task based on what's completed
@@ -75,18 +84,6 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
         router.push('/dashboard/website');
       }
     };
-  } else if (hasProducts && hasCustomizedStore && !hasPaymentSetup) {
-    currentTask = {
-      title: 'Set up payment provider',
-      description: 'Connect a payment provider to start accepting payments from customers.',
-      buttonText: 'Setup payments',
-      icon: CreditCard,
-      step: 3,
-      action: () => {
-        console.log('Setup payment clicked');
-        alert('Payment setup coming soon!');
-      }
-    };
   }
 
   const TaskIcon = currentTask.icon;
@@ -97,51 +94,62 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
 
   if (allTasksComplete) {
     return (
-      <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-8 mb-8">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                <CheckCircle className="w-7 h-7 text-green-600" />
+      <>
+        {isExploding && <Confetti recycle={false} onConfettiComplete={() => setIsExploding(false)} />}
+        <motion.div
+          initial={{ opacity: 1, scale: 1 }}
+          animate={{ opacity: 0, scale: 0.8, transition: { duration: 0.5, delay: 2 } }}
+          onAnimationComplete={() => setIsComplete(true)}
+          className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-8 mb-8"
+        >
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="w-7 h-7 text-green-600" />
+                </div>
+                <h2 className="text-xl font-semibold text-green-600">
+                  All tasks complete!
+                </h2>
               </div>
-              <h2 className="text-xl font-semibold text-green-600">
-                All tasks complete!
-              </h2>
+              
+              <h1 className="text-3xl font-semibold text-gray-900 mb-3">
+                Your store is ready to launch
+              </h1>
+              <p className="text-gray-600 text-base mb-4">
+                Great job! You've completed all the setup tasks. Your digital product business is ready to go.
+              </p>
+
+              {websiteEnabled && storeName && (
+                <div className="flex items-center gap-3 p-4 bg-white/50 rounded-lg border border-gray-200/50">
+                  <Globe className="w-5 h-5 text-gray-700" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900 mb-1">Your Store Website</p>
+                    <Link
+                      href={`/store/${storeName}`}
+                      target="_blank"
+                      className="text-sm text-gray-600 hover:text-gray-900 hover:underline flex items-center gap-1"
+                    >
+                      {typeof window !== 'undefined' ? window.location.origin : ''}/store/{storeName}
+                      <ExternalLink className="w-3 h-3" />
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
             
-            <h1 className="text-3xl font-semibold text-gray-900 mb-3">
-              Your store is ready to launch
-            </h1>
-            <p className="text-gray-600 text-base mb-4">
-              Great job! You've completed all the setup tasks. Your digital product business is ready to go.
-            </p>
-
-            {websiteEnabled && storeName && (
-              <div className="flex items-center gap-3 p-4 bg-white/50 rounded-lg border border-gray-200/50">
-                <Globe className="w-5 h-5 text-gray-700" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900 mb-1">Your Store Website</p>
-                  <Link
-                    href={`/store/${storeName}`}
-                    target="_blank"
-                    className="text-sm text-gray-600 hover:text-gray-900 hover:underline flex items-center gap-1"
-                  >
-                    {typeof window !== 'undefined' ? window.location.origin : ''}/store/{storeName}
-                    <ExternalLink className="w-3 h-3" />
-                  </Link>
-                </div>
+            <div className="hidden lg:block ml-8 flex-shrink-0">
+              <div className="w-40 h-40 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl flex items-center justify-center">
+                <CheckCircle className="w-24 h-24 text-green-600" />
               </div>
-            )}
-          </div>
-          
-          <div className="hidden lg:block ml-8 flex-shrink-0">
-            <div className="w-40 h-40 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl flex items-center justify-center">
-              <CheckCircle className="w-24 h-24 text-green-600" />
             </div>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </>
     );
+  }
+  if (isComplete) {
+    return null;
   }
 
   return (
@@ -235,24 +243,6 @@ const WelcomeCard = ({ hasProducts, hasCustomizedStore, hasPaymentSetup }: Welco
               </span>
             </div>
 
-            {/* Divider */}
-            <div className="w-8 h-px bg-gray-300"></div>
-
-            {/* Step 3 */}
-            <div className="flex items-center gap-2">
-              {hasPaymentSetup ? (
-                <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
-                  <CreditCard className="w-4 h-4 text-green-600" />
-                </div>
-              ) : (
-                <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
-                  <CreditCard className="w-4 h-4 text-gray-400" />
-                </div>
-              )}
-              <span className={`text-sm font-medium ${hasPaymentSetup ? 'text-green-600' : 'text-gray-500'}`}>
-                Payments
-              </span>
-            </div>
           </div>
         </div>
         

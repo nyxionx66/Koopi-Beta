@@ -233,13 +233,192 @@ const BillingSettings = () => (
   </div>
 );
 
-const NotificationsSettings = () => (
-  <div>
-    <h2 className="text-2xl font-bold text-gray-900 mb-6">Notifications</h2>
-    <div className="text-center py-12 bg-white/50 rounded-xl border border-gray-200/50">
-      <Bell className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">Coming Soon</h3>
-      <p className="text-gray-600 text-sm">Customize your email notifications.</p>
+const NotificationsSettings = () => {
+  const { user } = useAuth();
+  const [settings, setSettings] = useState({
+    emailOnNewMessage: true,
+    emailOnOrderStatusChange: true,
+    emailOnNewOrder: true,
+    inAppNotifications: true,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      loadSettings();
+    }
+  }, [user]);
+
+  const loadSettings = async () => {
+    if (!user) return;
+    
+    try {
+      const storeRef = doc(db, 'stores', user.uid);
+      const storeDoc = await getDoc(storeRef);
+      
+      if (storeDoc.exists()) {
+        const data = storeDoc.data();
+        if (data.notificationSettings) {
+          setSettings(data.notificationSettings);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading notification settings:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleToggle = (key: string) => {
+    setSettings(prev => ({
+      ...prev,
+      [key]: !prev[key as keyof typeof prev],
+    }));
+  };
+
+  const handleSave = async () => {
+    if (!user) return;
+
+    setIsSaving(true);
+    setMessage('');
+
+    try {
+      const storeRef = doc(db, 'stores', user.uid);
+      await updateDoc(storeRef, {
+        notificationSettings: settings,
+      });
+      setMessage('Notification settings saved successfully!');
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      console.error('Error saving notification settings:', error);
+      setMessage('Failed to save settings. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <h2 className="text-2xl font-bold text-gray-900 mb-2">Notification Preferences</h2>
+      <p className="text-sm text-gray-600 mb-6">
+        Manage how you receive notifications about your store activity
+      </p>
+
+      <div className="space-y-6">
+        {/* In-App Notifications */}
+        <div className="flex items-start justify-between pb-4 border-b border-gray-200">
+          <div className="flex-1">
+            <h3 className="font-semibold text-gray-900 mb-1">In-App Notifications</h3>
+            <p className="text-sm text-gray-600">
+              Receive notifications in the dashboard notification center
+            </p>
+          </div>
+          <button
+            onClick={() => handleToggle('inAppNotifications')}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              settings.inAppNotifications ? 'bg-blue-500' : 'bg-gray-300'
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                settings.inAppNotifications ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
+        </div>
+
+        {/* Email on New Message */}
+        <div className="flex items-start justify-between pb-4 border-b border-gray-200">
+          <div className="flex-1">
+            <h3 className="font-semibold text-gray-900 mb-1">Email on New Message</h3>
+            <p className="text-sm text-gray-600">
+              Get an email when a buyer sends you a message
+            </p>
+          </div>
+          <button
+            onClick={() => handleToggle('emailOnNewMessage')}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              settings.emailOnNewMessage ? 'bg-blue-500' : 'bg-gray-300'
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                settings.emailOnNewMessage ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
+        </div>
+
+        {/* Email on New Order */}
+        <div className="flex items-start justify-between pb-4 border-b border-gray-200">
+          <div className="flex-1">
+            <h3 className="font-semibold text-gray-900 mb-1">Email on New Order</h3>
+            <p className="text-sm text-gray-600">
+              Get an email notification when you receive a new order
+            </p>
+          </div>
+          <button
+            onClick={() => handleToggle('emailOnNewOrder')}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              settings.emailOnNewOrder ? 'bg-blue-500' : 'bg-gray-300'
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                settings.emailOnNewOrder ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
+        </div>
+
+        {/* Email on Order Status Change */}
+        <div className="flex items-start justify-between pb-4 border-b border-gray-200">
+          <div className="flex-1">
+            <h3 className="font-semibold text-gray-900 mb-1">Email on Order Status Change</h3>
+            <p className="text-sm text-gray-600">
+              Get an email when you update an order status
+            </p>
+          </div>
+          <button
+            onClick={() => handleToggle('emailOnOrderStatusChange')}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              settings.emailOnOrderStatusChange ? 'bg-blue-500' : 'bg-gray-300'
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                settings.emailOnOrderStatusChange ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
+        </div>
+      </div>
+
+      {message && (
+        <div className={`mt-6 p-4 rounded-lg ${
+          message.includes('success') ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+        }`}>
+          <p className="text-sm font-medium">{message}</p>
+        </div>
+      )}
+
+      <button
+        onClick={handleSave}
+        disabled={isSaving}
+        className="mt-6 px-6 py-3 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {isSaving ? 'Saving...' : 'Save Preferences'}
+      </button>
     </div>
-  </div>
-);
+  );
+};

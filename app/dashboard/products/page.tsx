@@ -143,9 +143,22 @@ const ProductsPage = () => {
                     <td className="p-4 text-sm text-gray-600">{product.type}</td>
                     <td className="p-4 text-sm text-gray-600">{product.vendor}</td>
                     <td className="p-4 text-right">
-                      <button onClick={() => handleDelete(product.id)} className="p-2 text-gray-500 hover:text-red-500">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <Link 
+                          href={`/dashboard/products/${product.id}`}
+                          className="p-2 text-gray-500 hover:text-blue-500 transition-colors"
+                          title="Edit product"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Link>
+                        <button 
+                          onClick={() => handleDelete(product.id)} 
+                          className="p-2 text-gray-500 hover:text-red-500 transition-colors"
+                          title="Delete product"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

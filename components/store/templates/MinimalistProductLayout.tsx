@@ -22,9 +22,11 @@ type MinimalistProductLayoutProps = {
   setQuantity: (quantity: number) => void;
   selectedVariants: { [key: string]: string };
   handleVariantChange: (variantName: string, option: string) => void;
+  isOutOfStock: boolean;
+  isOptionDisabled: (variantName: string, option: string) => boolean;
 };
 
-export function MinimalistProductLayout({ 
+export function MinimalistProductLayout({
   product, 
   theme, 
   handleAddToCart, 
@@ -32,7 +34,9 @@ export function MinimalistProductLayout({
   quantity, 
   setQuantity,
   selectedVariants,
-  handleVariantChange 
+  handleVariantChange,
+  isOutOfStock,
+  isOptionDisabled
 }: MinimalistProductLayoutProps) {
   const displayPrice = typeof product.price === 'number' ? product.price.toFixed(2) : parseFloat(product.price || '0').toFixed(2);
 
@@ -80,19 +84,22 @@ export function MinimalistProductLayout({
                   <div className="flex flex-wrap gap-2">
                     {variant.options.map((option, optionIndex) => {
                       const isSelected = selectedVariants[variant.name] === option;
+                      const isDisabled = isOptionDisabled(variant.name, option);
                       return (
-                        <button 
-                          key={optionIndex} 
+                        <button
+                          key={optionIndex}
                           onClick={() => handleVariantChange(variant.name, option)}
-                          className="px-4 py-2 border-2 transition-all relative"
-                          style={{ 
+                          disabled={isDisabled}
+                          className={`px-4 py-2 border-2 transition-all relative ${isDisabled ? 'cursor-not-allowed' : ''}`}
+                          style={{
                             borderColor: isSelected ? theme.textColor : theme.textColor + '30',
                             backgroundColor: isSelected ? theme.textColor : 'transparent',
-                            color: isSelected ? theme.backgroundColor : theme.textColor
+                            color: isDisabled ? theme.textColor + '50' : (isSelected ? theme.backgroundColor : theme.textColor),
+                            textDecoration: isDisabled ? 'line-through' : 'none'
                           }}
                         >
                           {option}
-                          {isSelected && (
+                          {isSelected && !isDisabled && (
                             <Check className="w-4 h-4 absolute -top-1 -right-1" style={{ color: theme.textColor }} />
                           )}
                         </button>
@@ -133,14 +140,17 @@ export function MinimalistProductLayout({
             </div>
             <button
               onClick={handleAddToCart}
-              className="w-full py-4 rounded-full font-semibold text-white flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg"
-              style={{ backgroundColor: addedToCart ? theme.accentColor : theme.primaryColor }}
+              disabled={isOutOfStock}
+              className={`w-full py-4 rounded-full font-semibold text-white flex items-center justify-center gap-2 transition-all shadow-lg ${isOutOfStock ? 'cursor-not-allowed' : 'hover:scale-[1.02] active:scale-[0.98]'}`}
+              style={{ backgroundColor: addedToCart ? theme.accentColor : (isOutOfStock ? '#999' : theme.primaryColor) }}
             >
               {addedToCart ? (
                 <>
                   <Check className="w-5 h-5" />
                   Added to Cart!
                 </>
+              ) : isOutOfStock ? (
+                'Out of Stock'
               ) : (
                 'Add to Cart'
               )}

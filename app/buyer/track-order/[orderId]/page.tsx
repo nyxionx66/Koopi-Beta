@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useBuyerAuth } from '@/contexts/BuyerAuthContext';
-import { doc, getDoc, collection, query, where, orderBy, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, orderBy, onSnapshot, addDoc, serverTimestamp, getDocs } from 'firebase/firestore';
 import { db } from '@/firebase';
 import { ArrowLeft, Package, MapPin, Send, MessageCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -11,6 +11,9 @@ import { PageLoader } from '@/components/ui/PageLoader';
 import { ButtonLoader } from '@/components/ui/ButtonLoader';
 import { OrderTimeline } from '@/components/buyer/OrderTimeline';
 import { Order } from '@/types';
+import { createNotification, getSellerNotificationSettings } from '@/lib/notificationHelpers';
+import { useTheme } from '@/contexts/ThemeContext';
+import { themes } from '@/lib/themes';
 
 type Message = {
   id: string;
@@ -27,13 +30,15 @@ export default function TrackOrderPage() {
   const params = useParams();
   const orderId = params.orderId as string;
   const { buyer, buyerProfile, loading: authLoading } = useBuyerAuth();
+  const { theme, setTheme } = useTheme();
+
+  const themeStyles = themes[theme as keyof typeof themes] || themes.classic;
 
   const [order, setOrder] = useState<Order | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [sendingMessage, setSendingMessage] = useState(false);
-  const [selectedTheme, setSelectedTheme] = useState<'classic' | 'modern' | 'minimalist' | 'bold'>('modern');
 
   useEffect(() => {
     if (order) {
@@ -77,10 +82,11 @@ export default function TrackOrderPage() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !buyer || !buyerProfile) return;
+    if (!newMessage.trim() || !buyer || !buyerProfile || !order) return;
 
     setSendingMessage(true);
     try {
+      // Add message to Firestore
       await addDoc(collection(db, 'messages'), {
         orderId,
         senderId: buyer.uid,
@@ -89,6 +95,55 @@ export default function TrackOrderPage() {
         message: newMessage.trim(),
         createdAt: serverTimestamp(),
       });
+
+      // Get seller ID from order
+      const storesRef = collection(db, 'stores');
+      const storeQuery = query(storesRef, where('storeName', '==', order.storeName));
+      const storeSnapshot = await getDocs(storeQuery);
+      
+      if (!storeSnapshot.empty) {
+        const storeDoc = storeSnapshot.docs[0];
+        const sellerId = storeDoc.id;
+        const sellerEmail = storeDoc.data().email;
+
+        // Create in-app notification for seller
+        try {
+          await createNotification(
+            sellerId,
+            `${buyerProfile.name} sent you a message about order #${order.orderNumber}`,
+            `/dashboard/orders/${orderId}`,
+            'new_message'
+          );
+        } catch (notifError) {
+          console.error('Failed to create notification:', notifError);
+        }
+
+        // Send email notification to seller if enabled
+        try {
+          const sellerSettings = await getSellerNotificationSettings(sellerId);
+          if (sellerSettings.emailOnNewMessage && sellerEmail) {
+            const emailData = {
+              to: sellerEmail,
+              template: 'newMessage',
+              data: {
+                recipientType: 'seller',
+                senderName: buyerProfile.name,
+                messagePreview: newMessage.trim(),
+                orderNumber: order.orderNumber,
+                trackingLink: `${window.location.origin}/dashboard/orders/${orderId}`,
+              }
+            };
+            await fetch('/api/send-email', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(emailData),
+            });
+          }
+        } catch (emailError) {
+          console.error('Failed to send message email notification:', emailError);
+        }
+      }
+
       setNewMessage('');
     } catch (error) {
       console.error('Error sending message:', error);
@@ -96,60 +151,6 @@ export default function TrackOrderPage() {
     } finally {
       setSendingMessage(false);
     }
-  };
-
-  const getThemeStyles = (theme: string) => {
-    const styles = {
-      classic: {
-        bg: 'bg-gradient-to-br from-amber-50 via-white to-gray-50',
-        header: 'bg-white border-b-2 border-gray-200',
-        card: 'bg-white border-2 border-gray-200 rounded-lg',
-        title: 'font-serif text-2xl font-bold text-gray-800',
-        subtitle: 'font-serif text-gray-600',
-        text: 'text-gray-700',
-        button: 'px-5 py-2.5 bg-gray-800 text-white rounded-md hover:bg-gray-900 transition-colors font-serif',
-        input: 'border-2 border-gray-300 rounded-md focus:border-gray-800 focus:ring-0',
-        messageMyBg: 'bg-amber-100 border border-amber-200',
-        messageTheirBg: 'bg-gray-100 border border-gray-200',
-      },
-      modern: {
-        bg: 'bg-[#f5f5f7]',
-        header: 'bg-white/80 backdrop-blur-xl border-b border-white/30 shadow-lg',
-        card: 'bg-white/70 backdrop-blur-xl rounded-2xl shadow-lg border border-white/30',
-        title: 'text-3xl font-bold text-gray-900',
-        subtitle: 'text-gray-600 font-medium',
-        text: 'text-gray-700',
-        button: 'px-6 py-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-all font-semibold shadow-md',
-        input: 'bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm shadow-sm',
-        messageMyBg: 'bg-gradient-to-br from-blue-500 to-blue-600 text-white',
-        messageTheirBg: 'bg-white/80 border border-gray-200/50',
-      },
-      minimalist: {
-        bg: 'bg-white',
-        header: 'bg-white border-b border-gray-300',
-        card: 'bg-white border border-gray-300',
-        title: 'text-2xl font-semibold text-black tracking-wide',
-        subtitle: 'text-gray-700',
-        text: 'text-gray-800',
-        button: 'px-5 py-2.5 border-2 border-black text-black hover:bg-black hover:text-white transition-all',
-        input: 'border border-gray-400 focus:border-black focus:ring-0',
-        messageMyBg: 'bg-black text-white',
-        messageTheirBg: 'bg-gray-200',
-      },
-      bold: {
-        bg: 'bg-black',
-        header: 'bg-black border-b-4 border-yellow-400',
-        card: 'bg-gray-900 border-4 border-yellow-400',
-        title: 'text-3xl font-black text-yellow-400 uppercase tracking-wider',
-        subtitle: 'text-gray-400 font-mono uppercase',
-        text: 'text-gray-300 font-mono',
-        button: 'px-6 py-3 bg-yellow-400 text-black rounded-md hover:bg-cyan-400 transition-all font-black uppercase',
-        input: 'bg-gray-800 border-2 border-yellow-400 text-white focus:border-cyan-400 focus:ring-0',
-        messageMyBg: 'bg-yellow-400 text-black font-bold',
-        messageTheirBg: 'bg-gray-800 text-white border-2 border-gray-700',
-      },
-    };
-    return styles[theme as keyof typeof styles] || styles.modern;
   };
 
   if (loading) {
@@ -170,7 +171,6 @@ export default function TrackOrderPage() {
     );
   }
 
-  const themeStyles = getThemeStyles(selectedTheme);
   const isCancelled = order.status === 'cancelled';
 
   return (
@@ -178,32 +178,13 @@ export default function TrackOrderPage() {
       {/* Header */}
       <header className={`${themeStyles.header} sticky top-0 z-50`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Link 
-            href="/buyer/orders" 
-            className={`flex items-center gap-2 ${selectedTheme === 'bold' ? 'text-yellow-400' : selectedTheme === 'minimalist' ? 'text-black' : 'text-gray-600'} hover:opacity-70 transition-opacity`}
+          <Link
+            href="/buyer/orders"
+            className={`flex items-center gap-2 ${theme === 'bold' ? 'text-yellow-400' : theme === 'minimalist' ? 'text-black' : 'text-gray-600'} hover:opacity-70 transition-opacity`}
           >
             <ArrowLeft className="w-5 h-5" />
             <span className="font-medium">Back to Orders</span>
           </Link>
-
-          {/* Theme Switcher */}
-          <div className="flex gap-2">
-            {(['classic', 'modern', 'minimalist', 'bold'] as const).map((theme) => (
-              <button
-                key={theme}
-                onClick={() => setSelectedTheme(theme)}
-                className={`px-3 py-1.5 text-xs sm:text-sm rounded-lg transition-all capitalize ${
-                  selectedTheme === theme
-                    ? 'bg-blue-600 text-white font-semibold'
-                    : selectedTheme === 'bold' 
-                    ? 'bg-gray-800 text-gray-400 hover:text-yellow-400'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {theme}
-              </button>
-            ))}
-          </div>
         </div>
       </header>
 
@@ -220,7 +201,7 @@ export default function TrackOrderPage() {
             </div>
             {isCancelled && (
               <span className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold uppercase ${
-                selectedTheme === 'bold' ? 'bg-red-500 text-white' : 'bg-red-100 text-red-800'
+                theme === 'bold' ? 'bg-red-500 text-white' : 'bg-red-100 text-red-800'
               }`}>
                 <XCircle className="w-5 h-5" />
                 Cancelled
@@ -233,39 +214,39 @@ export default function TrackOrderPage() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Order Timeline */}
-            {!isCancelled && <OrderTimeline currentStatus={order.status} theme={selectedTheme} />}
+            {!isCancelled && <OrderTimeline currentStatus={order.status} />}
 
             {/* Order Items */}
             <div className={`${themeStyles.card} p-6 sm:p-8`}>
-              <h2 className={`text-xl font-bold mb-6 ${selectedTheme === 'bold' ? 'text-yellow-400 uppercase' : selectedTheme === 'minimalist' ? 'text-black' : 'text-gray-900'}`}>
+              <h2 className={`text-xl font-bold mb-6 ${theme === 'bold' ? 'text-yellow-400 uppercase' : theme === 'minimalist' ? 'text-black' : 'text-gray-900'}`}>
                 Order Items
               </h2>
               <div className="space-y-4">
                 {order.items.map((item, index) => (
-                  <div key={index} className={`flex gap-4 pb-4 ${index !== order.items.length - 1 ? 'border-b' : ''} ${selectedTheme === 'bold' ? 'border-gray-700' : 'border-gray-200'}`}>
-                    <div className={`w-20 h-20 flex-shrink-0 rounded-lg ${selectedTheme === 'bold' ? 'bg-gray-800' : 'bg-gray-100'}`}>
+                  <div key={index} className={`flex gap-4 pb-4 ${index !== order.items.length - 1 ? 'border-b' : ''} ${theme === 'bold' ? 'border-gray-700' : 'border-gray-200'}`}>
+                    <div className={`w-20 h-20 flex-shrink-0 rounded-lg ${theme === 'bold' ? 'bg-gray-800' : 'bg-gray-100'}`}>
                       {item.image ? (
                         <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-lg" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Package className={`w-8 h-8 ${selectedTheme === 'bold' ? 'text-gray-600' : 'text-gray-400'}`} />
+                          <Package className={`w-8 h-8 ${theme === 'bold' ? 'text-gray-600' : 'text-gray-400'}`} />
                         </div>
                       )}
                     </div>
                     <div className="flex-1">
-                      <h3 className={`font-semibold ${selectedTheme === 'bold' ? 'text-white' : selectedTheme === 'classic' ? 'font-serif text-gray-800' : 'text-gray-900'}`}>
+                      <h3 className={`font-semibold ${theme === 'bold' ? 'text-white' : theme === 'classic' ? 'font-serif text-gray-800' : 'text-gray-900'}`}>
                         {item.name}
                       </h3>
                       {item.variant && (
-                        <p className={`text-sm ${selectedTheme === 'bold' ? 'text-gray-500 font-mono' : 'text-gray-500'}`}>
+                        <p className={`text-sm ${theme === 'bold' ? 'text-gray-500 font-mono' : 'text-gray-500'}`}>
                           {Object.entries(item.variant).map(([key, value]) => `${key}: ${value}`).join(', ')}
                         </p>
                       )}
-                      <p className={`text-sm ${selectedTheme === 'bold' ? 'text-gray-400 font-mono' : 'text-gray-600'}`}>
+                      <p className={`text-sm ${theme === 'bold' ? 'text-gray-400 font-mono' : 'text-gray-600'}`}>
                         Quantity: {item.quantity}
                       </p>
                     </div>
-                    <div className={`font-semibold ${selectedTheme === 'bold' ? 'text-yellow-400 font-mono' : selectedTheme === 'classic' ? 'font-serif text-gray-800' : 'text-gray-900'}`}>
+                    <div className={`font-semibold ${theme === 'bold' ? 'text-yellow-400 font-mono' : theme === 'classic' ? 'font-serif text-gray-800' : 'text-gray-900'}`}>
                       LKR {(item.price * item.quantity).toFixed(2)}
                     </div>
                   </div>
@@ -273,7 +254,7 @@ export default function TrackOrderPage() {
               </div>
 
               {/* Order Summary */}
-              <div className={`mt-6 pt-6 border-t ${selectedTheme === 'bold' ? 'border-gray-700' : 'border-gray-200'} space-y-2`}>
+              <div className={`mt-6 pt-6 border-t ${theme === 'bold' ? 'border-gray-700' : 'border-gray-200'} space-y-2`}>
                 <div className={`flex justify-between ${themeStyles.text}`}>
                   <span>Subtotal</span>
                   <span className="font-medium">LKR {order.subtotal.toFixed(2)}</span>
@@ -286,7 +267,7 @@ export default function TrackOrderPage() {
                   <span>Tax</span>
                   <span className="font-medium">LKR {order.tax.toFixed(2)}</span>
                 </div>
-                <div className={`flex justify-between pt-2 border-t text-lg font-bold ${selectedTheme === 'bold' ? 'text-yellow-400 border-gray-700 font-mono' : selectedTheme === 'classic' ? 'text-gray-900 font-serif border-gray-200' : 'text-gray-900 border-gray-200'}`}>
+                <div className={`flex justify-between pt-2 border-t text-lg font-bold ${theme === 'bold' ? 'text-yellow-400 border-gray-700 font-mono' : theme === 'classic' ? 'text-gray-900 font-serif border-gray-200' : 'text-gray-900 border-gray-200'}`}>
                   <span>Total</span>
                   <span>LKR {order.total.toFixed(2)}</span>
                 </div>
@@ -298,11 +279,11 @@ export default function TrackOrderPage() {
           <div className="space-y-6">
             {/* Shipping Address */}
             <div className={`${themeStyles.card} p-6`}>
-              <h2 className={`text-lg font-bold mb-4 flex items-center gap-2 ${selectedTheme === 'bold' ? 'text-yellow-400 uppercase' : selectedTheme === 'minimalist' ? 'text-black' : 'text-gray-900'}`}>
+              <h2 className={`text-lg font-bold mb-4 flex items-center gap-2 ${theme === 'bold' ? 'text-yellow-400 uppercase' : theme === 'minimalist' ? 'text-black' : 'text-gray-900'}`}>
                 <MapPin className="w-5 h-5" />
                 Shipping Address
               </h2>
-              <div className={`space-y-1 ${themeStyles.text} ${selectedTheme === 'bold' ? 'font-mono' : ''}`}>
+              <div className={`space-y-1 ${themeStyles.text} ${theme === 'bold' ? 'font-mono' : ''}`}>
                 <p className="font-semibold">{order.shippingAddress.name}</p>
                 <p>{order.shippingAddress.addressLine1}</p>
                 {order.shippingAddress.addressLine2 && <p>{order.shippingAddress.addressLine2}</p>}
@@ -314,14 +295,14 @@ export default function TrackOrderPage() {
 
             {/* Messages */}
             <div className={`${themeStyles.card} p-6`}>
-              <h2 className={`text-lg font-bold mb-4 flex items-center gap-2 ${selectedTheme === 'bold' ? 'text-yellow-400 uppercase' : selectedTheme === 'minimalist' ? 'text-black' : 'text-gray-900'}`}>
+              <h2 className={`text-lg font-bold mb-4 flex items-center gap-2 ${theme === 'bold' ? 'text-yellow-400 uppercase' : theme === 'minimalist' ? 'text-black' : 'text-gray-900'}`}>
                 <MessageCircle className="w-5 h-5" />
                 Messages
               </h2>
               
               <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
                 {messages.length === 0 ? (
-                  <p className={`text-sm ${selectedTheme === 'bold' ? 'text-gray-400 font-mono' : 'text-gray-500'}`}>
+                  <p className={`text-sm ${theme === 'bold' ? 'text-gray-400 font-mono' : 'text-gray-500'}`}>
                     No messages yet. Start a conversation with the seller.
                   </p>
                 ) : (
@@ -332,10 +313,12 @@ export default function TrackOrderPage() {
                         msg.senderType === 'buyer' ? themeStyles.messageMyBg : themeStyles.messageTheirBg
                       }`}
                     >
-                      <p className={`text-xs font-semibold mb-1 ${msg.senderType === 'buyer' && selectedTheme === 'modern' ? 'text-blue-100' : 'opacity-70'}`}>
+                      <p className={`text-xs font-semibold mb-1 ${
+                        msg.senderType === 'buyer' ? themeStyles.messageMySender : themeStyles.messageTheirSender
+                      }`}>
                         {msg.senderName}
                       </p>
-                      <p className={`text-sm ${selectedTheme === 'bold' ? 'font-mono' : ''}`}>{msg.message}</p>
+                      <p className={`text-sm ${theme === 'bold' ? 'font-mono' : ''}`}>{msg.message}</p>
                     </div>
                   ))
                 )}
@@ -355,7 +338,7 @@ export default function TrackOrderPage() {
                   disabled={sendingMessage || !newMessage.trim()}
                   className={`px-4 py-2 ${themeStyles.button} disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center`}
                 >
-                  {sendingMessage ? <ButtonLoader color={selectedTheme === 'bold' ? '#000' : '#fff'} /> : <Send className="w-5 h-5" />}
+                  {sendingMessage ? <ButtonLoader color={theme === 'bold' ? '#000' : '#fff'} /> : <Send className="w-5 h-5" />}
                 </button>
               </form>
             </div>

@@ -10,6 +10,7 @@ import { ArrowLeft, Package, User, MapPin, CreditCard, Check, ShoppingBag } from
 import Link from 'next/link';
 import { useStore } from '@/contexts/StoreContext';
 import { ButtonLoader } from '@/components/ui/ButtonLoader';
+import { useTheme } from '@/contexts/ThemeContext';
 
 type CheckoutStep = 'auth' | 'shipping' | 'review';
 
@@ -32,6 +33,7 @@ export default function CheckoutPage() {
   const { items, getSubtotal, clearCart } = useCart();
   const { buyer, buyerProfile } = useBuyerAuth();
   const { storeData, loading: themeLoading } = useStore();
+  const { theme, setTheme, themeStyles } = useTheme();
 
   const [currentStep, setCurrentStep] = useState<CheckoutStep>('auth');
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({

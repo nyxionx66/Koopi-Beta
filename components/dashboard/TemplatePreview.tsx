@@ -33,9 +33,9 @@ export function TemplatePreview({ templateId, isSelected, isLocked, onClick }: T
         </div>
       )}
       <div
-        className={`h-32 rounded-lg flex flex-col justify-between p-3 bg-white/80 ${isLocked ? 'opacity-50' : ''}`}
+        className={`h-32 rounded-lg flex flex-col justify-between p-3 ${isLocked ? 'opacity-50' : ''}`}
         style={{
-          backgroundColor: template.theme.backgroundColor,
+          backgroundColor: template.theme.previewBg,
           fontFamily: template.theme.fontFamily,
         }}
       >

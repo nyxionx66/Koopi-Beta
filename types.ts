@@ -15,6 +15,7 @@ export type Product = {
   tags?: string[];
   inventory?: number;
   quantity?: number;
+  inventoryTracked?: boolean;
   rating?: number;
   averageRating?: number;
   reviewCount?: number;
@@ -23,6 +24,7 @@ export type Product = {
     name: string;
     options: string[];
   }[];
+  variantStock?: { [key: string]: number };
   relatedProducts?: string[];
   storeId?: string;
   userId?: string;

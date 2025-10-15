@@ -1,14 +1,11 @@
-import { Metadata } from "next";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Koopi Buyer",
-  description: "Manage your orders and shop across all Koopi stores",
-};
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
 export default function BuyerLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return <ThemeProvider>{children}</ThemeProvider>;
 }

@@ -4,10 +4,10 @@ import React from 'react';
 import Link from 'next/link';
 import { Package, ArrowRight } from 'lucide-react';
 import { Order } from '@/types';
+import { useTheme } from '@/contexts/ThemeContext';
 
 type OrderCardProps = {
   order: Order;
-  theme?: 'classic' | 'modern' | 'minimalist' | 'bold';
 };
 
 const getStatusConfig = (status: string, theme: string) => {
@@ -45,7 +45,8 @@ const getStatusConfig = (status: string, theme: string) => {
   return configs[theme as keyof typeof configs]?.[status as keyof typeof configs.classic] || configs.modern.pending;
 };
 
-export function OrderCard({ order, theme = 'modern' }: OrderCardProps) {
+export function OrderCard({ order }: OrderCardProps) {
+  const { theme } = useTheme();
   const cardStyles = {
     classic: {
       container: 'bg-white border-2 border-gray-200 rounded-lg overflow-hidden hover:border-gray-300 hover:shadow-md transition-all',

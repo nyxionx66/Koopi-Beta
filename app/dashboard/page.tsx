@@ -8,6 +8,10 @@ import WelcomeCard from '@/components/dashboard/WelcomeCard';
 import SocialMediaKitCard from '@/components/dashboard/SocialMediaKitCard';
 import QuickLookWidget from '@/components/dashboard/QuickLookWidget';
 import { PageLoader } from '@/components/ui/PageLoader';
+import QuickActionsWidget from '@/components/dashboard/QuickActionsWidget';
+import GrowthCenter from '@/components/dashboard/GrowthCenter';
+import BrandingAnimation from '@/components/dashboard/BrandingAnimation';
+import AnimatedWidget from '@/components/dashboard/AnimatedWidget';
 
 const DashboardHomePage = () => {
   const { user, loading } = useAuth();
@@ -16,6 +20,7 @@ const DashboardHomePage = () => {
   const [storeName, setStoreName] = useState('');
   const [storeUrl, setStoreUrl] = useState('');
   const [showSocialMediaKit, setShowSocialMediaKit] = useState(false);
+  const [welcomeCardCompleted, setWelcomeCardCompleted] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -25,6 +30,7 @@ const DashboardHomePage = () => {
           const storeData = docSnap.data();
           setHasProducts(storeData.hasProducts === true);
           setHasCustomizedStore(storeData.hasCustomizedStore === true);
+          setWelcomeCardCompleted(storeData.hasProducts === true && storeData.hasCustomizedStore === true);
           setStoreName(storeData.storeName || '');
           if (storeData.storeName) {
             const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
@@ -49,21 +55,37 @@ const DashboardHomePage = () => {
       </div>
       
       <div className="relative z-10 max-w-7xl mx-auto space-y-8">
-        <QuickLookWidget />
+        <AnimatedWidget>
+          <QuickLookWidget />
+        </AnimatedWidget>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
           <div className="lg:col-span-3">
-            <WelcomeCard
-              hasProducts={hasProducts}
-              hasCustomizedStore={hasCustomizedStore}
-              hasPaymentSetup={false}
-            />
-          </div>
-          {showSocialMediaKit && storeName && (
-            <div className="lg:col-span-2">
-              <SocialMediaKitCard
-                storeName={storeName}
+            {welcomeCardCompleted ? (
+              <AnimatedWidget>
+                <div>
+                  <QuickActionsWidget />
+                  <BrandingAnimation />
+                </div>
+              </AnimatedWidget>
+            ) : (
+              <AnimatedWidget>
+                <WelcomeCard
+                  hasProducts={hasProducts}
+                  hasCustomizedStore={hasCustomizedStore}
+                  hasPaymentSetup={false}
+                />
+              </AnimatedWidget>
+            )}
+         </div>
+         {showSocialMediaKit && storeName && (
+           <div className="lg:col-span-2 space-y-8">
+             <SocialMediaKitCard
+               storeName={storeName}
                 storeUrl={storeUrl}
               />
+              <AnimatedWidget>
+                <GrowthCenter />
+              </AnimatedWidget>
             </div>
           )}
         </div>

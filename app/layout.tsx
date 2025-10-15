@@ -5,6 +5,8 @@ import "react-image-crop/dist/ReactCrop.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { BuyerAuthProvider } from "@/contexts/BuyerAuthContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { NetworkProvider } from "@/contexts/NetworkContext";
+import NetworkLayout from "./NetworkLayout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +35,11 @@ export default function RootLayout({
       >
         <AuthProvider>
           <BuyerAuthProvider>
-            <CartProvider>{children}</CartProvider>
+            <CartProvider>
+              <NetworkProvider>
+                <NetworkLayout>{children}</NetworkLayout>
+              </NetworkProvider>
+            </CartProvider>
           </BuyerAuthProvider>
         </AuthProvider>
       </body>

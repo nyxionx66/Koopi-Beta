@@ -246,7 +246,7 @@ export default function StorePage() {
                     key={product.id}
                     product={product}
                     storeName={storeName}
-                    theme={theme}
+                    template={template}
                   />
                 ))}
               </div>

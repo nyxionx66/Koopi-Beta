@@ -578,7 +578,7 @@ export default function WebsitePage() {
             <div
               className="p-12"
               style={{
-                backgroundColor: heroBackgroundImage ? 'transparent' : '#f9fafb',
+                backgroundColor: heroBackgroundImage ? 'transparent' : backgroundColor,
                 backgroundImage: heroBackgroundImage ? `url(${heroBackgroundImage})` : 'none',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center'

@@ -11,6 +11,7 @@ import withAuth from '@/components/withAuth';
 import { InlineLoader } from '@/components/ui/InlineLoader';
 import { ButtonLoader } from '@/components/ui/ButtonLoader';
 import { Order } from '@/types';
+import { createNotification, getBuyerNotificationSettings } from '@/lib/notificationHelpers';
 
 type Message = {
   id: string;
@@ -146,10 +147,11 @@ function OrderDetailPage() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !user || !storeName) return;
+    if (!newMessage.trim() || !user || !storeName || !order) return;
 
     setSendingMessage(true);
     try {
+      // Add message to Firestore
       await addDoc(collection(db, 'messages'), {
         orderId,
         senderId: user.uid,
@@ -158,6 +160,44 @@ function OrderDetailPage() {
         message: newMessage.trim(),
         createdAt: serverTimestamp(),
       });
+
+      // Create in-app notification for buyer
+      try {
+        await createNotification(
+          order.buyerId,
+          `${storeName} sent you a message about order #${order.orderNumber}`,
+          `/buyer/track-order/${orderId}`,
+          'new_message'
+        );
+      } catch (notifError) {
+        console.error('Failed to create notification:', notifError);
+      }
+
+      // Send email notification to buyer if enabled
+      try {
+        const buyerSettings = await getBuyerNotificationSettings(order.buyerId);
+        if (buyerSettings.emailOnNewMessage) {
+          const emailData = {
+            to: order.buyerEmail,
+            template: 'newMessage',
+            data: {
+              recipientType: 'buyer',
+              senderName: storeName,
+              messagePreview: newMessage.trim(),
+              orderNumber: order.orderNumber,
+              trackingLink: `${window.location.origin}/buyer/track-order/${orderId}`,
+            }
+          };
+          await fetch('/api/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(emailData),
+          });
+        }
+      } catch (emailError) {
+        console.error('Failed to send message email notification:', emailError);
+      }
+
       setNewMessage('');
     } catch (error) {
       console.error('Error sending message:', error);

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Star, Package, TrendingUp } from 'lucide-react';
+import { templates } from '@/lib/templates';
 
 type ProductCardProps = {
   product: {
@@ -17,50 +18,52 @@ type ProductCardProps = {
     tags?: string[];
     status?: string;
     variants?: { name: string; options: string[] }[];
+    inventoryTracked?: boolean;
+    quantity?: number;
   };
   storeName: string;
-  theme?: {
-    primaryColor?: string;
-    textColor?: string;
-    backgroundColor?: string;
-  };
+  template: any;
 };
 
-const ProductCard = ({ product, storeName, theme }: ProductCardProps) => {
+const ProductCard = ({ product, storeName, template }: ProductCardProps) => {
+  const cardStyles = template.productCard;
+  const theme = template.theme;
+
   // Get images from product
   const productImages = product.images || [];
   
-  // Debug logging
-  console.log('ProductCard:', product.name, 'Images:', productImages);
-  
   // Calculate discount percentage
   const hasDiscount = product.compareAtPrice && product.compareAtPrice > product.price;
-  const discountPercent = hasDiscount 
+  const discountPercent = hasDiscount
     ? Math.round(((product.compareAtPrice! - product.price) / product.compareAtPrice!) * 100)
     : 0;
 
   // Check if product has variants
   const hasVariants = product.variants && product.variants.length > 0;
-  const variantCount = hasVariants 
+  const variantCount = hasVariants
     ? product.variants!.reduce((sum, v) => sum + v.options.length, 0)
     : 0;
 
-  const primaryColor = theme?.primaryColor || '#000000';
-  const textColor = theme?.textColor || '#000000';
+  // Check if product is out of stock
+  const isOutOfStock = product.inventoryTracked && (product.quantity === 0 || product.quantity === undefined);
 
   return (
     <Link href={`/store/${storeName}/product/${product.id}`}>
-      <div className="group relative bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+      <div className={cardStyles.container}>
         {/* Image Container */}
         <div className="relative w-full aspect-square bg-gray-50 overflow-hidden">
           {productImages.length > 0 ? (
-            <img
-              src={productImages[0]}
-              alt={product.name}
-              className="w-full h-full object-cover"
-              style={{ display: 'block', maxWidth: '100%', height: '100%' }}
-              crossOrigin="anonymous"
-            />
+            <>
+              <img
+                src={productImages[0]}
+                alt={product.name}
+                className={`${cardStyles.image} ${isOutOfStock ? 'opacity-50' : ''}`}
+                crossOrigin="anonymous"
+              />
+              {isOutOfStock && (
+                <div className="absolute inset-0 bg-black/10"></div>
+              )}
+            </>
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
               <Package className="w-16 h-16 text-gray-400" />
@@ -68,10 +71,10 @@ const ProductCard = ({ product, storeName, theme }: ProductCardProps) => {
           )}
           
           {/* Discount Badge */}
-          {hasDiscount && (
+          {hasDiscount && !isOutOfStock && (
             <div 
               className="absolute top-3 left-3 px-3 py-1 rounded-full text-white text-xs font-bold shadow-lg flex items-center gap-1"
-              style={{ backgroundColor: primaryColor, zIndex: 10 }}
+              style={{ backgroundColor: theme.primaryColor, zIndex: 10 }}
             >
               <TrendingUp className="w-3 h-3" />
               {discountPercent}% OFF
@@ -79,35 +82,32 @@ const ProductCard = ({ product, storeName, theme }: ProductCardProps) => {
           )}
 
           {/* Out of Stock Badge */}
-          {product.status === 'Inactive' && (
-            <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-red-500 text-white text-xs font-bold shadow-lg" style={{ zIndex: 10 }}>
+          {isOutOfStock && (
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-6 py-3 rounded-full bg-red-500 text-white text-sm font-bold shadow-2xl" style={{ zIndex: 10 }}>
               Out of Stock
             </div>
           )}
         </div>
 
         {/* Product Info */}
-        <div className="p-4 space-y-2">
+        <div className={cardStyles.details}>
           {/* Product Name */}
-          <h3 
-            className="text-sm font-semibold line-clamp-2 min-h-[2.5rem] group-hover:underline"
-            style={{ color: textColor }}
-          >
+          <h3 className={cardStyles.title}>
             {product.name}
           </h3>
 
           {/* Rating */}
           {product.averageRating !== undefined && product.reviewCount !== undefined && product.reviewCount > 0 && (
-            <div className="flex items-center gap-1">
+            <div className={cardStyles.rating}>
               <div className="flex items-center">
                 {[...Array(5)].map((_, i) => (
-                  <Star 
-                    key={i} 
+                  <Star
+                    key={i}
                     className={`w-3.5 h-3.5 ${
-                      i < Math.floor(product.averageRating!) 
-                        ? 'text-yellow-400 fill-yellow-400' 
+                      i < Math.floor(product.averageRating!)
+                        ? 'text-yellow-400 fill-yellow-400'
                         : 'text-gray-300'
-                    }`} 
+                    }`}
                   />
                 ))}
               </div>
@@ -119,14 +119,11 @@ const ProductCard = ({ product, storeName, theme }: ProductCardProps) => {
 
           {/* Price */}
           <div className="flex items-center gap-2 flex-wrap">
-            <span 
-              className="text-lg font-bold"
-              style={{ color: primaryColor }}
-            >
+            <span className={cardStyles.price}>
               LKR {product.price.toFixed(2)}
             </span>
             {hasDiscount && (
-              <span className="text-sm text-gray-400 line-through">
+              <span className={cardStyles.compareAtPrice}>
                 LKR {product.compareAtPrice!.toFixed(2)}
               </span>
             )}
@@ -148,8 +145,8 @@ const ProductCard = ({ product, storeName, theme }: ProductCardProps) => {
                   key={index}
                   className="px-2 py-0.5 text-xs rounded-full"
                   style={{ 
-                    backgroundColor: primaryColor + '15',
-                    color: primaryColor
+                    backgroundColor: theme.primaryColor + '15',
+                    color: theme.primaryColor
                   }}
                 >
                   {tag}

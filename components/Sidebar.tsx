@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, ShoppingCart, Package, Users, BarChart, Settings, LogOut, ChevronDown, Globe, Star } from "lucide-react";
+import { Home, ShoppingCart, Package, Users, BarChart, Settings, LogOut, ChevronDown, Globe, Star, Bell } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { auth } from "@/firebase";
+import { auth, db } from "@/firebase";
 import { signOut } from "firebase/auth";
 import { useState, useRef, useEffect } from "react";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
 
 const navLinks = [
   { href: "/dashboard", label: "Home", icon: Home },
@@ -15,6 +16,7 @@ const navLinks = [
   { href: "/dashboard/website", label: "Website", icon: Globe },
   { href: "/dashboard/customers", label: "Customers", icon: Users },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart },
+  { href: "/dashboard/notifications", label: "Notifications", icon: Bell, showBadge: true },
 ];
 
 const Sidebar = () => {
@@ -22,7 +24,26 @@ const Sidebar = () => {
   const router = useRouter();
   const { user } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Listen for unread notifications
+  useEffect(() => {
+    if (!user) return;
+
+    const notificationsRef = collection(db, 'notifications');
+    const q = query(
+      notificationsRef,
+      where('userId', '==', user.uid),
+      where('isRead', '==', false)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setUnreadCount(snapshot.size);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -78,7 +99,7 @@ const Sidebar = () => {
             <Link
               key={link.label}
               href={link.href}
-              className={`flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-150 ${
+              className={`flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-150 relative ${
                 isActive
                   ? "bg-blue-500 text-white shadow-md"
                   : "text-gray-700 hover:bg-blue-500/10 hover:text-blue-600"
@@ -86,6 +107,11 @@ const Sidebar = () => {
             >
               <link.icon className="w-5 h-5 mr-3" strokeWidth={2} />
               {link.label}
+              {link.showBadge && unreadCount > 0 && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-red-500 text-white text-xs font-bold rounded-full shadow-md">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </Link>
           );
         })}

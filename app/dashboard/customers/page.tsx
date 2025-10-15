@@ -204,25 +204,25 @@ export default function CustomersPage() {
           <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-gray-600">Total Orders</span>
-              <Package className="w-5 h-5 text-blue-500" />
+              <Package className="w-5 h-5 text-gray-500" />
             </div>
-            <div className="text-2xl font-bold text-blue-600">{stats.totalOrders}</div>
+            <div className="text-2xl font-bold text-gray-900">{stats.totalOrders}</div>
           </div>
 
           <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-gray-600">Total Revenue</span>
-              <TrendingUp className="w-5 h-5 text-green-500" />
+              <TrendingUp className="w-5 h-5 text-gray-500" />
             </div>
-            <div className="text-2xl font-bold text-green-600">LKR {stats.totalRevenue.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-gray-900">LKR {stats.totalRevenue.toFixed(2)}</div>
           </div>
 
           <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-gray-600">Avg Order Value</span>
-              <ShoppingCart className="w-5 h-5 text-purple-500" />
+              <ShoppingCart className="w-5 h-5 text-gray-500" />
             </div>
-            <div className="text-2xl font-bold text-purple-600">LKR {stats.avgOrderValue.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-gray-900">LKR {stats.avgOrderValue.toFixed(2)}</div>
           </div>
         </div>
 

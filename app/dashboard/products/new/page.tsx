@@ -38,6 +38,7 @@ const AddProductPage = () => {
   const [chargeTax, setChargeTax] = useState(true);
   const [variants, setVariants] = useState<{ name: string; options: string[] }[]>([]);
   const [relatedProducts, setRelatedProducts] = useState<string[]>([]);
+  const [variantStock, setVariantStock] = useState<{ [key: string]: number }>({});
   
   // Media states
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
@@ -127,6 +128,25 @@ const AddProductPage = () => {
         { value: 'other', label: 'Other' },
       ];
     }
+  };
+
+  const getVariantCombinations = () => {
+    if (variants.length === 0) return [];
+
+    const combinations = variants.reduce((acc, variant) => {
+      if (acc.length === 0) {
+        return variant.options.map(option => ({ [variant.name]: option }));
+      }
+      return acc.flatMap(combination =>
+        variant.options.map(option => ({ ...combination, [variant.name]: option }))
+      );
+    }, [] as { [key: string]: string }[]);
+
+    return combinations;
+  };
+
+  const handleVariantStockChange = (variantKey: string, value: string) => {
+    setVariantStock(prev => ({ ...prev, [variantKey]: parseInt(value) || 0 }));
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -259,8 +279,8 @@ const AddProductPage = () => {
         category: category || '',
         price: parseFloat(price) || 0,
         compareAtPrice: compareAtPrice ? parseFloat(compareAtPrice) : null,
-        inventory: inventoryTracked ? parseInt(quantity) || 0 : 0,
-        quantity: inventoryTracked ? parseInt(quantity) || 0 : 0,
+        inventory: inventoryTracked ? parseInt(quantity) || 0 : 999999,
+        quantity: inventoryTracked ? parseInt(quantity) || 0 : 999999,
         inventoryTracked,
         chargeTax,
         images: mediaUrls, // Renamed from mediaUrls for consistency
@@ -272,6 +292,7 @@ const AddProductPage = () => {
         updatedAt: serverTimestamp(),
         variants,
         relatedProducts,
+        variantStock,
         averageRating: 0,
         reviewCount: 0,
       };
@@ -734,6 +755,35 @@ const AddProductPage = () => {
                           </motion.div>
                         )}
                       </AnimatePresence>
+
+                      {inventoryTracked && variants.length > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="space-y-4 pt-4"
+                        >
+                          <h3 className="text-lg font-medium text-gray-900">Variant Stock</h3>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {getVariantCombinations().map(combination => {
+                              const variantKey = Object.values(combination).join(' / ');
+                              return (
+                                <div key={variantKey}>
+                                  <label className="block text-sm font-medium text-gray-700 mb-1">{variantKey}</label>
+                                  <input
+                                    type="number"
+                                    value={variantStock[variantKey] || ''}
+                                    onChange={(e) => handleVariantStockChange(variantKey, e.target.value)}
+                                    placeholder="0"
+                                    className="w-full px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm"
+                                  />
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </motion.div>
+                      )}
                     </div>
                   )}
 

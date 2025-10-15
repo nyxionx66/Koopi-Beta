@@ -60,13 +60,24 @@ export default function ProductDetailPage() {
     try {
       const productDoc = await getDoc(doc(db, 'products', productId));
       if (productDoc.exists() && productDoc.data().storeId === store.ownerId) {
-        const productData = { id: productDoc.id, ...productDoc.data() } as Product;
-        setProduct(productData);
+        const productData = { id: productDoc.id, ...productDoc.data() } as any;
+        
+        // Transform variants if they are in the old format
+        if (productData.variants && productData.variants.length > 0) {
+          productData.variants = productData.variants.map((variant: any) => ({
+            ...variant,
+            options: variant.options.map((option: any) =>
+              typeof option === 'string' ? { value: option } : option
+            ),
+          }));
+        }
+        
+        setProduct(productData as Product);
         
         // Initialize selected variants if product has variants
         if (productData.variants && productData.variants.length > 0) {
           const initialVariants: { [key: string]: string } = {};
-          productData.variants.forEach(variant => {
+          productData.variants.forEach((variant: { name: string; options: { value: string }[] }) => {
             if (variant.options.length > 0) {
               initialVariants[variant.name] = variant.options[0].value;
             }

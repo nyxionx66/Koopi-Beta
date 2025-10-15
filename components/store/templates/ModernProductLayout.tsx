@@ -90,7 +90,7 @@ export function ModernProductLayout({
                           key={optionIndex}
                           onClick={() => handleVariantChange(variant.name, option.value)}
                           disabled={isDisabled}
-                          className={`px-4 py-2 border-2 rounded-xl transition-all relative font-medium ${isDisabled ? 'cursor-not-allowed' : ''}`}
+                          className={`px-4 py-2 border-2 rounded-xl transition-all relative font-medium ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
                           style={{
                             borderColor: isSelected ? theme.primaryColor : theme.textColor + '30',
                             backgroundColor: isSelected ? theme.primaryColor + '15' : 'transparent',

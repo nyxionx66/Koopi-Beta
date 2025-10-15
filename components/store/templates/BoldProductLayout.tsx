@@ -90,7 +90,7 @@ export function BoldProductLayout({
                           key={optionIndex}
                           onClick={() => handleVariantChange(variant.name, option.value)}
                           disabled={isDisabled}
-                          className={`px-5 py-3 border-3 rounded-md transition-all relative font-bold uppercase tracking-wide ${isDisabled ? 'cursor-not-allowed' : ''}`}
+                          className={`px-5 py-3 border-3 rounded-md transition-all relative font-bold uppercase tracking-wide ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
                           style={{
                             borderWidth: '3px',
                             borderColor: isSelected ? theme.accentColor : theme.textColor + '40',

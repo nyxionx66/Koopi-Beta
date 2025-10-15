@@ -4,23 +4,10 @@ import Link from 'next/link';
 import { Star, Package, TrendingUp } from 'lucide-react';
 import { templates } from '@/lib/templates';
 
+import { Product } from '@/types';
+
 type ProductCardProps = {
-  product: {
-    id: string;
-    name: string;
-    price: number;
-    compareAtPrice?: number;
-    images?: string[];
-    imageUrls?: string[];
-    mediaUrls?: string[];
-    averageRating?: number;
-    reviewCount?: number;
-    tags?: string[];
-    status?: string;
-    variants?: { name: string; options: string[] }[];
-    inventoryTracked?: boolean;
-    quantity?: number;
-  };
+  product: Product;
   storeName: string;
   template: any;
 };
@@ -51,7 +38,7 @@ const ProductCard = ({ product, storeName, template }: ProductCardProps) => {
     <Link href={`/store/${storeName}/product/${product.id}`}>
       <div className={cardStyles.container}>
         {/* Image Container */}
-        <div className="relative w-full aspect-square bg-gray-50 overflow-hidden">
+        <div className="relative w-full bg-gray-50 overflow-hidden">
           {productImages.length > 0 ? (
             <>
               <img

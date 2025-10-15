@@ -52,7 +52,7 @@ export type Theme = {
   primaryColor: string;
   accentColor: string;
   backgroundColor?: string;
-  textColor?: string;
+  textColor: string;
   fontFamily?: string;
 };
 

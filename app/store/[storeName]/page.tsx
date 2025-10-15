@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/firebase';
@@ -15,6 +15,7 @@ import { templates, Template } from '@/lib/templates';
 import { InlineLoader } from '@/components/ui/InlineLoader';
 import ProductCard from '@/components/store/ProductCard';
 import { Product } from '@/types';
+import { ProductFilter, FilterState } from '@/components/store/ProductFilter';
 
 export default function StorePage() {
   const { storeData: store, loading } = useStore();
@@ -23,6 +24,13 @@ export default function StorePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [filters, setFilters] = useState<FilterState>({
+    searchTerm: '',
+    category: '',
+    priceMin: '',
+    priceMax: '',
+    sortBy: 'newest',
+  });
   const { addToCart, setIsCartOpen } = useCart();
   const { buyer, buyerProfile } = useBuyerAuth();
 
@@ -125,6 +133,70 @@ export default function StorePage() {
     setIsCartOpen(true);
   };
 
+  // Get unique categories from products
+  const categories = useMemo(() => {
+    const cats = new Set<string>();
+    products.forEach(product => {
+      if (product.category) {
+        cats.add(product.category);
+      }
+    });
+    return Array.from(cats).sort();
+  }, [products]);
+
+  // Filter and sort products
+  const filteredProducts = useMemo(() => {
+    let filtered = [...products];
+
+    // Search filter
+    if (filters.searchTerm) {
+      const searchLower = filters.searchTerm.toLowerCase();
+      filtered = filtered.filter(product => {
+        const nameMatch = product.name?.toLowerCase().includes(searchLower);
+        const descMatch = product.description?.toLowerCase().includes(searchLower);
+        const tagsMatch = product.tags?.some(tag => tag.toLowerCase().includes(searchLower));
+        return nameMatch || descMatch || tagsMatch;
+      });
+    }
+
+    // Category filter
+    if (filters.category) {
+      filtered = filtered.filter(product => product.category === filters.category);
+    }
+
+    // Price range filter
+    if (filters.priceMin) {
+      const minPrice = parseFloat(filters.priceMin);
+      filtered = filtered.filter(product => (product.price || 0) >= minPrice);
+    }
+    if (filters.priceMax) {
+      const maxPrice = parseFloat(filters.priceMax);
+      filtered = filtered.filter(product => (product.price || 0) <= maxPrice);
+    }
+
+    // Sort products
+    filtered.sort((a, b) => {
+      switch (filters.sortBy) {
+        case 'price-low':
+          return (a.price || 0) - (b.price || 0);
+        case 'price-high':
+          return (b.price || 0) - (a.price || 0);
+        case 'name-asc':
+          return (a.name || '').localeCompare(b.name || '');
+        case 'name-desc':
+          return (b.name || '').localeCompare(a.name || '');
+        case 'newest':
+        default:
+          // Sort by creation date (newest first)
+          const dateA = a.createdAt?.toDate?.() || new Date(0);
+          const dateB = b.createdAt?.toDate?.() || new Date(0);
+          return dateB.getTime() - dateA.getTime();
+      }
+    });
+
+    return filtered;
+  }, [products, filters]);
+
   const sectionOrder = store.website?.sectionOrder || ['hero', 'about'];
 
   const sectionComponents: { [key: string]: React.ReactNode } = {
@@ -226,12 +298,7 @@ export default function StorePage() {
         {/* Products Section */}
         <section id="products" className="py-12 sm:py-16 px-4 sm:px-6">
           <div className="max-w-7xl mx-auto">
-            <div className="flex items-center justify-between mb-6 sm:mb-8">
-              <h2 className="text-2xl sm:text-3xl font-bold" style={{ color: theme.textColor }}>Products</h2>
-              {!productsLoading && (
-                <div className="text-sm" style={{ color: theme.textColor, opacity: 0.7 }}>{products.length} items</div>
-              )}
-            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-6" style={{ color: theme.textColor }}>Products</h2>
 
             {productsLoading ? (
               <InlineLoader 
@@ -240,16 +307,34 @@ export default function StorePage() {
                 size="md"
               />
             ) : products.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {products.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    storeName={storeName}
-                    template={template}
-                  />
-                ))}
-              </div>
+              <>
+                <ProductFilter
+                  theme={theme}
+                  categories={categories}
+                  onFilterChange={setFilters}
+                  totalProducts={products.length}
+                  filteredCount={filteredProducts.length}
+                />
+
+                {filteredProducts.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {filteredProducts.map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        storeName={storeName}
+                        template={template}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-16">
+                    <Package className="w-16 h-16 mx-auto mb-4" style={{ color: theme.textColor, opacity: 0.4 }} />
+                    <h3 className="text-xl font-semibold mb-2" style={{ color: theme.textColor }}>No products match your filters</h3>
+                    <p style={{ color: theme.textColor, opacity: 0.7 }}>Try adjusting your search or filters</p>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="text-center py-16">
                 <Package className="w-16 h-16 mx-auto mb-4" style={{ color: theme.textColor, opacity: 0.4 }} />

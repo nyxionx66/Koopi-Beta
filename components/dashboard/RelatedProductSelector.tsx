@@ -11,9 +11,10 @@ import { InlineLoader } from '../ui/InlineLoader';
 type RelatedProductSelectorProps = {
   selectedProducts: string[];
   onChange: (selectedProducts: string[]) => void;
+  currentProductId?: string;
 };
 
-export function RelatedProductSelector({ selectedProducts, onChange }: RelatedProductSelectorProps) {
+export function RelatedProductSelector({ selectedProducts, onChange, currentProductId }: RelatedProductSelectorProps) {
   const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,7 +33,7 @@ export function RelatedProductSelector({ selectedProducts, onChange }: RelatedPr
       const q = query(productsRef, where('storeId', '==', user.uid));
       const snapshot = await getDocs(q);
       const productList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
-      setProducts(productList);
+      setProducts(productList.filter(p => p.id !== currentProductId));
     } catch (error) {
       console.error("Error fetching products: ", error);
     } finally {

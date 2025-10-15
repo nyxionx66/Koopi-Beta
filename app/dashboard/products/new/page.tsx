@@ -252,6 +252,26 @@ const AddProductPage = () => {
       return;
     }
 
+    // Validate category is required
+    if (!category) {
+      alert('Please select a category for your product');
+      return;
+    }
+
+    // Validate description minimum word count
+    const descriptionWords = description.trim().split(/\s+/).filter(word => word.length > 0);
+    if (descriptionWords.length < 20) {
+      alert(`Description must be at least 20 words. Currently: ${descriptionWords.length} words`);
+      return;
+    }
+
+    // Validate minimum 4 tags
+    const tagList = tags.split(',').map(tag => tag.trim()).filter(Boolean);
+    if (tagList.length < 4) {
+      alert(`Please add at least 4 tags. Currently: ${tagList.length} tags`);
+      return;
+    }
+
     // Validate minimum price
     const priceValue = parseFloat(price);
     if (isNaN(priceValue) || priceValue < 100) {
@@ -297,10 +317,7 @@ const AddProductPage = () => {
         productType: productType,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-        variants: variants.map(v => ({
-          ...v,
-          options: v.options.map(o => o.value)
-        })),
+        variants: variants,
         relatedProducts,
         variantStock,
         averageRating: 0,
@@ -371,7 +388,7 @@ const AddProductPage = () => {
 
   const steps = [
     { id: 1, title: 'Basic Info', icon: Package },
-    { id: 2, title: 'Images & Variants', icon: ImageIcon },
+    { id: 2, title: 'Media & Inventory', icon: ImageIcon },
     { id: 3, title: 'Pricing', icon: DollarSign },
   ];
 
@@ -517,7 +534,7 @@ const AddProductPage = () => {
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Description
+                      Description <span className="text-red-500">*</span>
                     </label>
                     <textarea
                       value={description}
@@ -526,13 +543,15 @@ const AddProductPage = () => {
                       className="w-full px-4 py-3.5 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm resize-none placeholder:text-gray-400 shadow-sm"
                       placeholder="Describe your product in detail... Tell customers what makes it special!"
                     />
-                    <p className="text-xs text-gray-500 mt-1.5">Give a detailed description to help customers understand your product</p>
+                    <p className="text-xs text-gray-500 mt-1.5">
+                      Minimum 20 words required. Current: {description.trim().split(/\s+/).filter(word => word.length > 0).length} words
+                    </p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Category
+                        Category <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <select
@@ -551,22 +570,25 @@ const AddProductPage = () => {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Tags (Optional)
+                        Tags <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
                         value={tags}
                         onChange={(e) => setTags(e.target.value)}
-                        placeholder="summer, cotton, casual"
+                        placeholder="summer, cotton, casual, comfortable"
                         className="w-full px-4 py-3.5 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm placeholder:text-gray-400 shadow-sm"
                       />
+                      <p className="text-xs text-gray-500 mt-1.5">
+                        Minimum 4 tags required (comma-separated). Current: {tags.split(',').map(tag => tag.trim()).filter(Boolean).length} tags
+                      </p>
                     </div>
                   </div>
                 </div>
               </motion.div>
             )}
 
-            {/* Step 2: Images & Variants */}
+            {/* Step 2: Media & Inventory */}
             {currentStep === 2 && (
               <motion.div
                 key="step2"
@@ -669,34 +691,86 @@ const AddProductPage = () => {
                   </div>
                   <VariantEditor variants={variants} onChange={setVariants} />
                 </div>
-                {inventoryTracked && variants.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="space-y-4 pt-4"
-                  >
-                    <h3 className="text-lg font-medium text-gray-900">Variant Stock</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {getVariantCombinations().map((combination, index) => {
-                        const variantKey = Object.values(combination).join(' / ');
-                        return (
-                          <div key={`${variantKey}-${index}`}>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">{variantKey}</label>
+
+                {/* Track Inventory Section - Moved from Step 3 */}
+                {productType !== 'digital' && (
+                  <div className="pt-7 border-t border-gray-200/50">
+                    <div className="bg-gradient-to-br from-green-50/50 to-white/50 p-5 rounded-2xl border border-green-200/50 shadow-sm">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <label className="text-sm font-medium text-gray-900">Track Inventory</label>
+                          <p className="text-xs text-gray-500 mt-0.5">Monitor stock levels for this product</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={inventoryTracked}
+                            onChange={(e) => setInventoryTracked(e.target.checked)}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500 shadow-inner"></div>
+                        </label>
+                      </div>
+                      
+                      <AnimatePresence>
+                        {inventoryTracked && variants.length === 0 && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <label className="block text-sm font-medium text-gray-700 mb-2 mt-3">
+                              Quantity in Stock
+                            </label>
                             <input
                               type="number"
-                              value={variantStock[variantKey] || ''}
-                              onChange={(e) => handleVariantStockChange(variantKey, e.target.value)}
+                              value={quantity}
+                              onChange={(e) => setQuantity(e.target.value)}
+                              className="w-full px-4 py-3.5 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base font-medium"
                               placeholder="0"
-                              className="w-full px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm"
                             />
-                          </div>
-                        );
-                      })}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
-                  </motion.div>
+                  </div>
                 )}
+
+                {/* Variant Stock Section - Now appears AFTER Track Inventory as separate section */}
+                <AnimatePresence>
+                  {inventoryTracked && variants.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.3 }}
+                      className="pt-7 border-t border-gray-200/50"
+                    >
+                      <div className="mb-5">
+                        <h2 className="text-2xl font-semibold text-gray-900 mb-1">Variant Stock Levels</h2>
+                        <p className="text-gray-600">Set stock quantity for each variant combination</p>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {getVariantCombinations().map((combination, index) => {
+                          const variantKey = Object.values(combination).join(' / ');
+                          return (
+                            <div key={`${variantKey}-${index}`} className="bg-white/80 p-4 rounded-xl border border-gray-200 shadow-sm">
+                              <label className="block text-sm font-medium text-gray-900 mb-2">{variantKey}</label>
+                              <input
+                                type="number"
+                                value={variantStock[variantKey] || ''}
+                                onChange={(e) => handleVariantStockChange(variantKey, e.target.value)}
+                                placeholder="0"
+                                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm"
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
             )}
 
@@ -711,8 +785,8 @@ const AddProductPage = () => {
                 className="space-y-7"
               >
                 <div className="pb-5">
-                  <h2 className="text-3xl font-semibold text-gray-900 mb-1">Pricing & Inventory</h2>
-                  <p className="text-gray-600">Set your product pricing and manage stock levels</p>
+                  <h2 className="text-3xl font-semibold text-gray-900 mb-1">Pricing</h2>
+                  <p className="text-gray-600">Set your product pricing</p>
                 </div>
 
                 <div className="space-y-5">
@@ -754,45 +828,24 @@ const AddProductPage = () => {
                     </div>
                   </div>
 
-                  {productType !== 'digital' && (
+                  {/* Inventory Summary - Show read-only info if tracking is enabled */}
+                  {inventoryTracked && (
                     <div className="bg-gradient-to-br from-green-50/50 to-white/50 p-5 rounded-2xl border border-green-200/50 shadow-sm">
-                      <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center justify-between">
                         <div>
-                          <label className="text-sm font-medium text-gray-900">Track Inventory</label>
-                          <p className="text-xs text-gray-500 mt-0.5">Monitor stock levels for this product</p>
+                          <label className="text-sm font-medium text-gray-900">Inventory Tracking</label>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            {variants.length > 0 
+                              ? `Stock configured for ${getVariantCombinations().length} variant${getVariantCombinations().length !== 1 ? 's' : ''}`
+                              : `${quantity || 0} items in stock`
+                            }
+                          </p>
                         </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={inventoryTracked}
-                            onChange={(e) => setInventoryTracked(e.target.checked)}
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500 shadow-inner"></div>
-                        </label>
+                        <div className="flex items-center gap-2 text-green-600">
+                          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                          <span className="text-sm font-medium">Active</span>
+                        </div>
                       </div>
-                      
-                      <AnimatePresence>
-                        {inventoryTracked && (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.2 }}
-                          >
-                            <label className="block text-sm font-medium text-gray-700 mb-2 mt-3">
-                              Quantity in Stock
-                            </label>
-                            <input
-                              type="number"
-                              value={quantity}
-                              onChange={(e) => setQuantity(e.target.value)}
-                              className="w-full px-4 py-3.5 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base font-medium"
-                              placeholder="0"
-                            />
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
                     </div>
                   )}
 

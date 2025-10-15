@@ -12,7 +12,7 @@ export const templates = {
     },
     productCard: {
       container: 'group bg-white border border-gray-200 rounded-lg overflow-hidden transition-shadow hover:shadow-xl',
-      image: 'w-full h-56 object-cover group-hover:opacity-90 transition-opacity',
+      image: 'w-full h-56 object-contain group-hover:opacity-90 group-hover:scale-105 transition-all duration-300',
       details: 'p-5',
       title: 'font-serif text-xl font-medium text-gray-800',
       description: 'text-sm text-gray-500 mt-2 line-clamp-2',
@@ -34,7 +34,7 @@ export const templates = {
     },
     productCard: {
       container: 'group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300',
-      image: 'w-full h-60 object-cover group-hover:scale-105 transition-transform duration-300',
+      image: 'w-full h-60 object-contain group-hover:scale-105 transition-transform duration-300',
       details: 'p-6',
       title: 'font-bold text-xl text-gray-900',
       description: 'text-sm text-gray-500 mt-2 line-clamp-2 h-10',
@@ -56,7 +56,7 @@ export const templates = {
     },
     productCard: {
       container: 'group text-left',
-      image: 'w-full h-72 object-cover mb-4 rounded-lg',
+      image: 'w-full h-72 object-contain mb-4 rounded-lg group-hover:scale-105 transition-transform duration-300',
       details: 'px-1',
       title: 'font-semibold text-lg tracking-wide text-black',
       description: 'hidden',
@@ -78,7 +78,7 @@ export const templates = {
     },
     productCard: {
       container: 'group bg-black text-white rounded-lg overflow-hidden border-2 border-black hover:border-yellow-400 transition-all duration-300 transform hover:-translate-y-1',
-      image: 'w-full h-56 object-cover transition-transform duration-300',
+      image: 'w-full h-56 object-contain group-hover:scale-105 transition-transform duration-300',
       details: 'p-6',
       title: 'text-2xl font-extrabold uppercase tracking-wider text-yellow-400',
       description: 'text-sm opacity-70 mt-2 line-clamp-2 h-10',

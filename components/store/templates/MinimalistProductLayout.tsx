@@ -90,7 +90,7 @@ export function MinimalistProductLayout({
                           key={optionIndex}
                           onClick={() => handleVariantChange(variant.name, option.value)}
                           disabled={isDisabled}
-                          className={`px-4 py-2 border-2 transition-all relative ${isDisabled ? 'cursor-not-allowed' : ''}`}
+                          className={`px-4 py-2 border-2 transition-all relative ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer hover:scale-105'}`}
                           style={{
                             borderColor: isSelected ? theme.textColor : theme.textColor + '30',
                             backgroundColor: isSelected ? theme.textColor : 'transparent',

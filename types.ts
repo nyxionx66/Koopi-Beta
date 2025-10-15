@@ -111,6 +111,13 @@ export type Order = {
     image?: string;
     variant?: { [key: string]: string };
   }>;
+  discount?: {
+    promotionId: string;
+    code: string;
+    discountType: 'percentage' | 'fixed' | 'free_shipping';
+    discountValue: number;
+    discountAmount: number;
+  };
   subtotal: number;
   shipping: number;
   tax: number;
@@ -154,4 +161,34 @@ export type Notification = {
   isRead: boolean;
   createdAt: any;
   link?: string;
+};
+
+export type Promotion = {
+  id: string;
+  storeId: string;
+  code: string;
+  name: string;
+  description?: string;
+  discountType: 'percentage' | 'fixed' | 'free_shipping';
+  discountValue: number; // Percentage (0-100) or Fixed amount in currency
+  applicationType: 'entire_order' | 'specific_products';
+  applicableProductIds?: string[]; // Product IDs if applicationType is 'specific_products'
+  conditions: {
+    minPurchaseAmount?: number;
+    startDate?: any;
+    endDate?: any;
+    maxTotalUses?: number;
+    maxUsesPerCustomer?: number;
+    newProductsOnly?: boolean;
+  };
+  currentUses: number;
+  usageHistory?: Array<{
+    buyerId: string;
+    buyerEmail: string;
+    orderId: string;
+    usedAt: any;
+  }>;
+  isActive: boolean;
+  createdAt: any;
+  updatedAt: any;
 };

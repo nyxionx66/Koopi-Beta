@@ -2,16 +2,18 @@
 
 import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { X, ShoppingCart, Minus, Plus, Trash2 } from 'lucide-react';
+import { X, ShoppingCart, Minus, Plus, Trash2, Tag } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import Link from 'next/link';
 
 export default function Cart() {
   const router = useRouter();
   const params = useParams();
-  const { items, removeFromCart, updateQuantity, getSubtotal, isCartOpen, setIsCartOpen } = useCart();
+  const { items, removeFromCart, updateQuantity, getSubtotal, getDiscount, getTotal, appliedDiscount, removeDiscount, isCartOpen, setIsCartOpen } = useCart();
 
   const subtotal = getSubtotal();
+  const discount = getDiscount();
+  const total = getTotal();
   
   // Extract store name from current URL if available
   const storeName = params?.storeName as string || (items.length > 0 ? items[0].storeName : null);
@@ -125,13 +127,39 @@ export default function Cart() {
           )}
         </div>
 
-        {/* Footer with Subtotal */}
+        {/* Footer with Subtotal & Discount */}
         {items.length > 0 && (
           <div className="border-t border-gray-200/50 p-4 bg-white/50">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-gray-700 font-medium">Subtotal:</span>
-              <span className="text-xl font-bold text-gray-900">LKR {subtotal.toFixed(2)}</span>
+            <div className="space-y-2 mb-4">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600">Subtotal:</span>
+                <span className="font-medium text-gray-900">LKR {subtotal.toFixed(2)}</span>
+              </div>
+              
+              {appliedDiscount && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-green-600 flex items-center gap-1">
+                    <Tag className="w-3.5 h-3.5" />
+                    Discount ({appliedDiscount.code})
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-green-600">-LKR {discount.toFixed(2)}</span>
+                    <button
+                      onClick={removeDiscount}
+                      className="text-xs text-red-600 hover:text-red-700 underline"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              )}
+              
+              <div className="flex items-center justify-between pt-2 border-t border-gray-200/50">
+                <span className="text-gray-900 font-semibold">Total:</span>
+                <span className="text-xl font-bold text-gray-900">LKR {total.toFixed(2)}</span>
+              </div>
             </div>
+            
             <button
               className="w-full py-3 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 transition-colors shadow-md active:scale-95"
               onClick={() => {

@@ -34,6 +34,15 @@ const ProductCard = ({ product, storeName, template }: ProductCardProps) => {
   // Check if product is out of stock
   const isOutOfStock = product.inventoryTracked && (product.quantity === 0 || product.quantity === undefined);
 
+  // Check if product is new (created in last 30 days)
+  const isNewProduct = (() => {
+    if (!product.createdAt) return false;
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const productDate = product.createdAt.toDate ? product.createdAt.toDate() : new Date(product.createdAt);
+    return productDate >= thirtyDaysAgo;
+  })();
+
   return (
     <Link href={`/store/${storeName}/product/${product.id}`}>
       <div className={cardStyles.container}>
@@ -65,6 +74,13 @@ const ProductCard = ({ product, storeName, template }: ProductCardProps) => {
             >
               <TrendingUp className="w-3 h-3" />
               {discountPercent}% OFF
+            </div>
+          )}
+
+          {/* New Product Badge */}
+          {isNewProduct && !isOutOfStock && !hasDiscount && (
+            <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold shadow-lg flex items-center gap-1" style={{ zIndex: 10 }}>
+              ⭐ NEW
             </div>
           )}
 

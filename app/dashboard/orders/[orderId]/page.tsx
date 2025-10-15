@@ -373,6 +373,12 @@ function OrderDetailPage() {
                   <span className="text-gray-600">Subtotal</span>
                   <span className="font-medium">LKR {order.subtotal.toFixed(2)}</span>
                 </div>
+                {order.discount && order.discount.discountAmount > 0 && (
+                  <div className="flex justify-between text-sm text-green-600">
+                    <span>Discount ({order.discount.code})</span>
+                    <span className="font-medium">-LKR {order.discount.discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Shipping</span>
                   <span className="font-medium">{order.shipping === 0 ? 'Free' : `LKR ${order.shipping.toFixed(2)}`}</span>

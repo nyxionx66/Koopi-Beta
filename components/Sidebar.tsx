@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, ShoppingCart, Package, Users, BarChart, Settings, LogOut, ChevronDown, Globe, Star, Bell, X } from "lucide-react";
+import { Home, ShoppingCart, Package, Users, BarChart, Settings, LogOut, ChevronDown, Globe, Star, Bell, X, Tags } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { auth, db } from "@/firebase";
 import { signOut } from "firebase/auth";
@@ -13,6 +13,7 @@ const navLinks = [
   { href: "/dashboard", label: "Home", icon: Home },
   { href: "/dashboard/orders", label: "Orders", icon: ShoppingCart },
   { href: "/dashboard/products", label: "Products", icon: Package },
+  { href: "/dashboard/promotions", label: "Promotions", icon: Tags },
   { href: "/dashboard/website", label: "Website", icon: Globe },
   { href: "/dashboard/customers", label: "Customers", icon: Users },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart },

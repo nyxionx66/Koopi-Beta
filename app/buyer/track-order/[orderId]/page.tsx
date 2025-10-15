@@ -259,6 +259,12 @@ export default function TrackOrderPage() {
                   <span>Subtotal</span>
                   <span className="font-medium">LKR {order.subtotal.toFixed(2)}</span>
                 </div>
+                {order.discount && order.discount.discountAmount > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Discount ({order.discount.code})</span>
+                    <span className="font-medium">-LKR {order.discount.discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
                 <div className={`flex justify-between ${themeStyles.text}`}>
                   <span>Shipping</span>
                   <span className="font-medium">LKR {order.shipping.toFixed(2)}</span>

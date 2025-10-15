@@ -4,13 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useCart } from '@/contexts/CartContext';
 import { useBuyerAuth } from '@/contexts/BuyerAuthContext';
-import { collection, serverTimestamp, runTransaction, doc } from 'firebase/firestore';
+import { collection, serverTimestamp, runTransaction, doc, updateDoc, increment, arrayUnion } from 'firebase/firestore';
 import { db } from '@/firebase';
 import { ArrowLeft, Package, User, MapPin, CreditCard, Check, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 import { useStore } from '@/contexts/StoreContext';
 import { ButtonLoader } from '@/components/ui/ButtonLoader';
 import { useTheme } from '@/contexts/ThemeContext';
+import DiscountCodeInput from '@/components/DiscountCodeInput';
 
 type CheckoutStep = 'auth' | 'shipping' | 'review';
 
@@ -30,7 +31,7 @@ export default function CheckoutPage() {
   const params = useParams();
   const router = useRouter();
   const storeName = params.storeName as string;
-  const { items, getSubtotal, clearCart } = useCart();
+  const { items, getSubtotal, getDiscount, getTotal, appliedDiscount, applyDiscount, removeDiscount, clearCart } = useCart();
   const { buyer, buyerProfile } = useBuyerAuth();
   const { storeData, loading: themeLoading } = useStore();
   const { theme, setTheme, themeStyles } = useTheme();
@@ -77,9 +78,10 @@ export default function CheckoutPage() {
   }, [buyer, buyerProfile, items.length, storeName, router]);
 
   const subtotal = getSubtotal();
-  const shipping = 0; // Free shipping for now
+  const discount = getDiscount();
+  const shipping = appliedDiscount?.discountType === 'free_shipping' ? 0 : 0; // Free shipping if discount type or base
   const tax = 0; // No tax calculation for now
-  const total = subtotal + shipping + tax;
+  const total = Math.max(0, subtotal - discount + shipping + tax);
 
 
   const handleShippingSubmit = (e: React.FormEvent) => {
@@ -129,6 +131,7 @@ export default function CheckoutPage() {
             storeName: item.storeName,
             variant: item.variant || null,
           })),
+          discount: appliedDiscount || null,
           storeId: items.length > 0 ? items[0].storeId : null,
           storeName: storeName,
           subtotal,
@@ -138,6 +141,21 @@ export default function CheckoutPage() {
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         };
+
+        // 1.5. Update promotion usage if discount applied
+        if (appliedDiscount) {
+          const promotionRef = doc(db, 'promotions', appliedDiscount.promotionId);
+          transaction.update(promotionRef, {
+            currentUses: increment(1),
+            usageHistory: arrayUnion({
+              buyerId: buyer?.uid || null,
+              buyerEmail: shippingInfo.email,
+              orderId: orderRef.id,
+              usedAt: serverTimestamp(),
+            }),
+            updatedAt: serverTimestamp(),
+          });
+        }
 
         // 2. Update stock for each item
         for (const item of items) {
@@ -432,9 +450,9 @@ export default function CheckoutPage() {
 
             {/* Order Summary Sidebar */}
             <div>
-              <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sticky top-4">
-                <h3 className="font-semibold text-gray-900 mb-4">Order Summary</h3>
-                <div className="space-y-3 mb-4">
+              <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-6 sticky top-4 space-y-4">
+                <h3 className="font-semibold text-gray-900">Order Summary</h3>
+                <div className="space-y-3">
                   {items.slice(0, 3).map((item) => (
                     <div key={item.id} className="flex gap-3 text-sm">
                       <div className="w-12 h-12 bg-white/50 rounded flex-shrink-0 border border-gray-200/50">
@@ -456,11 +474,34 @@ export default function CheckoutPage() {
                     <p className="text-sm text-gray-600">+{items.length - 3} more items</p>
                   )}
                 </div>
+
+                {/* Discount Code Input */}
+                <div className="border-t border-gray-200/50 pt-4">
+                  <DiscountCodeInput
+                    storeId={storeData?.ownerId || ''}
+                    storeName={storeName}
+                    cartSubtotal={subtotal}
+                    cartItems={items}
+                    onDiscountApplied={applyDiscount}
+                    currentDiscount={appliedDiscount ? {
+                      code: appliedDiscount.code,
+                      discountAmount: discount,
+                    } : null}
+                    onDiscountRemoved={removeDiscount}
+                  />
+                </div>
+
                 <div className="border-t border-gray-200/50 pt-3 space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal</span>
                     <span className="font-medium">LKR {subtotal.toFixed(2)}</span>
                   </div>
+                  {appliedDiscount && discount > 0 && (
+                    <div className="flex justify-between text-green-600">
+                      <span>Discount ({appliedDiscount.code})</span>
+                      <span className="font-medium">-LKR {discount.toFixed(2)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span className="text-gray-600">Shipping</span>
                     <span className="font-medium">Free</span>
@@ -588,6 +629,12 @@ export default function CheckoutPage() {
                   <span className="text-gray-600">Subtotal</span>
                   <span className="font-medium">LKR {subtotal.toFixed(2)}</span>
                 </div>
+                {appliedDiscount && discount > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Discount ({appliedDiscount.code})</span>
+                    <span className="font-medium">-LKR {discount.toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipping</span>
                   <span className="font-medium">Free</span>

@@ -4,7 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '@/firebase';
-import { Tags, PlusCircle, Search, Edit, Trash2, Copy, Calendar, TrendingUp, Users, CheckCircle, XCircle, Package, Sparkles } from 'lucide-react';
+import { Tags, PlusCircle, Search, Edit, Trash2, Copy, Calendar, TrendingUp, Users, CheckCircle, XCircle, Package, Sparkles, AlertCircle, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 import { Promotion, Product } from '@/types';
 import withAuth from '@/components/withAuth';
 
@@ -622,8 +623,20 @@ function PromotionsPage() {
                   required
                 >
                   <option value="entire_order">Entire Order</option>
-                  <option value="specific_products">Specific Products</option>
+                  <option value="specific_products">Specific Products {products.length === 0 ? '(No products available)' : ''}</option>
                 </select>
+                
+                {formData.applicationType === 'specific_products' && products.length === 0 && (
+                  <div className="mt-3 flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm text-amber-800 font-medium">No products available</p>
+                      <p className="text-xs text-amber-700 mt-1">
+                        Create products first or switch to &quot;Entire Order&quot; to continue.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Product Selection */}
@@ -632,31 +645,59 @@ function PromotionsPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Select Products *
                   </label>
-                  <div className="max-h-40 overflow-y-auto border border-gray-300 rounded-lg p-3 space-y-2">
-                    {products.map(product => (
-                      <label key={product.id} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
-                        <input
-                          type="checkbox"
-                          checked={formData.applicableProductIds.includes(product.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setFormData({
-                                ...formData,
-                                applicableProductIds: [...formData.applicableProductIds, product.id]
-                              });
-                            } else {
-                              setFormData({
-                                ...formData,
-                                applicableProductIds: formData.applicableProductIds.filter(id => id !== product.id)
-                              });
-                            }
-                          }}
-                          className="w-4 h-4 text-blue-500 rounded focus:ring-2 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">{product.name}</span>
-                      </label>
-                    ))}
-                  </div>
+                  
+                  {products.length === 0 ? (
+                    <div className="border border-gray-300 rounded-lg p-6 bg-gradient-to-br from-blue-50 to-purple-50">
+                      <div className="flex flex-col items-center text-center space-y-3">
+                        <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                          <Package className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-semibold text-gray-900 mb-1">No Products Available</h3>
+                          <p className="text-xs text-gray-600 mb-3">
+                            You need to create products first before applying promotions to specific items.
+                          </p>
+                        </div>
+                        <Link
+                          href="/dashboard/products/new"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full text-sm font-medium shadow-md hover:shadow-lg active:scale-95 transition-all duration-150"
+                        >
+                          <PlusCircle className="w-4 h-4" />
+                          Create Your First Product
+                          <ArrowRight className="w-4 h-4" />
+                        </Link>
+                        <p className="text-xs text-gray-500 mt-2">
+                          Or switch to &quot;Entire Order&quot; to apply this promotion to all items
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="max-h-40 overflow-y-auto border border-gray-300 rounded-lg p-3 space-y-2">
+                      {products.map(product => (
+                        <label key={product.id} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                          <input
+                            type="checkbox"
+                            checked={formData.applicableProductIds.includes(product.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setFormData({
+                                  ...formData,
+                                  applicableProductIds: [...formData.applicableProductIds, product.id]
+                                });
+                              } else {
+                                setFormData({
+                                  ...formData,
+                                  applicableProductIds: formData.applicableProductIds.filter(id => id !== product.id)
+                                });
+                              }
+                            }}
+                            className="w-4 h-4 text-blue-500 rounded focus:ring-2 focus:ring-blue-500"
+                          />
+                          <span className="text-sm text-gray-700">{product.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -760,7 +801,7 @@ function PromotionsPage() {
               </div>
             </form>
 
-            <div className="p-6 border-t border-gray-200 flex items-center justify-end gap-3">
+            <div className="p-6 border-t border-gray-200 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
               <button
                 type="button"
                 onClick={resetForm}
@@ -770,7 +811,12 @@ function PromotionsPage() {
               </button>
               <button
                 onClick={handleSubmit}
-                className="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-full text-sm font-medium shadow-md active:scale-95 transition-all"
+                disabled={formData.applicationType === 'specific_products' && (products.length === 0 || formData.applicableProductIds.length === 0)}
+                className={`px-5 py-2.5 rounded-full text-sm font-medium shadow-md transition-all ${
+                  formData.applicationType === 'specific_products' && (products.length === 0 || formData.applicableProductIds.length === 0)
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-blue-500 hover:bg-blue-600 text-white active:scale-95'
+                }`}
               >
                 {editingPromotion ? 'Update Promotion' : 'Create Promotion'}
               </button>

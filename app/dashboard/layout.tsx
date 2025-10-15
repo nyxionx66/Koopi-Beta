@@ -12,29 +12,36 @@ export default function DashboardLayout({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="relative min-h-screen md:flex bg-gray-100 text-neutral-800">
-      {/* Mobile Menu Overlay */}
-      {isSidebarOpen && (
-        <div
-          onClick={() => setIsSidebarOpen(false)}
-          className="fixed inset-0 z-10 bg-black opacity-50 md:hidden"
-        ></div>
-      )}
-
+    <div className="relative min-h-screen md:flex bg-[#f5f5f7] text-neutral-800">
       {/* Sidebar */}
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
       {/* Main Content */}
-      <main className="flex-1 p-6 md:p-8 md:ml-64">
-        {/* Hamburger menu button for mobile */}
-        <div className="md:hidden flex items-center justify-between mb-4">
-          <h1 className="text-lg font-semibold">Dashboard</h1>
-          <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-            <Menu className="h-6 w-6" />
-          </button>
+      <main className="flex-1 md:ml-64 transition-all duration-300">
+        {/* Mobile Top Bar */}
+        <div className="md:hidden sticky top-0 z-20 backdrop-blur-xl bg-white/80 border-b border-white/30 shadow-sm">
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+              </div>
+              <h1 className="text-lg font-bold text-gray-900">Koopi</h1>
+            </div>
+            <button 
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="p-2 hover:bg-white/80 rounded-lg transition-colors active:scale-95"
+            >
+              <Menu className="h-6 w-6 text-gray-700" />
+            </button>
+          </div>
         </div>
 
-        {children}
+        {/* Content Area */}
+        <div className="p-0">
+          {children}
+        </div>
       </main>
     </div>
   );

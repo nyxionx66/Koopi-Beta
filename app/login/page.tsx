@@ -16,6 +16,7 @@ import { ButtonLoader } from '@/components/ui/ButtonLoader';
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -118,6 +119,27 @@ function LoginPage() {
                     className="w-full pl-12 pr-4 py-3 bg-white/80 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm placeholder:text-gray-400 shadow-sm"
                   />
                 </div>
+              </div>
+
+              {/* Remember Me Checkbox */}
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="w-4 h-4 text-blue-500 rounded border-gray-300 focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                  />
+                  <span className="text-sm text-gray-700 group-hover:text-gray-900">
+                    Remember me
+                  </span>
+                </label>
+                <Link
+                  href="#"
+                  className="text-sm font-semibold text-blue-600 hover:underline"
+                >
+                  Forgot password?
+                </Link>
               </div>
 
               {error && (

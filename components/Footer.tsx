@@ -70,22 +70,22 @@ export function Footer() {
             <h3 className="font-semibold text-gray-900 mb-4">Support</h3>
             <ul className="space-y-3">
               <li>
-                <Link href="#help" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                <Link href="/help" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
                   Help Center
                 </Link>
               </li>
               <li>
-                <Link href="#docs" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                <Link href="/docs" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
                   Documentation
                 </Link>
               </li>
               <li>
-                <Link href="#community" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                <Link href="/community" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
                   Community
                 </Link>
               </li>
               <li>
-                <Link href="#status" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                <Link href="/status" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
                   Status
                 </Link>
               </li>
@@ -94,9 +94,19 @@ export function Footer() {
         </div>
 
         <div className="pt-8 border-t border-gray-200/50 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-gray-600 text-center sm:text-left">
-            © 2025 Koopi. All rights reserved.
-          </p>
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <p className="text-sm text-gray-600 text-center sm:text-left">
+              © 2025 Koopi. All rights reserved.
+            </p>
+            <div className="flex gap-4">
+              <Link href="/terms" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                Terms
+              </Link>
+              <Link href="/terms" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                Privacy
+              </Link>
+            </div>
+          </div>
           <div className="flex gap-6">
             <Link href="#twitter" className="text-gray-500 hover:text-gray-900 transition-colors">
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

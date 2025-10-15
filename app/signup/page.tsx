@@ -29,6 +29,7 @@ function SignUpPage() {
     storeName: '',
     storeDescription: '',
     storeCategory: '',
+    agreeToTerms: false,
   });
   const [error, setError] = useState('');
   const [storeNameStatus, setStoreNameStatus] = useState<'checking' | 'available' | 'unavailable' | 'idle'>('idle');
@@ -103,6 +104,12 @@ function SignUpPage() {
 
     if (currentStep < steps.length) {
       handleNext();
+      return;
+    }
+
+    // Check terms acceptance
+    if (!formData.agreeToTerms) {
+      setError('You must agree to the Terms and Conditions to continue');
       return;
     }
 
@@ -483,6 +490,28 @@ function SignUpPage() {
                                 </svg>
                               </div>
                             </div>
+                          </div>
+
+                          {/* Terms and Conditions Checkbox */}
+                          <div className="mt-6">
+                            <label className="flex items-start gap-3 cursor-pointer group">
+                              <input
+                                type="checkbox"
+                                checked={formData.agreeToTerms}
+                                onChange={(e) => setFormData({ ...formData, agreeToTerms: e.target.checked })}
+                                className="w-5 h-5 text-blue-500 rounded border-gray-300 focus:ring-2 focus:ring-blue-500 mt-0.5 cursor-pointer"
+                              />
+                              <span className="text-sm text-gray-700 leading-relaxed">
+                                I agree to the{' '}
+                                <Link href="/terms" target="_blank" className="font-semibold text-blue-600 hover:underline">
+                                  Terms and Conditions
+                                </Link>
+                                {' '}and{' '}
+                                <Link href="/terms" target="_blank" className="font-semibold text-blue-600 hover:underline">
+                                  Privacy Policy
+                                </Link>
+                              </span>
+                            </label>
                           </div>
                         </motion.div>
                       )}

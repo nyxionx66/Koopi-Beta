@@ -100,40 +100,62 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
       {/* Overlay for mobile */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/30 z-30 md:hidden"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 md:hidden animate-fadeIn"
           onClick={() => setIsOpen(false)}
         ></div>
       )}
 
       <aside
-        className={`fixed md:fixed top-0 left-0 w-64 h-screen bg-white/80 backdrop-blur-xl text-gray-800 flex flex-col border-r border-white/20 shadow-lg z-40 transform transition-transform duration-300 ease-in-out md:translate-x-0 overflow-y-auto ${
+        className={`fixed md:fixed top-0 left-0 w-72 md:w-64 h-screen bg-gradient-to-b from-white/90 to-white/80 backdrop-blur-2xl text-gray-800 flex flex-col border-r border-white/30 shadow-2xl z-40 transform transition-all duration-300 ease-out md:translate-x-0 overflow-hidden ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between p-4 md:hidden">
-          <h1 className="text-lg font-semibold">Menu</h1>
-          <button onClick={() => setIsOpen(false)}>
-            <X className="h-6 w-6" />
+        {/* Mobile Header */}
+        <div className="flex items-center justify-between p-5 md:hidden border-b border-gray-200/50 bg-gradient-to-r from-blue-500/10 to-purple-500/10">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+              <Package className="w-5 h-5 text-white" />
+            </div>
+            <h1 className="text-lg font-bold text-gray-900">Koopi</h1>
+          </div>
+          <button 
+            onClick={() => setIsOpen(false)}
+            className="p-2 hover:bg-white/80 rounded-lg transition-colors"
+          >
+            <X className="h-5 w-5 text-gray-600" />
           </button>
         </div>
+
+        {/* Desktop Brand */}
+        <div className="hidden md:flex items-center gap-3 p-5 border-b border-gray-200/50">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+            <Package className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-lg font-bold text-gray-900">Koopi</h1>
+            <p className="text-xs text-gray-600">E-Commerce Platform</p>
+          </div>
+        </div>
+        
         {/* Navigation Links */}
-        <nav className="flex-1 px-4 py-6 space-y-1">
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
           return (
             <Link
               key={link.label}
               href={link.href}
-              className={`flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-150 relative ${
+              onClick={() => setIsOpen(false)}
+              className={`group flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 relative ${
                 isActive
-                  ? "bg-blue-500 text-white shadow-md"
-                  : "text-gray-700 hover:bg-blue-500/10 hover:text-blue-600"
+                  ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30"
+                  : "text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-blue-600"
               }`}
             >
-              <link.icon className="w-5 h-5 mr-3" strokeWidth={2} />
-              {link.label}
+              <link.icon className={`w-5 h-5 mr-3 transition-transform group-hover:scale-110 ${isActive ? 'animate-pulse' : ''}`} strokeWidth={2} />
+              <span className="flex-1">{link.label}</span>
               {link.showBadge && unreadCount > 0 && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-red-500 text-white text-xs font-bold rounded-full shadow-md">
+                <span className="flex items-center justify-center min-w-[22px] h-5 px-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold rounded-full shadow-lg shadow-red-500/30 animate-bounce">
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
@@ -143,43 +165,45 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
       </nav>
 
       {/* Settings & Subscription */}
-     <div className="px-4 pb-3 space-y-1">
+      <div className="px-3 pb-3 space-y-1 border-t border-gray-200/50 pt-3">
        <Link
          href="/dashboard/subscription"
-         className={`flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+         onClick={() => setIsOpen(false)}
+         className={`group flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
            pathname === '/dashboard/subscription'
-             ? "bg-blue-500 text-white shadow-md"
-             : "text-gray-700 hover:bg-blue-500/10 hover:text-blue-600"
+             ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/30"
+             : "text-gray-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-yellow-50 hover:text-amber-600"
          }`}
        >
-         <Star className="w-5 h-5 mr-3" strokeWidth={2} />
+         <Star className={`w-5 h-5 mr-3 transition-transform group-hover:scale-110 ${pathname === '/dashboard/subscription' ? 'animate-pulse' : ''}`} strokeWidth={2} />
          Subscription
        </Link>
        <Link
          href="/dashboard/settings"
-         className={`flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+         onClick={() => setIsOpen(false)}
+         className={`group flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
            pathname === '/dashboard/settings'
-             ? "bg-blue-500 text-white shadow-md"
-             : "text-gray-700 hover:bg-blue-500/10 hover:text-blue-600"
+             ? "bg-gradient-to-r from-gray-700 to-gray-800 text-white shadow-lg"
+             : "text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-gray-900"
          }`}
        >
-         <Settings className="w-5 h-5 mr-3" strokeWidth={2} />
+         <Settings className={`w-5 h-5 mr-3 transition-transform group-hover:scale-110 group-hover:rotate-90 ${pathname === '/dashboard/settings' ? 'animate-spin' : ''}`} strokeWidth={2} />
          Settings
        </Link>
      </div>
 
       {/* User Profile Section at Bottom */}
-      <div className="p-4 border-t border-gray-200/50">
+      <div className="p-3 border-t border-gray-200/50 bg-gradient-to-r from-gray-50/50 to-transparent">
         <div className="relative" ref={dropdownRef}>
           {/* Dropdown Menu */}
           {isDropdownOpen && (
-            <div className="absolute bottom-full left-0 right-0 mb-2 bg-white/80 backdrop-blur-xl rounded-xl shadow-2xl border border-white/30 overflow-hidden z-50">
+            <div className="absolute bottom-full left-0 right-0 mb-2 bg-white/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/50 overflow-hidden z-50 animate-slideUp">
               {/* User Info Header */}
-              <div className="px-3 py-2.5 border-b border-gray-200/50 bg-white/50">
-                <p className="text-sm font-semibold text-gray-900 truncate">
+              <div className="px-4 py-3 border-b border-gray-200/50 bg-gradient-to-r from-blue-50/50 to-purple-50/50">
+                <p className="text-sm font-bold text-gray-900 truncate">
                   {getUserName()}
                 </p>
-                <p className="text-xs text-gray-500 truncate mt-0.5">
+                <p className="text-xs text-gray-600 truncate mt-0.5">
                   {getUserEmail()}
                 </p>
               </div>
@@ -187,9 +211,9 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
               {/* Logout Button */}
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-500/10 transition-colors text-left"
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50 active:bg-red-100 transition-colors text-left"
               >
-                <LogOut className="w-4 h-4" strokeWidth={2} />
+                <LogOut className="w-4 h-4" strokeWidth={2.5} />
                 <span>Log out</span>
               </button>
             </div>
@@ -198,20 +222,21 @@ const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
           {/* Profile Button */}
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-colors ${
-              isDropdownOpen ? 'bg-white/90 shadow-inner' : 'hover:bg-white/80'
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+              isDropdownOpen ? 'bg-white/90 shadow-lg scale-[0.98]' : 'hover:bg-white/70 hover:shadow-md'
             }`}
           >
-            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0 shadow-md">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg">
               {getUserInitial()}
             </div>
             <div className="flex-1 min-w-0 text-left">
-              <p className="text-sm font-semibold text-gray-900 truncate">
+              <p className="text-sm font-bold text-gray-900 truncate">
                 {getUserName()}
               </p>
+              <p className="text-xs text-gray-600 truncate">View profile</p>
             </div>
             <ChevronDown
-              className={`w-4 h-4 text-gray-500 flex-shrink-0 transition-transform ${
+              className={`w-4 h-4 text-gray-500 flex-shrink-0 transition-transform duration-200 ${
                 isDropdownOpen ? 'rotate-180' : ''
               }`}
             />

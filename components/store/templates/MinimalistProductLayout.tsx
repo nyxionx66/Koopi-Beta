@@ -83,12 +83,12 @@ export function MinimalistProductLayout({
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {variant.options.map((option, optionIndex) => {
-                      const isSelected = selectedVariants[variant.name] === option;
-                      const isDisabled = isOptionDisabled(variant.name, option);
+                      const isSelected = selectedVariants[variant.name] === option.value;
+                      const isDisabled = isOptionDisabled(variant.name, option.value);
                       return (
                         <button
                           key={optionIndex}
-                          onClick={() => handleVariantChange(variant.name, option)}
+                          onClick={() => handleVariantChange(variant.name, option.value)}
                           disabled={isDisabled}
                           className={`px-4 py-2 border-2 transition-all relative ${isDisabled ? 'cursor-not-allowed' : ''}`}
                           style={{
@@ -98,7 +98,7 @@ export function MinimalistProductLayout({
                             textDecoration: isDisabled ? 'line-through' : 'none'
                           }}
                         >
-                          {option}
+                          {option.value}
                           {isSelected && !isDisabled && (
                             <Check className="w-4 h-4 absolute -top-1 -right-1" style={{ color: theme.textColor }} />
                           )}

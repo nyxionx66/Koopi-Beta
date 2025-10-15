@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Header } from '@/components/Header';
+import { SignupBanner } from '@/components/SignupBanner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, ArrowLeft, Mail, Lock, Store, Package, Sparkles, Loader2, AlertCircle, ShoppingBag } from 'lucide-react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc, increment, runTransaction } from 'firebase/firestore';
 import { auth, db } from '../../firebase';
 import { useRouter } from 'next/navigation';
 import Lottie from "lottie-react";
@@ -110,14 +111,54 @@ function SignUpPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
       const user = userCredential.user;
 
+      // Check promo availability and claim spot atomically
+      let isPro = false;
+      const promoRef = doc(db, 'promoConfig', 'earlyAccess');
+      
+      try {
+        await runTransaction(db, async (transaction) => {
+          const promoDoc = await transaction.get(promoRef);
+          
+          if (!promoDoc.exists()) {
+            // Initialize promo config if it doesn't exist
+            transaction.set(promoRef, {
+              totalSpots: 100,
+              usedSpots: 1,
+              isActive: true,
+              createdAt: new Date(),
+            });
+            isPro = true;
+          } else {
+            const data = promoDoc.data();
+            const spotsLeft = (data.totalSpots || 100) - (data.usedSpots || 0);
+            
+            if (data.isActive && spotsLeft > 0) {
+              // Claim a spot
+              transaction.update(promoRef, {
+                usedSpots: increment(1),
+              });
+              isPro = true;
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error checking promo:', error);
+        // Continue with free plan if promo check fails
+      }
+
+      // Create user document with appropriate plan
       await setDoc(doc(db, 'users', user.uid), {
         email: user.email,
         createdAt: new Date(),
         subscription: {
-         plan: 'free',
+         plan: isPro ? 'pro' : 'free',
          status: 'active',
          productCount: 0,
          productLimit: Infinity, // Unlimited - everything is free!
+         ...(isPro && {
+           promoUser: true,
+           promoExpiry: null,
+         }),
        },
         userType: 'seller',
         onboarding: {
@@ -137,6 +178,9 @@ function SignUpPage() {
       await setDoc(doc(db, 'storeNames', formData.storeName), {
         ownerId: user.uid,
       });
+
+      // Mark that user saw the promo popup (so it doesn't show again if they visit homepage)
+      localStorage.setItem('proOfferSeen', 'true');
 
       router.push('/onboarding');
     } catch (error: any) {
@@ -170,7 +214,7 @@ function SignUpPage() {
       </div>
       
       <main className="relative z-10 pt-20 pb-20 px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           {isSubmitting ? (
             <motion.div
               key="submitting"
@@ -185,25 +229,37 @@ function SignUpPage() {
             </motion.div>
           ) : (
             <>
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-center mb-12"
-              >
-                <div className="inline-flex items-center gap-2 mb-6">
-                  <span className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
-                    Start Your Journey
-                  </span>
-                </div>
-                <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-                  Create Your Store
-                </h1>
-                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                  Join thousands of entrepreneurs building their dream business with Koopi
-                </p>
-              </motion.div>
+              {/* Desktop: Banner on left, form on right */}
+              <div className="grid lg:grid-cols-2 gap-12 items-stretch">
+                {/* Left Side - Banner (hidden on mobile) */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="hidden lg:block"
+                >
+                  <SignupBanner />
+                </motion.div>
 
-             <div className="max-w-xl mx-auto">
+                {/* Right Side - Form */}
+                <div className="flex flex-col justify-center">
+                  <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-center lg:text-left mb-8"
+                  >
+                    <div className="inline-flex items-center gap-2 mb-4">
+                      <span className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                        Start Your Journey
+                      </span>
+                    </div>
+                    <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+                      Create Your Store
+                    </h1>
+                    <p className="text-lg text-gray-600">
+                      Join thousands of entrepreneurs building their dream business
+                    </p>
+                  </motion.div>
                 <div className="backdrop-blur-2xl bg-white/70 rounded-[24px] border border-white/30 shadow-2xl p-8 md:p-10">
                   <form onSubmit={handleSubmit}>
                     <AnimatePresence mode="wait">
@@ -465,15 +521,16 @@ function SignUpPage() {
                   </form>
                 </div>
 
-                <p className="text-center text-sm text-gray-600 mt-8">
-                  Already have an account?{' '}
-                  <Link
-                    href="/login"
-                    className="font-semibold text-blue-600 hover:underline"
-                  >
-                    Sign in
-                  </Link>
-                </p>
+                  <p className="text-center lg:text-left text-sm text-gray-600 mt-8">
+                    Already have an account?{' '}
+                    <Link
+                      href="/login"
+                      className="font-semibold text-blue-600 hover:underline"
+                    >
+                      Sign in
+                    </Link>
+                  </p>
+                </div>
               </div>
             </>
           )}

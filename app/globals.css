@@ -58,3 +58,8 @@ body {
 .animate-scale-in {
   animation: scale-in 0.2s ease-out;
 }
+
+.bg-dot-pattern {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}

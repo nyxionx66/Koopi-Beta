@@ -68,7 +68,7 @@ export default function ProductDetailPage() {
           const initialVariants: { [key: string]: string } = {};
           productData.variants.forEach(variant => {
             if (variant.options.length > 0) {
-              initialVariants[variant.name] = variant.options[0];
+              initialVariants[variant.name] = variant.options[0].value;
             }
           });
           setSelectedVariants(initialVariants);
@@ -89,10 +89,10 @@ export default function ProductDetailPage() {
 
     const combinations = product.variants.reduce((acc, variant) => {
       if (acc.length === 0) {
-        return variant.options.map(option => ({ [variant.name]: option }));
+        return variant.options.map(option => ({ [variant.name]: option.value }));
       }
       return acc.flatMap(combination =>
-        variant.options.map(option => ({ ...combination, [variant.name]: option }))
+        variant.options.map(option => ({ ...combination, [variant.name]: option.value }))
       );
     }, [] as { [key: string]: string }[]);
 
@@ -168,7 +168,8 @@ export default function ProductDetailPage() {
     if (!product.inventoryTracked) return false;
     if (product.variants && product.variants.length > 0) {
       const variantKey = Object.values(selectedVariants).join(' / ');
-      return product.variantStock?.[variantKey] === 0;
+      const stock = product.variantStock?.[variantKey];
+      return stock !== undefined && stock <= 0;
     }
     return product.quantity === 0;
   };

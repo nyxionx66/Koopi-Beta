@@ -36,7 +36,7 @@ const AddProductPage = () => {
   const [quantity, setQuantity] = useState('');
   const [inventoryTracked, setInventoryTracked] = useState(false);
   const [chargeTax, setChargeTax] = useState(true);
-  const [variants, setVariants] = useState<{ name: string; options: string[] }[]>([]);
+  const [variants, setVariants] = useState<{ name: string; options: { value: string }[] }[]>([]);
   const [relatedProducts, setRelatedProducts] = useState<string[]>([]);
   const [variantStock, setVariantStock] = useState<{ [key: string]: number }>({});
   
@@ -99,6 +99,13 @@ const AddProductPage = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (inventoryTracked && variants.length > 0) {
+      const totalStock = Object.values(variantStock).reduce((acc, stock) => acc + stock, 0);
+      setQuantity(totalStock.toString());
+    }
+  }, [variantStock, inventoryTracked, variants]);
+
   const getCategoriesForType = () => {
     if (productType === 'digital') {
       return [
@@ -135,10 +142,10 @@ const AddProductPage = () => {
 
     const combinations = variants.reduce((acc, variant) => {
       if (acc.length === 0) {
-        return variant.options.map(option => ({ [variant.name]: option }));
+        return variant.options.map(option => ({ [variant.name]: option.value }));
       }
       return acc.flatMap(combination =>
-        variant.options.map(option => ({ ...combination, [variant.name]: option }))
+        variant.options.map(option => ({ ...combination, [variant.name]: option.value }))
       );
     }, [] as { [key: string]: string }[]);
 
@@ -290,7 +297,10 @@ const AddProductPage = () => {
         productType: productType,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-        variants,
+        variants: variants.map(v => ({
+          ...v,
+          options: v.options.map(o => o.value)
+        })),
         relatedProducts,
         variantStock,
         averageRating: 0,
@@ -659,6 +669,34 @@ const AddProductPage = () => {
                   </div>
                   <VariantEditor variants={variants} onChange={setVariants} />
                 </div>
+                {inventoryTracked && variants.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="space-y-4 pt-4"
+                  >
+                    <h3 className="text-lg font-medium text-gray-900">Variant Stock</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {getVariantCombinations().map((combination, index) => {
+                        const variantKey = Object.values(combination).join(' / ');
+                        return (
+                          <div key={`${variantKey}-${index}`}>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">{variantKey}</label>
+                            <input
+                              type="number"
+                              value={variantStock[variantKey] || ''}
+                              onChange={(e) => handleVariantStockChange(variantKey, e.target.value)}
+                              placeholder="0"
+                              className="w-full px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm"
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
               </motion.div>
             )}
 
@@ -755,35 +793,6 @@ const AddProductPage = () => {
                           </motion.div>
                         )}
                       </AnimatePresence>
-
-                      {inventoryTracked && variants.length > 0 && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="space-y-4 pt-4"
-                        >
-                          <h3 className="text-lg font-medium text-gray-900">Variant Stock</h3>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {getVariantCombinations().map(combination => {
-                              const variantKey = Object.values(combination).join(' / ');
-                              return (
-                                <div key={variantKey}>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">{variantKey}</label>
-                                  <input
-                                    type="number"
-                                    value={variantStock[variantKey] || ''}
-                                    onChange={(e) => handleVariantStockChange(variantKey, e.target.value)}
-                                    placeholder="0"
-                                    className="w-full px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm"
-                                  />
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </motion.div>
-                      )}
                     </div>
                   )}
 

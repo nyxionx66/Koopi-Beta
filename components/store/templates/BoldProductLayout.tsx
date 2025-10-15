@@ -83,12 +83,12 @@ export function BoldProductLayout({
                   </label>
                   <div className="flex flex-wrap gap-3">
                     {variant.options.map((option, optionIndex) => {
-                      const isSelected = selectedVariants[variant.name] === option;
-                      const isDisabled = isOptionDisabled(variant.name, option);
+                      const isSelected = selectedVariants[variant.name] === option.value;
+                      const isDisabled = isOptionDisabled(variant.name, option.value);
                       return (
                         <button
                           key={optionIndex}
-                          onClick={() => handleVariantChange(variant.name, option)}
+                          onClick={() => handleVariantChange(variant.name, option.value)}
                           disabled={isDisabled}
                           className={`px-5 py-3 border-3 rounded-md transition-all relative font-bold uppercase tracking-wide ${isDisabled ? 'cursor-not-allowed' : ''}`}
                           style={{
@@ -100,7 +100,7 @@ export function BoldProductLayout({
                             textDecoration: isDisabled ? 'line-through' : 'none'
                           }}
                         >
-                          {option}
+                          {option.value}
                           {isSelected && !isDisabled && (
                             <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center border-2" style={{ backgroundColor: theme.primaryColor, borderColor: theme.backgroundColor }}>
                               <Check className="w-3 h-3" style={{ color: theme.backgroundColor }} />

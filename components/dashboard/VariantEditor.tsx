@@ -5,7 +5,7 @@ import { Plus, Trash2 } from 'lucide-react';
 
 type Variant = {
   name: string;
-  options: string[];
+  options: { value: string }[];
 };
 
 type VariantEditorProps = {
@@ -15,7 +15,7 @@ type VariantEditorProps = {
 
 export function VariantEditor({ variants, onChange }: VariantEditorProps) {
   const handleAddVariant = () => {
-    onChange([...variants, { name: '', options: [''] }]);
+    onChange([...variants, { name: '', options: [{ value: '' }] }]);
   };
 
   const handleRemoveVariant = (index: number) => {
@@ -32,13 +32,13 @@ export function VariantEditor({ variants, onChange }: VariantEditorProps) {
 
   const handleOptionChange = (variantIndex: number, optionIndex: number, value: string) => {
     const newVariants = [...variants];
-    newVariants[variantIndex].options[optionIndex] = value;
+    newVariants[variantIndex].options[optionIndex].value = value;
     onChange(newVariants);
   };
 
   const handleAddOption = (variantIndex: number) => {
     const newVariants = [...variants];
-    newVariants[variantIndex].options.push('');
+    newVariants[variantIndex].options.push({ value: '' });
     onChange(newVariants);
   };
 
@@ -69,7 +69,7 @@ export function VariantEditor({ variants, onChange }: VariantEditorProps) {
               <div key={optionIndex} className="flex items-center gap-2">
                 <input
                   type="text"
-                  value={option}
+                  value={option.value}
                   onChange={(e) => handleOptionChange(variantIndex, optionIndex, e.target.value)}
                   placeholder="Option (e.g., Small)"
                   className="w-full px-3 py-2 bg-white/80 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-sm"

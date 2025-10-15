@@ -1,55 +1,77 @@
+'use client';
+
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { ArrowRight, Star } from "lucide-react";
 
 export function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-[#f5f5f7]">
-      {/* Background Gradients */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-white text-center">
+      {/* Animated Gradient Background */}
+      <div className="absolute inset-0 z-0">
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-blue-100"
+          animate={{
+            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+          }}
+          transition={{
+            duration: 20,
+            ease: "linear",
+            repeat: Infinity,
+          }}
+          style={{
+            backgroundSize: "400% 400%",
+          }}
+        />
       </div>
 
       {/* Content */}
-      <div className="relative z-20 max-w-7xl mx-auto px-6 lg:px-8 py-32 lg:py-40">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          {/* Left Column - Text Content */}
-          <div className="space-y-8">
-            <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold tracking-tight text-gray-900 leading-[1.1]">
-              Be the next big thing
-            </h1>
-
-            <p className="text-lg sm:text-xl text-gray-600 max-w-lg">
-              Dream big, build fast, and grow far on Koopi.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 items-start">
-              <Link
-                href="/signup"
-                className="px-8 py-4 text-base font-semibold text-white bg-blue-500 rounded-full hover:bg-blue-600 transition-all inline-block shadow-lg active:scale-95"
-              >
-                Start for free
-              </Link>
+      <div className="relative z-10 max-w-4xl mx-auto px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="flex flex-col items-center"
+        >
+          {/* Social Proof */}
+          <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full px-4 py-2 mb-6">
+            <div className="flex -space-x-2">
+              <img className="inline-block h-6 w-6 rounded-full ring-2 ring-white" src="https://randomuser.me/api/portraits/women/79.jpg" alt="User" />
+              <img className="inline-block h-6 w-6 rounded-full ring-2 ring-white" src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" />
+              <img className="inline-block h-6 w-6 rounded-full ring-2 ring-white" src="https://randomuser.me/api/portraits/women/57.jpg" alt="User" />
+            </div>
+            <div className="flex items-center text-sm text-gray-600">
+              <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
+              <span><span className="font-semibold">5.0</span> from 1,000+ reviews</span>
             </div>
           </div>
 
-          {/* Right Column - Image */}
-          <div className="hidden lg:block relative">
-            <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-white/70 backdrop-blur-xl border border-white/30 shadow-2xl">
-              <img
-                src="https://images.unsplash.com/photo-1643208589858-444e42c4c95e"
-                alt="Entrepreneur working"
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-gray-900 leading-tight">
+            Build Your Dream Store,
+            <br />
+            <span className="text-blue-500">Effortlessly</span>
+          </h1>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
-        <div className="w-6 h-10 border-2 border-gray-400/30 rounded-full flex items-start justify-center p-2">
-          <div className="w-1 h-2 bg-gray-500/50 rounded-full animate-bounce"></div>
-        </div>
+          <p className="mt-6 text-lg text-gray-600 max-w-2xl">
+            The ultimate e-commerce platform for Sri Lankan entrepreneurs. Get stunning performance, unlimited products, and zero monthly fees. Your business, your rules.
+          </p>
+
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/signup"
+              className="group inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-white bg-blue-500 rounded-full shadow-lg hover:bg-blue-600 transition-all active:scale-[0.98]"
+            >
+              Start for Free
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link
+              href="#features"
+              className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-gray-700 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-all active:scale-[0.98]"
+            >
+              Learn More
+            </Link>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

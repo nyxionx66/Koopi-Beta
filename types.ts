@@ -22,7 +22,7 @@ export type Product = {
   reviews?: Review[];
   variants?: {
     name: string;
-    options: string[];
+    options: { value: string }[];
   }[];
   variantStock?: { [key: string]: number };
   relatedProducts?: string[];

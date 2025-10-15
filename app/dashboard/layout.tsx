@@ -10,14 +10,20 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   return (
     <div className="relative min-h-screen md:flex bg-[#f5f5f7] text-neutral-800">
       {/* Sidebar */}
-      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+      <Sidebar 
+        isOpen={isSidebarOpen} 
+        setIsOpen={setIsSidebarOpen}
+        isCollapsed={isSidebarCollapsed}
+        setIsCollapsed={setIsSidebarCollapsed}
+      />
 
       {/* Main Content */}
-      <main className="flex-1 md:ml-64 transition-all duration-300">
+      <main className={`flex-1 transition-all duration-300 ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'}`}>
         {/* Mobile Top Bar */}
         <div className="md:hidden sticky top-0 z-20 backdrop-blur-xl bg-white/80 border-b border-white/30 shadow-sm">
           <div className="flex items-center justify-between px-4 py-3">

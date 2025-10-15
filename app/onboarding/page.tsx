@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useRef, ChangeEvent } from 'react';
+import { useState, useRef, ChangeEvent, useEffect } from 'react';
 import withOnboarding from '@/components/withOnboarding';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { db, storage } from '@/firebase';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, setDoc, getDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadString, getDownloadURL } from "firebase/storage";
-import { Store, Globe, Users, Package, Zap, ShoppingCart, Target, Sparkles, Check, ArrowRight, Image as ImageIcon, Upload } from 'lucide-react';
+import { Store, Globe, Users, Package, Zap, ShoppingCart, Target, Sparkles, Check, ArrowRight, Image as ImageIcon, Upload, Loader2, AlertCircle } from 'lucide-react';
 import Lottie from "lottie-react";
 import animationData from "@/public/loading-animation.json";
 
@@ -194,10 +194,32 @@ const Step1 = ({ onNext }: { onNext: (data: any) => void }) => {
 const Step2 = ({ onNext }: { onNext: (data: any) => void }) => {
   const { user } = useAuth();
   const [storeName, setStoreName] = useState('');
+  const [storeNameSlug, setStoreNameSlug] = useState('');
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [storeNameStatus, setStoreNameStatus] = useState<'checking' | 'available' | 'unavailable' | 'idle'>('idle');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (storeNameSlug.length <= 2) {
+      setStoreNameStatus('idle');
+      return;
+    }
+
+    setStoreNameStatus('checking');
+    const debounceCheck = setTimeout(async () => {
+      try {
+        const storeNameDoc = await getDoc(doc(db, 'storeNames', storeNameSlug));
+        setStoreNameStatus(storeNameDoc.exists() ? 'unavailable' : 'available');
+      } catch (error) {
+        console.error('Error checking store name:', error);
+        setStoreNameStatus('idle');
+      }
+    }, 500);
+
+    return () => clearTimeout(debounceCheck);
+  }, [storeNameSlug]);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -219,8 +241,24 @@ const Step2 = ({ onNext }: { onNext: (data: any) => void }) => {
     return `data:image/svg+xml;base64,${btoa(svg)}`;
   };
 
+  const slugify = (text: string) => {
+    return text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^\w\-]+/g, '')
+      .replace(/\-\-+/g, '-');
+  };
+
+  const handleStoreNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const name = e.target.value;
+    setStoreName(name);
+    setStoreNameSlug(slugify(name));
+  };
+
   const handleContinue = async () => {
-    if (!storeName.trim() || !user) return;
+    if (!storeName.trim() || !user || storeNameStatus !== 'available') return;
     setIsUploading(true);
 
     let logoUrl = '';
@@ -235,7 +273,7 @@ const Step2 = ({ onNext }: { onNext: (data: any) => void }) => {
         await uploadString(storageRef, placeholderSvg, 'data_url');
         logoUrl = await getDownloadURL(storageRef);
       }
-      onNext({ storeName, storeLogoUrl: logoUrl });
+      onNext({ storeName: storeNameSlug, storeLogoUrl: logoUrl });
     } catch (error) {
       console.error("Error uploading logo:", error);
       // Handle error (e.g., show a toast message)
@@ -283,10 +321,33 @@ const Step2 = ({ onNext }: { onNext: (data: any) => void }) => {
               id="storeName"
               type="text"
               value={storeName}
-              onChange={(e) => setStoreName(e.target.value)}
+              onChange={handleStoreNameChange}
               placeholder="e.g., My Awesome Store"
               className="w-full p-4 rounded-xl border-2 border-gray-300/50 bg-white/80 focus:border-blue-500 focus:ring-blue-500 transition-all"
             />
+            {storeNameSlug && (
+              <p className="text-sm text-gray-500 mt-2">
+                Your store URL will be: <span className="font-semibold text-gray-700">/store/{storeNameSlug}</span>
+              </p>
+            )}
+            {storeNameStatus === 'checking' && (
+              <div className="flex items-center gap-2 mt-3 text-sm text-gray-600">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Checking availability...
+              </div>
+            )}
+            {storeNameStatus === 'available' && (
+              <div className="flex items-center gap-2 mt-3 text-sm text-green-600">
+                <Check className="w-4 h-4" />
+                Great! This name is available
+              </div>
+            )}
+            {storeNameStatus === 'unavailable' && (
+              <div className="flex items-center gap-2 mt-3 text-sm text-red-600">
+                <AlertCircle className="w-4 h-4" />
+                This name is already taken
+              </div>
+            )}
           </motion.div>
 
           <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0 } }} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
@@ -327,7 +388,7 @@ const Step2 = ({ onNext }: { onNext: (data: any) => void }) => {
         >
           <button
             onClick={handleContinue}
-            disabled={!storeName.trim() || isUploading}
+            disabled={!storeName.trim() || isUploading || storeNameStatus !== 'available'}
             className="flex items-center gap-2 px-6 py-3 text-base font-semibold text-white bg-blue-500 rounded-full hover:bg-blue-600 transition-all active:scale-95 shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {isUploading ? 'Uploading...' : 'Continue'} <ArrowRight className="w-5 h-5" />
@@ -511,12 +572,45 @@ const OnboardingPage = () => {
     setIsCompleting(true);
     if (user) {
       const userDocRef = doc(db, 'users', user.uid);
+      const storeDocRef = doc(db, 'stores', user.uid);
+
+      // 1. Update the user document
       await updateDoc(userDocRef, {
         onboarding: {
           ...finalData,
           isCompleted: true,
-        }
+        },
+        storeName: finalData.storeName,
+        storeLogoUrl: finalData.storeLogoUrl,
       });
+
+      // 2. Create the store document
+      await setDoc(storeDocRef, {
+        ownerId: user.uid,
+        storeName: finalData.storeName,
+        storeDescription: '', // Default empty description
+        storeCategory: '', // Default empty category
+        website: { // Default website settings
+          enabled: false,
+          logo: finalData.storeLogoUrl,
+          templateId: 'classic',
+          theme: {
+            primaryColor: '#000000',
+            accentColor: '#333333',
+            backgroundColor: '#ffffff',
+            textColor: '#000000',
+            fontFamily: 'inter',
+          },
+          hero: {
+            title: `Welcome to ${finalData.storeName}`,
+            subtitle: 'Discover amazing products',
+            ctaText: 'Shop Now',
+            alignment: 'left',
+            backgroundImage: '',
+          },
+        },
+      });
+
       router.push('/dashboard');
     }
   };

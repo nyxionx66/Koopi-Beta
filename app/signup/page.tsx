@@ -16,8 +16,6 @@ import withoutAuth from '@/components/withoutAuth';
 
 const steps = [
   { id: 1, title: 'Create Account', icon: Mail, description: 'Set up your login credentials' },
-  { id: 2, title: 'Store Details', icon: Store, description: 'Name and customize your store' },
-  { id: 3, title: 'Store Info', icon: ShoppingBag, description: 'Tell us about your business' },
 ];
 
 function SignUpPage() {
@@ -174,17 +172,6 @@ function SignUpPage() {
         },
       });
 
-      await setDoc(doc(db, 'stores', user.uid), {
-        ownerId: user.uid,
-        storeName: formData.storeName,
-        storeDescription: formData.storeDescription,
-        storeCategory: formData.storeCategory,
-        createdAt: new Date(),
-      });
-      
-      await setDoc(doc(db, 'storeNames', formData.storeName), {
-        ownerId: user.uid,
-      });
 
       // Mark that user saw the promo popup (so it doesn't show again if they visit homepage)
       localStorage.setItem('proOfferSeen', 'true');
@@ -492,27 +479,6 @@ function SignUpPage() {
                             </div>
                           </div>
 
-                          {/* Terms and Conditions Checkbox */}
-                          <div className="mt-6">
-                            <label className="flex items-start gap-3 cursor-pointer group">
-                              <input
-                                type="checkbox"
-                                checked={formData.agreeToTerms}
-                                onChange={(e) => setFormData({ ...formData, agreeToTerms: e.target.checked })}
-                                className="w-5 h-5 text-blue-500 rounded border-gray-300 focus:ring-2 focus:ring-blue-500 mt-0.5 cursor-pointer"
-                              />
-                              <span className="text-sm text-gray-700 leading-relaxed">
-                                I agree to the{' '}
-                                <Link href="/terms" target="_blank" className="font-semibold text-blue-600 hover:underline">
-                                  Terms and Conditions
-                                </Link>
-                                {' '}and{' '}
-                                <Link href="/terms" target="_blank" className="font-semibold text-blue-600 hover:underline">
-                                  Privacy Policy
-                                </Link>
-                              </span>
-                            </label>
-                          </div>
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -528,22 +494,33 @@ function SignUpPage() {
                       </motion.div>
                     )}
 
+                    <div className="mt-6">
+                      <label className="flex items-start gap-3 cursor-pointer group">
+                        <input
+                          type="checkbox"
+                          checked={formData.agreeToTerms}
+                          onChange={(e) => setFormData({ ...formData, agreeToTerms: e.target.checked })}
+                          className="w-5 h-5 text-blue-500 rounded border-gray-300 focus:ring-2 focus:ring-blue-500 mt-0.5 cursor-pointer"
+                        />
+                        <span className="text-sm text-gray-700 leading-relaxed">
+                          I agree to the{' '}
+                          <Link href="/terms" target="_blank" className="font-semibold text-blue-600 hover:underline">
+                            Terms and Conditions
+                          </Link>
+                          {' '}and{' '}
+                          <Link href="/privacy" target="_blank" className="font-semibold text-blue-600 hover:underline">
+                            Privacy Policy
+                          </Link>
+                        </span>
+                      </label>
+                    </div>
+
                     <div className="flex gap-4 mt-8">
-                      {currentStep > 1 && (
-                        <button
-                          type="button"
-                          onClick={handlePrev}
-                          className="flex items-center justify-center gap-2 px-6 py-4 text-base font-semibold text-gray-700 bg-white/80 border border-gray-300 rounded-full hover:bg-white transition-all active:scale-95 shadow-sm"
-                        >
-                          <ArrowLeft className="w-5 h-5" /> Back
-                        </button>
-                      )}
                       <button
                         type="submit"
-                        disabled={!isStepValid()}
                         className="flex-1 flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-white bg-blue-500 rounded-full hover:bg-blue-600 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                       >
-                        {currentStep === steps.length ? 'Create Store' : 'Continue'}
+                        Create Account
                         <ArrowRight className="w-5 h-5" />
                       </button>
                     </div>

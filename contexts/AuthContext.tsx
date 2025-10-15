@@ -26,7 +26,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const userDocRef = doc(db, 'users', user.uid);
         const unsubscribeProfile = onSnapshot(userDocRef, (doc) => {
           if (doc.exists()) {
-            setUserProfile({ uid: doc.id, ...doc.data() } as UserProfile);
+            const data = doc.data();
+            // Correctly construct the userProfile by lifting nested onboarding data
+            const profile: UserProfile = {
+              uid: doc.id,
+              email: user.email || '',
+              ...data,
+              storeName: data.storeName || data.onboarding?.storeName,
+              storeLogoUrl: data.storeLogoUrl || data.onboarding?.storeLogoUrl,
+            };
+            setUserProfile(profile);
           }
           setLoading(false);
         });

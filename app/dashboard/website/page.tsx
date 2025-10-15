@@ -337,7 +337,7 @@ export default function WebsitePage() {
     );
   }
 
-  const storeUrl = storeName ? `/store/${storeName}` : '#';
+  const storeUrl = userProfile?.storeName ? `/store/${userProfile.storeName}` : '#';
 
   const renderSection = (sectionKey: string) => {
     switch (sectionKey) {
@@ -559,7 +559,7 @@ export default function WebsitePage() {
                 <div className="flex items-center gap-2 text-sm text-gray-600 flex-wrap">
                   <span>Your URL:</span>
                   <Link href={storeUrl} target="_blank" className="font-medium text-gray-900 hover:underline break-all">
-                    {typeof window !== 'undefined' ? window.location.origin : ''}/store/{storeName}
+                    {typeof window !== 'undefined' ? window.location.origin : ''}{storeUrl}
                   </Link>
                 </div>
               )}

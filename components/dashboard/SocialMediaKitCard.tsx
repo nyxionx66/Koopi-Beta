@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Share2, Sparkles, ArrowRight, X, Palette } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SocialMediaKit from './SocialMediaKit';
@@ -70,7 +71,7 @@ export default function SocialMediaKitCard({ storeName, storeUrl, onDismiss }: S
           </div>
         </div>
 
-        <div className="mt-auto pt-6">
+        <div className="mt-auto pt-6 flex flex-col sm:flex-row items-center gap-3">
           <button
             onClick={() => setShowKit(true)}
             className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-full text-sm font-medium hover:bg-blue-600 transition-colors shadow-md active:scale-95 w-full justify-center"
@@ -78,6 +79,14 @@ export default function SocialMediaKitCard({ storeName, storeUrl, onDismiss }: S
             Create Launch Post
             <ArrowRight className="w-4 h-4" />
           </button>
+          <Link href="/dashboard/marketing-studio" className="w-full">
+            <button
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-full text-sm font-medium hover:bg-black transition-colors shadow-md active:scale-95 w-full justify-center"
+            >
+              <Sparkles className="w-4 h-4" />
+              Marketing Studio
+            </button>
+          </Link>
         </div>
       </motion.div>
 

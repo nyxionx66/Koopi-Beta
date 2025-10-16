@@ -165,7 +165,6 @@ function SignUpPage() {
            promoExpiry: null,
          } : {}),
        },
-        userType: 'seller',
         onboarding: {
           addedFirstProduct: false,
           customizedStore: false,

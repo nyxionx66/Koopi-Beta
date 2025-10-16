@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
+import { onAuthStateChanged, User, signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { UserProfile } from '@/types';
@@ -28,14 +28,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           if (doc.exists()) {
             const data = doc.data();
             // Correctly construct the userProfile by lifting nested onboarding data
-            const profile: UserProfile = {
+            const profile = {
+              ...data,
               uid: doc.id,
               email: user.email || '',
-              ...data,
-              storeName: data.storeName || data.onboarding?.storeName,
-              storeLogoUrl: data.storeLogoUrl || data.onboarding?.storeLogoUrl,
+              storeName: data.storeName || (data.onboarding as any)?.storeName,
+              storeLogoUrl: data.storeLogoUrl || (data.onboarding as any)?.storeLogoUrl,
             };
-            setUserProfile(profile);
+            setUserProfile(profile as UserProfile);
           }
           setLoading(false);
         });
